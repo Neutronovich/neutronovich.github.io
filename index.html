@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini App + TON</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk"></script>
+</head>
+<body>
+    <h1>Оплата 1 TON</h1>
+    <button id="connect">Подключить TON Кошелек</button>
+    <button id="pay" disabled>Оплатить 1 TON</button>
+
+    <script>
+        const { TonConnect } = window.tonconnect;
+        const tonConnect = new TonConnect();
+
+        async function connectWallet() {
+            await tonConnect.connectWallet();
+            document.getElementById("pay").disabled = false;
+        }
+
+        async function sendPayment() {
+            const transaction = {
+                to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
+                amount: "1000000000", // 1 TON в нанотонах
+            };
+            await tonConnect.sendTransaction(transaction);
+        }
+
+        document.getElementById("connect").addEventListener("click", connectWallet);
+        document.getElementById("pay").addEventListener("click", sendPayment);
+    </script>
+</body>
+</html>
