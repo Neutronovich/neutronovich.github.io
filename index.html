@@ -8,25 +8,40 @@
     <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest"></script>
 </head>
 <body>
-    <h1>Оплата 1 TON</h1>
+    <h1>Подключение TON Кошелька</h1>
     <button id="connect">Подключить TON Кошелек</button>
     <button id="pay" disabled>Оплатить 1 TON</button>
-
+    
     <script>
-        const { TonConnect } = window.tonconnect;
-        const tonConnect = new TonConnect();
+        // 1. Инициализация TON Connect
+        const tonConnect = new TON_CONNECT.TonConnect({
+            manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json"
+        });
 
+        // 2. Функция для подключения кошелька
         async function connectWallet() {
-            await tonConnect.connectWallet();
-            document.getElementById("pay").disabled = false;
+            try {
+                await tonConnect.connectWallet();
+                document.getElementById("pay").disabled = false;
+                alert("Кошелек подключен!");
+            } catch (error) {
+                alert("Ошибка подключения: " + error.message);
+            }
         }
 
+        // 3. Функция для отправки платежа
         async function sendPayment() {
-            const transaction = {
-                to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
-                amount: "1000000000", // 1 TON в нанотонах
-            };
-            await tonConnect.sendTransaction(transaction);
+            try {
+                const transaction = {
+                    to: "EQABCD123...XYZ", // Замени на свой TON-адрес
+                    amount: "1000000000", // 1 TON в нанотонах
+                };
+
+                await tonConnect.sendTransaction(transaction);
+                alert("Транзакция отправлена!");
+            } catch (error) {
+                alert("Ошибка транзакции: " + error.message);
+            }
         }
 
         document.getElementById("connect").addEventListener("click", connectWallet);
