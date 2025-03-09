@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini App + TON</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest"></script>
 </head>
 <body>
     <h1>Подключение TON Кошелька</h1>
     <button id="connect">Подключить TON Кошелек</button>
     <button id="pay" disabled>Оплатить 1 TON</button>
-    
-    <script>
+
+    <script type="module">
+        import { TonConnect } from "https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js";
+
         // 1. Инициализация TON Connect
-        const tonConnect = new TON_CONNECT.TonConnect({
+        const tonConnect = new TonConnect({
             manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json"
         });
 
-        // 2. Функция для подключения кошелька
+        // 2. Подключение кошелька
         async function connectWallet() {
             try {
                 await tonConnect.connectWallet();
@@ -29,7 +30,7 @@
             }
         }
 
-        // 3. Функция для отправки платежа
+        // 3. Отправка платежа
         async function sendPayment() {
             try {
                 const transaction = {
@@ -49,3 +50,4 @@
     </script>
 </body>
 </html>
+
