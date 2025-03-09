@@ -1,63 +1,31 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini App + TON</title>
-  <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
-  <!-- Используем UMD-бандл TON Connect SDK с атрибутом defer -->
-  <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@2.0.0/dist/tonconnect.umd.min.js"></script>
-
-  <script defer>
-    document.addEventListener("DOMContentLoaded", async function () {
-      // Проверяем, загружен ли SDK
-      if (!window.TonConnect) {
-        console.error("TonConnect SDK не загружен");
-        return;
-      }
-      
-      // Инициализация TON Connect
-      const tonConnect = new TonConnect({
-        manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json"
-      });
-      console.log("TonConnect instance:", tonConnect);
-
-      // Функция для подключения кошелька
-      async function connectWallet() {
-        try {
-          await tonConnect.connect();
-          document.getElementById("pay").disabled = false;
-          alert("Кошелек подключен!");
-        } catch (error) {
-          alert("Ошибка подключения: " + error.message);
-        }
-      }
-
-      // Функция для отправки платежа
-      async function sendPayment() {
-        try {
-          const transaction = {
-            to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd", // Замените на нужный TON-адрес
-            amount: "1000000000", // 1 TON в нанотонах
-          };
-
-          await tonConnect.sendTransaction(transaction);
-          alert("Транзакция отправлена!");
-        } catch (error) {
-          alert("Ошибка транзакции: " + error.message);
-        }
-      }
-
-      document.getElementById("connect").addEventListener("click", connectWallet);
-      document.getElementById("pay").addEventListener("click", sendPayment);
-    });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini App с TonConnect UI</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-  <h1>Подключение TON Кошелька</h1>
-  <button id="connect">Подключить TON Кошелек</button>
-  <button id="pay" disabled>Оплатить 1 TON</button>
+    <h1>Подключение TON Кошелька</h1>
+    <ton-connect-button></ton-connect-button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tonConnectUI = new TonConnectUI.TonConnectUI({
+                manifestUrl: 'https://neutronovich.github.io/tonconnect-manifest.json'
+            });
+
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet) {
+                    alert('Кошелек подключен!');
+                    // Здесь можно добавить логику для отправки платежа
+                } else {
+                    alert('Кошелек отключен!');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-
-
