@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App + TON</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script type="module">
-    // Импортируем SDK TON Connect из CDN
-    import { TonConnect } from "https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/index.js";
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Mini App: TON Connect</title>
+  <!-- Подключаем скрипт Telegram WebApp -->
+  <script src="https://telegram.org/js/telegram-webapp.js"></script>
+  <script type="module">
+    // Импортируем SDK TON Connect из CDN (версия 2.3.2)
+    import { TonConnect } from "https://cdn.jsdelivr.net/npm/@tonconnect/sdk@2.3.2/dist/tonconnect.esm.js";
+
+    // Инициализируем Telegram WebApp (опционально: можно вызвать расширение интерфейса)
+    Telegram.WebApp.ready();
 
     // Инициализация TON Connect
     const tonConnect = new TonConnect();
 
-    // Функция подключения кошелька
+    // Функция подключения кошелька через TON Connect
     async function connectWallet() {
       try {
         await tonConnect.connect();
         console.log("Кошелек подключен:", tonConnect.wallet);
-        alert("Кошелек подключен: " + tonConnect.wallet?.account.address);
+        Telegram.WebApp.showAlert("Кошелек подключен: " + tonConnect.wallet?.account.address);
       } catch (error) {
         console.error("Ошибка подключения кошелька:", error);
-        alert("Ошибка подключения кошелька.");
+        Telegram.WebApp.showAlert("Ошибка подключения кошелька.");
       }
     }
 
     // Функция отправки транзакции на 1 TON
     async function sendTransaction() {
       if (!tonConnect.wallet) {
-        alert("Сначала подключите кошелек.");
+        Telegram.WebApp.showAlert("Сначала подключите кошелек.");
         return;
       }
       // 1 TON = 1 000 000 000 нанотонов
       const amount = "1000000000"; // 1 TON
-
       // Формируем объект транзакции
       const transaction = {
-        to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd", // Замените на адрес получателя
+        to: "RECIPIENT_ADDRESS", // Замените на адрес получателя
         value: amount,
-        // При необходимости можно добавить дополнительные параметры (например, bounce, payload и т.д.)
+        // Дополнительные параметры можно добавить при необходимости
       };
 
       try {
         const result = await tonConnect.sendTransaction(transaction);
         console.log("Результат транзакции:", result);
-        alert("Транзакция отправлена. Результат: " + JSON.stringify(result));
+        Telegram.WebApp.showAlert("Транзакция отправлена. Результат: " + JSON.stringify(result));
       } catch (error) {
         console.error("Ошибка транзакции:", error);
-        alert("Ошибка транзакции: " + error.message);
+        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
       }
     }
 
-    // После загрузки DOM добавляем обработчики событий для кнопок
+    // После загрузки DOM назначаем обработчики для кнопок
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWallet").addEventListener("click", connectWallet);
       document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
@@ -58,10 +61,8 @@
   </script>
 </head>
 <body>
-    <h1>Подключение TON Кошелька</h1>
-    <h1>Демо: Подключение кошелька TON и отправка 1 TON</h1>
+  <h1>Telegram Mini App: TON Connect Demo</h1>
   <button id="connectWallet">Подключить кошелек</button>
   <button id="sendTransaction">Отправить 1 TON</button>
-    </script>
 </body>
 </html>
