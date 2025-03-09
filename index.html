@@ -5,27 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini App + TON</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script type="module">
+    // Импортируем SDK TON Connect из CDN
+    import { TonConnect } from "https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/index.js";
+
+    // Инициализация TON Connect
+    const tonConnect = new TonConnect();
+
+    // Функция подключения кошелька
+    async function connectWallet() {
+      try {
+        await tonConnect.connect();
+        console.log("Кошелек подключен:", tonConnect.wallet);
+        alert("Кошелек подключен: " + tonConnect.wallet?.account.address);
+      } catch (error) {
+        console.error("Ошибка подключения кошелька:", error);
+        alert("Ошибка подключения кошелька.");
+      }
+    }
+
+    // Функция отправки транзакции на 1 TON
+    async function sendTransaction() {
+      if (!tonConnect.wallet) {
+        alert("Сначала подключите кошелек.");
+        return;
+      }
+      // 1 TON = 1 000 000 000 нанотонов
+      const amount = "1000000000"; // 1 TON
+
+      // Формируем объект транзакции
+      const transaction = {
+        to: "RECIPIENT_ADDRESS", // Замените на адрес получателя
+        value: amount,
+        // При необходимости можно добавить дополнительные параметры (например, bounce, payload и т.д.)
+      };
+
+      try {
+        const result = await tonConnect.sendTransaction(transaction);
+        console.log("Результат транзакции:", result);
+        alert("Транзакция отправлена. Результат: " + JSON.stringify(result));
+      } catch (error) {
+        console.error("Ошибка транзакции:", error);
+        alert("Ошибка транзакции: " + error.message);
+      }
+    }
+
+    // После загрузки DOM добавляем обработчики событий для кнопок
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("connectWallet").addEventListener("click", connectWallet);
+      document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
+    });
+  </script>
 </head>
 <body>
     <h1>Подключение TON Кошелька</h1>
-    <ton-connect-button></ton-connect-button>
-
-    <script type="module">
-        import { TonConnectUI } from "https://cdn.jsdelivr.net/npm/@tonconnect/ui@0.0.27/dist/tonconnect-ui.min.js";
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const tonConnectUI = new TonConnectUI({
-                manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json"
-            });
-
-            tonConnectUI.onStatusChange(wallet => {
-                if (wallet) {
-                    alert("Кошелек подключен!");
-                } else {
-                    alert("Кошелек отключен!");
-                }
-            });
-        });
+    <h1>Демо: Подключение кошелька TON и отправка 1 TON</h1>
+  <button id="connectWallet">Подключить кошелек</button>
+  <button id="sendTransaction">Отправить 1 TON</button>
     </script>
 </body>
 </html>
