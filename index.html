@@ -9,17 +9,22 @@
   <!-- Подключаем локально минифицированный TON Connect SDK -->
   <script src="./js/tonconnect-sdk.min.js"></script>
   <script>
-    // После загрузки SDK он доступен через глобальную переменную TonConnectSDK.
-    // Создаём экземпляр TON Connect.
+    // Если Telegram не определён (например, при локальном тестировании), создаём заглушку
+    if (typeof Telegram === "undefined") {
+      window.Telegram = {
+        WebApp: {
+          ready: () => console.log("Telegram WebApp ready stub"),
+          showAlert: (msg) => alert(msg)
+        }
+      };
+    } else {
+      Telegram.WebApp.ready();
+    }
+
+    // Для работы с TON Connect используем глобальную переменную из SDK
     const TonConnect = TonConnectSDK.TonConnect;
-
-    // Инициализируем Telegram WebApp
-    Telegram.WebApp.ready();
-
-    // Создаём экземпляр TON Connect
     const tonConnect = new TonConnect();
 
-    // Функция для подключения кошелька
     async function connectWallet() {
       try {
         await tonConnect.connect();
@@ -31,18 +36,14 @@
       }
     }
 
-    // Функция для отправки транзакции на 1 TON
     async function sendTransaction() {
       if (!tonConnect.wallet) {
         Telegram.WebApp.showAlert("Сначала подключите кошелек.");
         return;
       }
-      // 1 TON = 1 000 000 000 нанотонов
-      const amount = "1000000000"; // 1 TON
-
-      // Формируем объект транзакции
+      const amount = "1000000000"; // 1 TON в нанотонах
       const transaction = {
-        to: "RECIPIENT_ADDRESS", // Замените на актуальный адрес получателя
+        to: "RECIPIENT_ADDRESS", // Замените на действительный адрес получателя
         value: amount,
       };
 
@@ -56,7 +57,6 @@
       }
     }
 
-    // Назначаем обработчики для кнопок после загрузки DOM
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWallet").addEventListener("click", connectWallet);
       document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
@@ -68,5 +68,3 @@
   <button id="connectWallet">Подключить кошелек</button>
   <button id="sendTransaction">Отправить 1 TON</button>
 </body>
-</html>
-
