@@ -6,10 +6,10 @@
   <title>Telegram Mini App: TON Connect Demo</title>
   <!-- Подключаем Telegram WebApp API -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <!-- Подключаем локально минифицированный TON Connect SDK (версия 3.0.7) -->
+  <!-- Подключаем минифицированный TON Connect SDK (версия 3.0.7) -->
   <script src="./js/tonconnect-sdk.min.js"></script>
   <script>
-    // Если Telegram не определён (например, для локального тестирования), создаём заглушку
+    // Если Telegram не определён, делаем заглушку для локальных тестов
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -21,11 +21,9 @@
       Telegram.WebApp.ready();
     }
 
-    // Инициализируем TON Connect с явной конфигурацией
+    // Явно указываем настройки TON Connect
     const tonConnect = new TonConnectSDK.TonConnect({
-      // Укажите URL вашего манифеста
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
-      // Явно указываем список поддерживаемых кошельков
       walletsListSource: [
         {
           name: "Tonkeeper",
@@ -37,28 +35,25 @@
       ]
     });
 
-    // Функция подключения кошелька
     async function connectWallet() {
       try {
         await tonConnect.connect();
         console.log("Кошелек подключен:", tonConnect.wallet);
-        Telegram.WebApp.showAlert("Кошелек подключен: " + (tonConnect.wallet && tonConnect.wallet.account ? tonConnect.wallet.account.address : ""));
+        Telegram.WebApp.showAlert("Кошелек подключен: " + tonConnect.wallet?.account.address);
       } catch (error) {
         console.error("Ошибка подключения кошелька:", error);
         Telegram.WebApp.showAlert("Ошибка подключения кошелька: " + error.message);
       }
     }
 
-    // Функция отправки транзакции на 1 TON
     async function sendTransaction() {
       if (!tonConnect.wallet) {
         Telegram.WebApp.showAlert("Сначала подключите кошелек.");
         return;
       }
-      // 1 TON = 1 000 000 000 нанотонов
-      const amount = "1000000000"; // 1 TON
+      const amount = "1000000000"; // 1 TON в нанотонах
       const transaction = {
-        to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd", // Замените на актуальный адрес получателя
+        to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
         value: amount,
       };
 
@@ -72,7 +67,6 @@
       }
     }
 
-    // Назначаем обработчики для кнопок после загрузки DOM
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWallet").addEventListener("click", connectWallet);
       document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
