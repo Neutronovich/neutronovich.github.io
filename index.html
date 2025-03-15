@@ -7,8 +7,8 @@
   <!-- Подключаем скрипт Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script type="module" crossorigin="anonymous">
-    // Импортируем SDK TON Connect через unpkg (версия 2.3.2)
-    import { TonConnect } from "https://unpkg.com/@tonconnect/sdk@2.3.2/dist/tonconnect.esm.js";
+    // Импортируем локально SDK TON Connect
+    import { TonConnect } from "./js/tonconnect-sdk.min.js.map";
 
     // Инициализируем Telegram WebApp
     Telegram.WebApp.ready();
@@ -36,9 +36,10 @@
       }
       // 1 TON = 1 000 000 000 нанотонов
       const amount = "1000000000"; // 1 TON
+
       // Формируем объект транзакции
       const transaction = {
-        to: "RECIPIENT_ADDRESS", // Замените на адрес получателя
+        to: "RECIPIENT_ADDRESS", // Замените на реальный адрес получателя
         value: amount,
       };
 
@@ -52,7 +53,7 @@
       }
     }
 
-    // После загрузки DOM назначаем обработчики для кнопок
+    // Назначаем обработчики для кнопок после загрузки DOM
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWallet").addEventListener("click", connectWallet);
       document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
