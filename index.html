@@ -3,18 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com; style-src 'self' https://unpkg.com; connect-src 'self' https://bridge.tonapi.io;">
+
+  <meta http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com;
+      style-src 'self' 'unsafe-inline' https://unpkg.com;
+      connect-src 'self' https://bridge.tonapi.io;
+      font-src 'self' https://unpkg.com;
+      img-src 'self' data: https://unpkg.com https://tonkeeper.com;
+    ">
 
   <title>Telegram Mini App: TON Connect UI Demo</title>
 
   <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  
+
   <!-- TON Connect SDK -->
   <script src="./js/tonconnect-sdk.min.js"></script>
 
-  <!-- TON Connect UI -->
+  <!-- TON Connect UI CSS -->
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
+  
+  <!-- TON Connect UI JS -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
