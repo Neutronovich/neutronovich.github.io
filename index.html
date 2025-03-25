@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org; object-src 'none'; style-src 'self'; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://tonkeeper.com; object-src 'none'; style-src 'self'; connect-src 'self' https://app.tonkeeper.com;">
 
   <title>Telegram Mini App: TON Connect Demo</title>
-  <!-- Подключаем Telegram WebApp API -->
+
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <!-- Подключаем минифицированный TON Connect SDK (версия 3.0.7) -->
   <script src="./js/tonconnect-sdk.min.js"></script>
+
   <script>
-    // Если Telegram не определён, делаем заглушку для локальных тестов
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -23,26 +22,29 @@
       Telegram.WebApp.ready();
     }
 
-    // Явно указываем настройки TON Connect
     const tonConnect = new TonConnectSDK.TonConnect({
-  manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
-  walletsListSource: [
-    {
-      name: "Tonkeeper",
-      jsBridgeKey: "tonkeeper",
-      imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
-      aboutUrl: "https://tonkeeper.com",
-      universal_url: "https://app.tonkeeper.com/ton-connect"
-    }
-    // можно добавить и другие кошельки
-  ]
-});
+      manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
+      walletsListSource: "https://raw.githubusercontent.com/ton-connect/wallets-list/main/wallets.json"
+    });
 
     async function connectWallet() {
       try {
-        await tonConnect.connect();
-        console.log("Кошелек подключен:", tonConnect.wallet);
-        Telegram.WebApp.showAlert("Кошелек подключен: " + tonConnect.wallet?.account.address);
+        const walletsList = await tonConnect.getWallets();
+        const tonkeeper = walletsList.find(wallet => wallet.name.toLowerCase() === 'tonkeeper');
+
+        if (!tonkeeper) {
+          Telegram.WebApp.showAlert('Tonkeeper не найден в списке кошельков.');
+          return;
+        }
+
+        // Генерируем ссылку подключения через Tonkeeper
+        const universalLink = tonConnect.connect({
+          universalLink: tonkeeper.universalLink,
+          bridgeUrl: tonkeeper.bridgeUrl
+        });
+
+        // Открываем Tonkeeper
+        window.open(universalLink, '_blank');
       } catch (error) {
         console.error("Ошибка подключения кошелька:", error);
         Telegram.WebApp.showAlert("Ошибка подключения кошелька: " + error.message);
@@ -54,7 +56,7 @@
         Telegram.WebApp.showAlert("Сначала подключите кошелек.");
         return;
       }
-      const amount = "1000000000"; // 1 TON в нанотонах
+      const amount = "1000000000"; // 1 TON
       const transaction = {
         to: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
         value: amount,
@@ -78,7 +80,7 @@
 </head>
 <body>
   <h1>Telegram Mini App: TON Connect Demo</h1>
-  <button id="connectWallet">Подключить кошелек</button>
+  <button id="connectWallet">Подключить Tonkeeper</button>
   <button id="sendTransaction">Отправить 1 TON</button>
 </body>
 </html>
