@@ -24,17 +24,18 @@
 
     // Явно указываем настройки TON Connect
     const tonConnect = new TonConnectSDK.TonConnect({
-      manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
-      walletsListSource: [
-        {
-          name: "Tonkeeper",
-          jsBridgeKey: "tonkeeper",
-          imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
-          aboutUrl: "https://tonkeeper.com",
-          universal_url: "https://app.tonkeeper.com/ton-connect"
-        }
-      ]
-    });
+  manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
+  walletsListSource: [
+    {
+      name: "Tonkeeper",
+      jsBridgeKey: "tonkeeper",
+      imageUrl: "https://tonkeeper.com/assets/tonconnect-icon.png",
+      aboutUrl: "https://tonkeeper.com",
+      universal_url: "https://app.tonkeeper.com/ton-connect"
+    }
+    // можно добавить и другие кошельки
+  ]
+});
 
     async function connectWallet() {
       try {
