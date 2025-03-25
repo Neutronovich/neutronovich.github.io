@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://telegram.org;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org; object-src 'none'; style-src 'self'; connect-src 'self'">
+
   <title>Telegram Mini App: TON Connect Demo</title>
   <!-- Подключаем Telegram WebApp API -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
