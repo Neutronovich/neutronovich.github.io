@@ -3,12 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://tonkeeper.com; object-src 'none'; style-src 'self'; connect-src 'self' https://app.tonkeeper.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com; style-src 'self' https://unpkg.com; connect-src 'self' https://bridge.tonapi.io;">
 
-  <title>Telegram Mini App: TON Connect Demo</title>
+  <title>Telegram Mini App: TON Connect UI Demo</title>
 
+  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
+  
+  <!-- TON Connect SDK -->
   <script src="./js/tonconnect-sdk.min.js"></script>
+
+  <!-- TON Connect UI -->
+  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+</head>
+<body>
+  <h1>Telegram Mini App: TON Connect UI Demo</h1>
+
+  <!-- Контейнер для TON Connect UI -->
+  <div id="ton-connect"></div>
+
+  <button id="sendTransaction">Отправить 1 TON</button>
 
   <script>
     if (typeof Telegram === "undefined") {
@@ -22,65 +37,39 @@
       Telegram.WebApp.ready();
     }
 
-    const tonConnect = new TonConnectSDK.TonConnect({
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
-      walletsListSource: "https://raw.githubusercontent.com/ton-connect/wallets-list/main/wallets.json"
+      buttonRootId: "ton-connect"
     });
 
-    async function connectWallet() {
-      try {
-        const walletsList = await tonConnect.getWallets();
-        const tonkeeper = walletsList.find(wallet => wallet.name.toLowerCase() === 'tonkeeper');
-
-        if (!tonkeeper) {
-          Telegram.WebApp.showAlert('Tonkeeper не найден в списке кошельков.');
-          return;
-        }
-
-        // Генерируем ссылку подключения через Tonkeeper
-        const universalLink = tonConnect.connect({
-          universalLink: tonkeeper.universalLink,
-          bridgeUrl: tonkeeper.bridgeUrl
-        });
-
-        // Открываем Tonkeeper
-        window.open(universalLink, '_blank');
-      } catch (error) {
-        console.error("Ошибка подключения кошелька:", error);
-        Telegram.WebApp.showAlert("Ошибка подключения кошелька: " + error.message);
-      }
-    }
-
     async function sendTransaction() {
-      if (!tonConnect.wallet) {
+      if (!tonConnectUI.connected) {
         Telegram.WebApp.showAlert("Сначала подключите кошелек.");
         return;
       }
+
       const amount = "1000000000"; // 1 TON
       const transaction = {
-        to: "UQAXaNrNZJDUZy7srkTCGKMqTbdn6XeXaDsx3uh7qcrFFvTz",
-        value: amount,
+        validUntil: Math.floor(Date.now() / 1000) + 360, // валидно 6 минут
+        messages: [
+          {
+            address: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
+            amount: amount,
+          }
+        ]
       };
 
       try {
-        const result = await tonConnect.sendTransaction(transaction);
+        const result = await tonConnectUI.sendTransaction(transaction);
         console.log("Результат транзакции:", result);
-        Telegram.WebApp.showAlert("Транзакция отправлена. Результат: " + JSON.stringify(result));
+        Telegram.WebApp.showAlert("Транзакция отправлена: " + JSON.stringify(result));
       } catch (error) {
         console.error("Ошибка транзакции:", error);
         Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("connectWallet").addEventListener("click", connectWallet);
-      document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
-    });
+    document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
   </script>
-</head>
-<body>
-  <h1>Telegram Mini App: TON Connect Demo</h1>
-  <button id="connectWallet">Подключить Tonkeeper</button>
-  <button id="sendTransaction">Отправить 1 TON</button>
 </body>
 </html>
