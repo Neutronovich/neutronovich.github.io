@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta http-equiv="Content-Security-Policy"
-    content="
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com;
-      style-src 'self' 'unsafe-inline' https://unpkg.com;
-      connect-src 'self' https://bridge.tonapi.io;
-      font-src 'self' https://unpkg.com;
-      img-src 'self' data: https://unpkg.com https://tonkeeper.com;
-    ">
+  content="
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com;
+    style-src 'self' 'unsafe-inline' https://unpkg.com;
+    connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io;
+    font-src 'self' https://unpkg.com;
+    img-src 'self' data: https://unpkg.com https://*.ton.org https://tonkeeper.com https://raw.githubusercontent.com https://ton.app;
+  ">
 
   <title>Telegram Mini App: TON Connect UI Demo</title>
 
