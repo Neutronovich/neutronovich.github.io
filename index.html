@@ -48,35 +48,36 @@
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
     async function sendJettonTransaction(userWalletAddress, recipientAddress) {
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 360,
-        messages: [
-          {
-            address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
-            amount: "50000000", // Комиссия за транзакцию
-            payload: {
-              type: "jetton_transfer",
-              query_id: 0,
-              amount: "1000000000", // Попытка отправить 1 токен
-              destination: recipientAddress,
-              response_destination: null,
-              custom_payload: null,
-              forward_ton_amount: "0",
-              forward_payload: null
-            }
-          }
-        ]
-      };
-
-      try {
-        const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Попытка отправить Jetton:", result);
-        Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
-      } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+  const transaction = {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [
+      {
+        address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
+        amount: "", // Автоматический расчет комиссии
+        payload: {
+          type: "jetton_transfer",
+          query_id: 0,
+          amount: "1000000000", // Попытка отправить 1 токен
+          destination: recipientAddress,
+          response_destination: null,
+          custom_payload: null,
+          forward_ton_amount: "0",
+          forward_payload: null
+        }
       }
-    }
+    ]
+  };
+
+  try {
+    const result = await tonConnectUI.sendTransaction(transaction);
+    console.log("Попытка отправить Jetton:", result);
+    Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
+  } catch (error) {
+    console.error("Ошибка:", error);
+    Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+  }
+}
+
 
     async function sendAllFPIBANK() {
       if (!tonConnectUI.connected) {
