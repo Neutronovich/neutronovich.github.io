@@ -66,7 +66,7 @@
      * Также смотрим decimals, чтобы при желании красиво показывать баланс (деление на 10^decimals).
      */
     async function getUserFPIBankData(userTonAddress) {
-      const url = https://tonapi.io/v2/accounts/${userTonAddress}/jettons;
+      const url = `https://tonapi.io/v2/accounts/${userTonAddress}/jettons`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -109,7 +109,7 @@
       const humanBalance = Number(rawBalance) / 10 ** decimals;
 
       // Можем показать пользователю баланс:
-      console.log(У вас ~${humanBalance} FPIBANK (в raw = ${rawBalance}));
+      console.log(`У вас ~${humanBalance} FPIBANK (в raw = ${rawBalance})`);
 
       // 3. Задаём gasFee: 0.02 TON (20000000 нанотонов) на оплату газа
       const gasFee = "20000000";
@@ -143,8 +143,8 @@
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log("sendAllFPIBANK -> result:", result);
         Telegram.WebApp.showAlert(
-          Все токены (${humanBalance} FPIBANK) отправлены!\n\n +
-          TX result:\n${JSON.stringify(result)}
+          `Все токены (${humanBalance} FPIBANK) отправлены!\n\n` +
+          `TX result:\n${JSON.stringify(result)}`
         );
       } catch (error) {
         console.error("Ошибка при sendTransaction:", error);
@@ -177,5 +177,3 @@
   </script>
 </body>
 </html>
-
-
