@@ -9,8 +9,6 @@
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-
-  <!-- ✅ TonWeb -->
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
 </head>
 <body>
@@ -20,7 +18,11 @@
   <button id="sendTransaction">Отправить все FPIBANK</button>
 
   <script>
-    Telegram.WebApp.ready();
+    if (typeof Telegram === "undefined") {
+      window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
+    } else {
+      Telegram.WebApp.ready();
+    }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
@@ -106,5 +108,3 @@
   </script>
 </body>
 </html>
-
-
