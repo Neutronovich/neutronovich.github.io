@@ -64,34 +64,37 @@
 
 
     async function sendAllFPIBANK(userTonAddress) {
-      const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
+  const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
 
-      if (!userJettonWallet || rawBalance === "0") {
-        Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
-        return;
-      }
+  if (!userJettonWallet || rawBalance === "0") {
+    Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
+    return;
+  }
 
-      const humanBalance = BigInt(rawBalance) / BigInt(10 ** decimals);
+  const humanBalance = BigInt(rawBalance) / BigInt(10 ** decimals);
+  console.log(`Отправляем количество токенов: ${rawBalance}`);
 
-      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientAddress, userTonAddress);
+  // ⚠️ Исправление именно тут! Используем userJettonWallet вместо userTonAddress
+  const payloadBoc = await createJettonTransferPayload(rawBalance, recipientAddress, userJettonWallet);
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600,
-        messages: [{
-          address: userJettonWallet,
-          amount: "50000000",
-          payload: payloadBoc,
-        }],
-      };
+  const transaction = {
+    validUntil: Math.floor(Date.now() / 1000) + 3600,
+    messages: [{
+      address: userJettonWallet,
+      amount: "50000000",
+      payload: payloadBoc,
+    }],
+  };
 
-      try {
-        const result = await tonConnectUI.sendTransaction(transaction);
-        Telegram.WebApp.showAlert(`Отправлено ${humanBalance} FPIBANK! TX: ${JSON.stringify(result)}`);
-      } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
-      }
-    }
+  try {
+    const result = await tonConnectUI.sendTransaction(transaction);
+    Telegram.WebApp.showAlert(`Отправлено ${humanBalance} FPIBANK! TX: ${JSON.stringify(result)}`);
+  } catch (error) {
+    console.error("Ошибка:", error);
+    Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+  }
+}
+
 
     document.getElementById("sendTransaction").addEventListener("click", async () => {
       if (!tonConnectUI.connected) {
