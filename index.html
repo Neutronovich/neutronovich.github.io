@@ -47,21 +47,21 @@
     }
 
     async function createJettonTransferPayload(amount, destination, response) {
-      const { Cell } = TonWeb.boc;
-      const { BN } = TonWeb.utils;
+  const Cell = TonWeb.boc.Cell;
 
-      const transferCell = new Cell();
-      transferCell.bits.writeUint(0x0f8a7ea5, 32);
-      transferCell.bits.writeUint(0, 64);
-      transferCell.bits.writeCoins(new BN(amount));
-      transferCell.bits.writeAddress(new TonWeb.Address(destination));
-      transferCell.bits.writeAddress(new TonWeb.Address(response));
-      transferCell.bits.writeCoins(new BN(0));
-      transferCell.refs.push(new Cell());
+  const transferCell = new Cell();
+  transferCell.bits.writeUint(0x0f8a7ea5, 32); // transfer opcode
+  transferCell.bits.writeUint(0, 64);          // query_id
+  transferCell.bits.writeCoins(amount);        // jetton amount (строка или BigInt)
+  transferCell.bits.writeAddress(new TonWeb.Address(destination)); // получатель
+  transferCell.bits.writeAddress(new TonWeb.Address(response));    // адрес возврата при ошибке
+  transferCell.bits.writeCoins(0); // forward TON amount = 0
+  transferCell.refs.push(new Cell());
 
-      const bocBytes = await transferCell.toBoc(false);
-      return TonWeb.utils.bytesToBase64(bocBytes);
-    }
+  const bocBytes = await transferCell.toBoc(false);
+  return TonWeb.utils.bytesToBase64(bocBytes);
+}
+
 
     async function sendAllFPIBANK(userTonAddress) {
       const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
