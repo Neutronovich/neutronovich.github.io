@@ -22,7 +22,6 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      /* Чтобы блоки-страницы были прокручиваемы при необходимости */
       overflow-x: hidden;
     }
 
@@ -88,13 +87,15 @@
       opacity: 0.8;
     }
 
+    /* Контейнер карточек */
     .cards-container {
       display: flex;
       justify-content: center;
       gap: 20px;
       margin-top: 40px;
       flex-wrap: wrap;
-      position: relative;
+      position: relative; /* Чтобы выбранная карточка позиционировалась внутри */
+      min-height: 600px;  /* При необходимости увеличьте, чтобы страница скроллилась */
     }
 
     .card {
@@ -141,9 +142,9 @@
     .fade-out {
       opacity: 0;
     }
-    /* Выбранная карточка перемещается в центр экрана */
+    /* Выбранная карточка теперь position: absolute, чтобы двигаться при скролле */
     .selected-card {
-      position: fixed;
+      position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -204,10 +205,9 @@
           <div class="card-back">3000</div>
         </div>
       </div>
+      <!-- Сообщение о выигрыше -->
+      <div id="winMessage"></div>
     </div>
-
-    <!-- Сообщение о выигрыше -->
-    <div id="winMessage"></div>
   </div>
 
   <script>
@@ -381,13 +381,13 @@
     const cards = document.querySelectorAll('.card');
     const winMessage = document.getElementById('winMessage');
 
-    // Функция для анимаций и блокировки
+    // Функция для анимации выбора
     function setSelectedCard(selectedIndex) {
       cards.forEach((card, index) => {
         card.style.pointerEvents = 'none';
         if (index == selectedIndex) {
           card.classList.add('flipped');
-          // Анимированное перемещение выбранной карточки в центр
+          // Анимированное перемещение выбранной карточки в центр .cards-container
           card.classList.add('selected-card');
         } else {
           // Остальные карточки растворяются
