@@ -110,39 +110,55 @@
     
     .stats-container {
       display: flex;
-      justify-content: space-around;
-      margin: 30px auto;
-      max-width: 95%;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    
-    .stat-box {
+      flex-direction: column;
+      margin: 25px auto;
+      max-width: 90%;
       background: rgba(46, 0, 99, 0.4);
-      padding: 15px 20px;
-      border-radius: 14px;
-      min-width: 140px;
+      border-radius: 16px;
+      padding: 15px;
       border: 1px solid #a100f2;
       box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
-      transition: transform 0.3s;
     }
-    
-    .stat-box:hover {
-      transform: translateY(-5px);
+
+    .timer-box {
+      text-align: center;
+      margin-bottom: 15px;
     }
-    
-    .stat-value {
-      font-size: 2em;
+
+    .timer-value {
+      font-size: 2.2em;
       font-weight: bold;
       color: #00ff88;
       text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-      margin-bottom: 5px;
     }
-    
-    .stat-label {
-      font-size: 0.95em;
-      opacity: 0.9;
+
+    .timer-label {
+      font-size: 1em;
       color: #d0b3ff;
+      margin-top: 5px;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 0 10px;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: white;
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      color: #d0b3ff;
+      opacity: 0.9;
     }
     
     .action-buttons {
@@ -181,7 +197,7 @@
     }
     
     .external-link-btn {
-      padding: 16px 30px;
+      padding: 16px 30px 16px 50px;
       border: none;
       border-radius: 14px;
       cursor: pointer;
@@ -192,10 +208,23 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      position: relative;
     }
     
     .external-link-btn:hover {
       transform: translateY(-3px);
+    }
+    
+    .external-link-btn::before {
+      content: "";
+      display: block;
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      left: 20px;
     }
     
     #goToChannel {
@@ -208,6 +237,10 @@
       box-shadow: 0 6px 20px rgba(0, 172, 237, 0.6);
     }
     
+    #goToChannel::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
+    }
+    
     #goToWebsite {
       background: linear-gradient(135deg, #4b33a1, #7851e9);
       color: white;
@@ -218,17 +251,11 @@
       box-shadow: 0 6px 20px rgba(75, 51, 161, 0.6);
     }
     
+    #goToWebsite::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
+    }
+    
     /* Анимации */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    .pulse {
-      animation: pulse 3s infinite;
-    }
-    
     @keyframes float {
       0% { transform: translateY(0px); }
       50% { transform: translateY(-8px); }
@@ -376,17 +403,21 @@
     <div id="ton-connect"></div>
     
     <div class="stats-container">
-      <div class="stat-box">
-        <div class="stat-value" id="nextDropTimer">14:02:13:49</div>
-        <div class="stat-label">До окончания дропа</div>
+      <div class="timer-box">
+        <div class="timer-value" id="nextDropTimer">14:02:12:00</div>
+        <div class="timer-label">До окончания дропа</div>
       </div>
-      <div class="stat-box">
-        <div class="stat-value" id="participantsCount">1,428</div>
-        <div class="stat-label">Участников</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-value">500-5,000</div>
-        <div class="stat-label">FPI за дроп</div>
+      
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value" id="participantsCount">1,428</div>
+          <div class="stat-label">Участников</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">500-5,000</div>
+          <div class="stat-label">FPI за дроп</div>
+        </div>
       </div>
     </div>
     
@@ -466,11 +497,11 @@
     /* 2) Таймер обратного отсчета (14 дней) */
     function updateTimer() {
       const timer = document.getElementById('nextDropTimer');
-      // 14 дней, 2 часа, 13 минут, 49 секунд
+      // 14 дней, 2 часа, 12 минут, 0 секунд
       let days = 14;
       let hours = 2;
-      let minutes = 13;
-      let seconds = 49;
+      let minutes = 12;
+      let seconds = 0;
       
       const update = () => {
         seconds--;
