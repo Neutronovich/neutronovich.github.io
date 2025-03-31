@@ -50,7 +50,7 @@
       margin-top: 40px; /* отступ сверху, чтобы не перекрываться */
       position: relative;
       width: 400px;   /* ширина SVG */
-      height: 300px;  /* больше 200, чтобы было место для указателя и кнопки */
+      height: 300px;  /* 200 под сам полукруг + место для указателя/кнопки */
       text-align: center;
     }
 
@@ -80,7 +80,7 @@
       transition: transform 3s ease-out;
     }
 
-    /* Указатель (треугольник), располагается ниже дуги */
+    /* Указатель (треугольник), располагается внизу под SVG */
     #pointer {
       position: absolute;
       left: 50%;
@@ -102,7 +102,7 @@
     <!-- Полукруг (SVG) -->
     <svg id="rouletteSVG" width="400" height="200">
       <!-- Группа со всеми секторами: будем вращать её по часовой стрелке -->
-      <g id="arcGroup" transform="rotate(0, 200, 200)">
+      <g id="arcGroup" transform="rotate(0, 200, 0)">
         <!-- Сектора добавим через JS -->
       </g>
     </svg>
@@ -270,20 +270,25 @@
     });
 
     /****************************************************
-     * 2) Генерация секторов "горизонтальной" рулетки (полукруг)
+     * 2) Генерация секторов "нижней половины" круга (углы 180..360)
+     *    Центр круга: (200,0). Радиус: 200
      ****************************************************/
-    const svg       = document.getElementById('rouletteSVG');
-    const arcGroup  = document.getElementById('arcGroup');
-    const sectors   = [
-      { label: '500',   start:180, end:144, color: '#ffa500' }, // 1-й сектор
-      { label: '1000',  start:144, end:108, color: '#ff69b4' }, // 2-й
-      { label: '3000',  start:108, end:72,  color: '#00ff00' }, // 3-й (по центру)
-      { label: '2000',  start:72,  end:36,  color: '#1e90ff' }, // 4-й
-      { label: '5000',  start:36,  end:0,   color: '#ff0000' }, // 5-й
+    const svg      = document.getElementById('rouletteSVG');
+    const arcGroup = document.getElementById('arcGroup');
+
+    // Пять секторов по 36° (в сумме 180°): 
+    // 1) 180..216, 2) 216..252, 3) 252..288, 4) 288..324, 5) 324..360
+    // Сектор "3000" (третий) занимает 252..288, его середина 270° — это внизу.
+    const sectors = [
+      { label: '500',   start:180, end:216, color: '#ffa500' },
+      { label: '1000',  start:216, end:252, color: '#ff69b4' },
+      { label: '3000',  start:252, end:288, color: '#00ff00' },
+      { label: '2000',  start:288, end:324, color: '#1e90ff' },
+      { label: '5000',  start:324, end:360, color: '#ff0000' },
     ];
-    // Рисуем каждый сектор как "крышку" (центр + дуга)
+
     sectors.forEach(sec => {
-      const pathD = createArcPath(200, 200, 200, sec.start, sec.end);
+      const pathD  = createArcPath(200, 0, 200, sec.start, sec.end);
       const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       pathEl.setAttribute('d', pathD);
       pathEl.setAttribute('fill', sec.color);
@@ -291,7 +296,8 @@
 
       // Текст в середине сектора
       const midAngle = (sec.start + sec.end)/2;
-      const textPos  = polarToCartesian(200, 200, 120, midAngle);
+      // Возьмём радиус 120, чтобы надпись была ближе к центру
+      const textPos  = polarToCartesian(200, 0, 120, midAngle);
       const textEl   = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       textEl.setAttribute('x', textPos.x);
       textEl.setAttribute('y', textPos.y);
@@ -304,15 +310,19 @@
       arcGroup.appendChild(textEl);
     });
 
+    // Функция для построения дуги (одного сектора).
+    // Центр (cx,cy) = (200,0), радиус r=200.
+    // Идём по углам от startAngle до endAngle (в градусах).
     function createArcPath(cx, cy, r, startAngle, endAngle) {
-      // Настраиваем flags для правильного направления дуги (верхняя часть)
+      // Т.к. каждый сектор <180°, largeArcFlag=0.
+      // Для "нижней" дуги (по часовой стрелке) sweepFlag=1.
       const largeArcFlag = 0;
-      const sweepFlag    = 1; // меняем на 1, чтобы дуга шла "по верхней стороне"
+      const sweepFlag    = 1;
 
       const start = polarToCartesian(cx, cy, r, startAngle);
       const end   = polarToCartesian(cx, cy, r, endAngle);
 
-      // Формируем path: из центра (M cx,cy) -> старт дуги -> дуга -> замкнуть в центр
+      // Формируем path: из центра -> старт дуги -> дуга -> замкнуть
       return [
         `M ${cx},${cy}`,
         `L ${start.x},${start.y}`,
@@ -321,35 +331,36 @@
       ].join(' ');
     }
 
-    // Перевод "угол (градусы)" -> (x,y) на окружности
+    // Перевод (угол в градусах) -> (x,y) на окружности
+    // 0° = правая точка, 90° = внизу, 180° = слева, 270° = вверху (с учётом y растёт вниз).
     function polarToCartesian(cx, cy, r, angleDeg) {
       const rad = angleDeg * Math.PI / 180;
-      const x = cx + r * Math.cos(rad);
-      const y = cy + r * Math.sin(rad);
+      const x   = cx + r * Math.cos(rad);
+      const y   = cy + r * Math.sin(rad);
       return { x, y };
     }
 
     /****************************************************
-     * 3) Анимация вращения: 0° -> -1080°
-     *    Сектор "3000" остаётся в центре
+     * 3) Анимация вращения: 0° -> -1080° (3 оборота по часовой стрелке)
+     *    Сектор "3000" снова внизу, над стрелкой
      ****************************************************/
-    const spinButton  = document.getElementById('spinButton');
-    const resultMsg   = document.getElementById('resultMessage');
+    const spinButton = document.getElementById('spinButton');
+    const resultMsg  = document.getElementById('resultMessage');
 
     spinButton.addEventListener('click', () => {
-      // Сброс состояния
+      // Сброс предыдущего состояния
       arcGroup.classList.remove('spin');
       arcGroup.style.transition = 'none';
-      arcGroup.setAttribute('transform', 'rotate(0, 200, 200)');
+      arcGroup.setAttribute('transform', 'rotate(0, 200, 0)');
       resultMsg.textContent = '';
 
-      // Запуск анимации (двойной rAF для надёжного сброса)
+      // Запуск анимации
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           arcGroup.classList.add('spin');
           arcGroup.style.transition = 'transform 3s ease-out';
-          // -1080° = 3 полных оборота по часовой стрелке, визуально вернётся к 0°
-          arcGroup.setAttribute('transform', 'rotate(-1080, 200, 200)');
+          // -1080° = 3 полных оборота по часовой стрелке
+          arcGroup.setAttribute('transform', 'rotate(-1080, 200, 0)');
         });
       });
 
@@ -358,10 +369,9 @@
     });
 
     function onSpinEnd() {
-      // Итоговое положение (по модулю 360° = 0°) - сектор "3000" по центру
+      // Возвращаемся к углу 0°, где "3000" снова внизу
       resultMsg.textContent = 'Выпало 3000!';
     }
   </script>
 </body>
 </html>
-
