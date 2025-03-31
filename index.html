@@ -17,13 +17,19 @@
       color: white;
       font-family: Arial, sans-serif;
       margin: 0;
+      /* Задаём высоту и используем flex для вертикального позиционирования */
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      justify-content: flex-start; /* Прижимаем контент к верху */
+      align-items: center;         /* Выравниваем по центру по горизонтали */
       text-align: center;
+      padding-top: 40px;          /* Отступ сверху */
     }
+    h1 {
+      margin: 0 0 20px 0;         /* Убираем верхний отступ и добавляем нижний */
+    }
+    /* Кнопка отправки */
     button#sendTransaction {
       background-color: green;
       color: white;
@@ -31,7 +37,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 20px;           /* Отступ сверху */
     }
     button#sendTransaction:hover {
       opacity: 0.8;
