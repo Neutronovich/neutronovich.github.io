@@ -51,6 +51,7 @@
       gap: 20px;
       margin-top: 40px;
       flex-wrap: wrap;
+      position: relative;
     }
     /* Стиль карточки */
     .card {
@@ -58,6 +59,7 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
+      transition: opacity 0.8s ease-out;
     }
     .card-inner {
       position: relative;
@@ -66,7 +68,7 @@
       transition: transform 0.8s;
       transform-style: preserve-3d;
     }
-    /* При перевороте добавляем класс .flipped */
+    /* При перевороте карточка поворачивается */
     .card.flipped .card-inner {
       transform: rotateY(180deg);
     }
@@ -83,18 +85,31 @@
       font-size: 2em;
       font-weight: bold;
     }
-    /* Лицевая сторона (перевернутая карточка) */
+    /* Лицевая сторона карточки */
     .card-front {
       background: linear-gradient(135deg, #333, #555);
       color: white;
     }
-    /* Обратная сторона (видна после переворота) */
+    /* Обратная сторона карточки */
     .card-back {
       background: linear-gradient(135deg, #fff, #ddd);
       color: black;
       transform: rotateY(180deg);
     }
-    /* Стили для сообщения о выигрыше */
+    /* Карточки, не выбранные – растворяются */
+    .fade-out {
+      opacity: 0;
+    }
+    /* Выбранная карточка анимированно перемещается в центр экрана */
+    .selected-card {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+      z-index: 1000;
+    }
+    /* Сообщение о выигрыше */
     #winMessage {
       margin-top: 20px;
       font-size: 1.2em;
@@ -281,27 +296,31 @@
 
     /****************************************************
      * 2) Логика карточек "удачи"
-     *    - Количество карточек уменьшено до 4.
-     *    - Все карточки содержат число 3000.
-     *    - При выборе карточки выбранная переворачивается, выбор блокируется,
-     *      и сохраняется индекс выбранной карточки в localStorage.
-     *    - После выбора выводится сообщение о выигрыше.
+     *    После выбора карточки:
+     *      - Выбранная карточка переворачивается
+     *      - Остальные карточки растворяются
+     *      - Выбранная карточка анимированно перемещается в центр экрана
+     *      - Выбор сохраняется в localStorage
      ****************************************************/
     const cards = document.querySelectorAll('.card');
     const winMessage = document.getElementById('winMessage');
 
-    // Функция для блокировки кликов по карточкам и установки переворота на выбранную
     function setSelectedCard(selectedIndex) {
       cards.forEach((card, index) => {
         card.style.pointerEvents = 'none';
         if (index == selectedIndex) {
           card.classList.add('flipped');
+          // Анимированное перемещение выбранной карточки в центр
+          card.classList.add('selected-card');
+        } else {
+          // Остальные карточки растворяются
+          card.classList.add('fade-out');
         }
       });
       winMessage.textContent = "Вы выиграли 3000 FPI-банок, вы можете вывести их нажав на кнопку - отправить все FPIBANK";
     }
 
-    // Проверяем, если ранее уже была выбрана карточка
+    // Если ранее уже была выбрана карточка, показываем её состояние
     const storedIndex = localStorage.getItem('selectedCardIndex');
     if (storedIndex !== null) {
       setSelectedCard(storedIndex);
@@ -309,7 +328,6 @@
 
     cards.forEach((card, index) => {
       card.addEventListener('click', function () {
-        // Если уже выбрана, выходим
         if (localStorage.getItem('selectedCardIndex') !== null) return;
         localStorage.setItem('selectedCardIndex', index);
         setSelectedCard(index);
