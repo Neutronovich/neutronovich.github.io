@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FPI-drop</title>
 
-  <!-- Скрипты и стили TonConnect / Telegram (не меняем логику) -->
+  <!-- Скрипты и стили TonConnect / Telegram (без изменений) -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
@@ -83,7 +83,7 @@
       font-size: 2em;
       font-weight: bold;
     }
-    /* Лицевая сторона (задняя сторона карточки, когда она лежит перевёрнутой) */
+    /* Лицевая сторона (перевернутая карточка) */
     .card-front {
       background: linear-gradient(135deg, #333, #555);
       color: white;
@@ -97,7 +97,7 @@
   </style>
 </head>
 <body>
-  <!-- Верхняя часть: заголовок, TonConnect, кнопка отправки -->
+  <!-- Верхняя часть: заголовок, TonConnect и кнопка отправки -->
   <div id="header">
     <h1>FPI-drop</h1>
     <div id="ton-connect"></div>
@@ -106,55 +106,35 @@
 
   <!-- Контейнер для карточек -->
   <div class="cards-container">
-    <!-- Каждая карточка имеет data-value с числом -->
-    <div class="card" data-value="500">
+    <!-- Все карточки имеют число 3000 -->
+    <div class="card" data-value="3000">
       <div class="card-inner">
-        <div class="card-front">
-          ?
-        </div>
-        <div class="card-back">
-          500
-        </div>
-      </div>
-    </div>
-    <div class="card" data-value="1000">
-      <div class="card-inner">
-        <div class="card-front">
-          ?
-        </div>
-        <div class="card-back">
-          1000
-        </div>
+        <div class="card-front">?</div>
+        <div class="card-back">3000</div>
       </div>
     </div>
     <div class="card" data-value="3000">
       <div class="card-inner">
-        <div class="card-front">
-          ?
-        </div>
-        <div class="card-back">
-          3000
-        </div>
+        <div class="card-front">?</div>
+        <div class="card-back">3000</div>
       </div>
     </div>
-    <div class="card" data-value="2000">
+    <div class="card" data-value="3000">
       <div class="card-inner">
-        <div class="card-front">
-          ?
-        </div>
-        <div class="card-back">
-          2000
-        </div>
+        <div class="card-front">?</div>
+        <div class="card-back">3000</div>
       </div>
     </div>
-    <div class="card" data-value="5000">
+    <div class="card" data-value="3000">
       <div class="card-inner">
-        <div class="card-front">
-          ?
-        </div>
-        <div class="card-back">
-          5000
-        </div>
+        <div class="card-front">?</div>
+        <div class="card-back">3000</div>
+      </div>
+    </div>
+    <div class="card" data-value="3000">
+      <div class="card-inner">
+        <div class="card-front">?</div>
+        <div class="card-back">3000</div>
       </div>
     </div>
   </div>
@@ -308,15 +288,27 @@
 
     /****************************************************
      * 2) Логика карточек "удачи"
-     *    Карточки лежат перевёрнутыми, после клика выбранная карточка переворачивается
-     *    и пользователь видит число. После выбора других нажимать нельзя.
+     *    Все карточки содержат число 3000.
+     *    После выбора одной карточки выбор блокируется и сохраняется в localStorage,
+     *    чтобы после перезагрузки приложения пользователь не мог выбрать другую.
      ****************************************************/
-    let cardSelected = false;
+    let cardSelected = localStorage.getItem('cardSelected') === 'true';
     const cards = document.querySelectorAll('.card');
+
+    // Если карточка уже выбрана, блокируем клики и визуально переворачиваем выбранную карточку
+    if (cardSelected) {
+      cards.forEach(card => {
+        card.style.pointerEvents = 'none';
+        // Можно добавить класс flipped, если хотите показать выбранную карту
+        // card.classList.add('flipped');
+      });
+    }
+
     cards.forEach(card => {
       card.addEventListener('click', function () {
-        if (cardSelected) return; // если карточка уже выбрана, игнорируем клики
+        if (cardSelected) return; // если уже выбрана, игнорируем клики
         cardSelected = true;
+        localStorage.setItem('cardSelected', 'true');
         card.classList.add('flipped');
       });
     });
