@@ -94,9 +94,7 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(110, 0, 255, 0.5);
     }
-    #goToChannel {
-      background: linear-gradient(135deg, #0088cc, #00aced);
-      color: white;
+    .external-link-btn {
       padding: 12px 30px;
       border: none;
       border-radius: 12px;
@@ -104,23 +102,40 @@
       font-weight: bold;
       font-size: 1.1em;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 10px rgba(0, 172, 237, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
-    #goToChannel:hover {
+    .external-link-btn:hover {
       transform: translateY(-2px);
+    }
+    #goToChannel {
+      background: linear-gradient(135deg, #0088cc, #00aced);
+      box-shadow: 0 4px 10px rgba(0, 172, 237, 0.4);
+    }
+    #goToChannel:hover {
       box-shadow: 0 6px 15px rgba(0, 172, 237, 0.5);
     }
-    #goToChannel::before {
+    #goToWebsite {
+      background: linear-gradient(135deg, #4b33a1, #7851e9);
+      box-shadow: 0 4px 10px rgba(75, 51, 161, 0.4);
+    }
+    #goToWebsite:hover {
+      box-shadow: 0 6px 15px rgba(75, 51, 161, 0.5);
+    }
+    .external-link-btn::before {
       content: "";
       display: inline-block;
       width: 20px;
       height: 20px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
       background-size: contain;
+    }
+    #goToChannel::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
+    }
+    #goToWebsite::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
     }
     
     /* Страница 2 */
@@ -231,7 +246,8 @@
     <div id="ton-connect"></div>
     <div class="action-buttons">
       <button id="goPage2">Перейти к карточкам</button>
-      <button id="goToChannel">Наш Telegram-канал</button>
+      <button id="goToChannel" class="external-link-btn">Наш Telegram-канал</button>
+      <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
     </div>
   </div>
   
@@ -288,9 +304,12 @@
       showPage('page2');
     });
 
-    /* Новая кнопка для перехода в канал */
+    /* Кнопки для внешних ссылок */
     document.getElementById('goToChannel').addEventListener('click', () => {
       window.open('https://t.me/fpibank', '_blank');
+    });
+    document.getElementById('goToWebsite').addEventListener('click', () => {
+      window.open('https://fpibank.com/#tokenPrice', '_blank');
     });
   
     /* 1) Логика TonConnect и отправки FPIBANK */
