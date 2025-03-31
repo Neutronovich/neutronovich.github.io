@@ -71,6 +71,13 @@
       border-radius: 12px;
       overflow: hidden;
     }
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
     #goPage2 {
       background: linear-gradient(135deg, #6e00ff, #a100f2);
       color: white;
@@ -78,16 +85,42 @@
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      margin: 30px auto;
       font-weight: bold;
       font-size: 1.1em;
       transition: transform 0.2s, box-shadow 0.2s;
-      display: block;
       box-shadow: 0 4px 10px rgba(110, 0, 255, 0.4);
     }
     #goPage2:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(110, 0, 255, 0.5);
+    }
+    #goToChannel {
+      background: linear-gradient(135deg, #0088cc, #00aced);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 10px rgba(0, 172, 237, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #goToChannel:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 172, 237, 0.5);
+    }
+    #goToChannel::before {
+      content: "";
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
+      background-size: contain;
     }
     
     /* Страница 2 */
@@ -196,7 +229,10 @@
   <div id="page1" class="page">
     <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop">
     <div id="ton-connect"></div>
-    <button id="goPage2">Перейти к карточкам</button>
+    <div class="action-buttons">
+      <button id="goPage2">Перейти к карточкам</button>
+      <button id="goToChannel">Наш Telegram-канал</button>
+    </div>
   </div>
   
   <!-- Страница 2 -->
@@ -250,6 +286,11 @@
     showPage('page1');
     document.getElementById('goPage2').addEventListener('click', () => {
       showPage('page2');
+    });
+
+    /* Новая кнопка для перехода в канал */
+    document.getElementById('goToChannel').addEventListener('click', () => {
+      window.open('https://t.me/fpibank', '_blank');
     });
   
     /* 1) Логика TonConnect и отправки FPIBANK */
