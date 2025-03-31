@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FPI-drop</title>
 
-  <!-- Скрипты и стили TonConnect / Telegram, как у вас в исходном коде -->
+  <!-- Ваши скрипты и стили TonConnect / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
@@ -47,10 +47,10 @@
 
     /* Контейнер рулетки */
     .roulette-container {
-      margin-top: 40px; /* небольшой отступ сверху */
+      margin-top: 40px; /* отступ сверху, чтобы не перекрываться */
       position: relative;
       width: 400px;   /* ширина SVG */
-      height: 240px;  /* чуть больше высоты SVG (200) для указателя */
+      height: 300px;  /* больше 200, чтобы было место для указателя и кнопки */
       text-align: center;
     }
 
@@ -62,7 +62,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 40px; /* чтобы не налезала на указатель */
     }
     .spin-button:hover {
       opacity: 0.8;
@@ -79,6 +79,14 @@
     .spin {
       transition: transform 3s ease-out;
     }
+
+    /* Указатель (треугольник), располагается ниже дуги */
+    #pointer {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 200px; /* сразу под дугой (SVG высотой 200px) */
+    }
   </style>
 </head>
 <body>
@@ -91,26 +99,18 @@
 
   <!-- Контейнер для рулетки -->
   <div class="roulette-container">
-    <!-- Само SVG (полукруг) -->
+    <!-- Полукруг (SVG) -->
     <svg id="rouletteSVG" width="400" height="200">
       <!-- Группа со всеми секторами: будем вращать её по часовой стрелке -->
       <g id="arcGroup" transform="rotate(0, 200, 200)">
-        <!-- Каждый сектор рисуем path-ом. 
-             Центр круга (200,200). Радиус 200.
-             Угол меняется с 180 до 0 (слева направо), 
-             шаг 36°, всего 5 секторов. -->
+        <!-- Сектора добавим через JS -->
       </g>
     </svg>
 
-    <!-- Стрелка (указатель), которая указывает вверх, расположена ниже SVG -->
-    <div id="pointer" style="
-      position: absolute;
-      left: 50%; 
-      transform: translateX(-50%);
-      top: 200px; /* сразу под SVG (высота 200) */
-    ">
-      <!-- Простой треугольник, указывающий вверх -->
+    <!-- Указатель (треугольник), указывающий вверх -->
+    <div id="pointer">
       <svg width="30" height="30">
+        <!-- треугольник, вершина вверху -->
         <polygon points="15,0 30,30 0,30" fill="white"/>
       </svg>
     </div>
@@ -124,7 +124,7 @@
 
   <script>
     /****************************************************
-     * 1) Исходная логика вашего кода (TonConnect, etc.)
+     * 1) Логика TonConnect и отправки FPIBANK
      ****************************************************/
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
@@ -256,7 +256,6 @@
       }
     }
 
-    // Кнопка "Отправить все FPIBANK"
     document.getElementById("sendTransaction").addEventListener("click", async () => {
       if (!tonConnectUI.connected) {
         Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
@@ -271,54 +270,18 @@
     });
 
     /****************************************************
-     * 2) Генерация секторов "горизонтальной" рулетки
+     * 2) Генерация секторов "горизонтальной" рулетки (полукруг)
      ****************************************************/
-
-    // Пять секторов: (подпись, startAngle, endAngle, цвет)
-    // Угол идёт от 180° (левый край) до 0° (правый край).
-    // Третий сектор (3000) как раз от 108 до 72, середина = 90°.
-    const sectors = [
-      { label: '500',   start:180, end:144, color: '#ffa500' }, // оранжевый
-      { label: '1000',  start:144, end:108, color: '#ff69b4' }, // розовый
-      { label: '3000',  start:108, end:72,  color: '#00ff00' }, // зелёный
-      { label: '2000',  start:72,  end:36,  color: '#1e90ff' }, // синий
-      { label: '5000',  start:36,  end:0,   color: '#ff0000' }, // красный
+    const svg       = document.getElementById('rouletteSVG');
+    const arcGroup  = document.getElementById('arcGroup');
+    const sectors   = [
+      { label: '500',   start:180, end:144, color: '#ffa500' }, // 1-й сектор
+      { label: '1000',  start:144, end:108, color: '#ff69b4' }, // 2-й
+      { label: '3000',  start:108, end:72,  color: '#00ff00' }, // 3-й (по центру)
+      { label: '2000',  start:72,  end:36,  color: '#1e90ff' }, // 4-й
+      { label: '5000',  start:36,  end:0,   color: '#ff0000' }, // 5-й
     ];
-
-    const svg = document.getElementById('rouletteSVG');
-    const arcGroup = document.getElementById('arcGroup');
-
-    // Функция для построения дуги (одного сектора)
-    // центр (cx,cy)= (200,200), радиус r=200
-    function createArcPath(cx, cy, r, startAngle, endAngle) {
-      const largeArcFlag = 0; 
-      const sweepFlag = 0; // для дуги "сверху вниз" нам нужно задать правильный sweep
-      // Но проще проверить, какой флаг нужен. 
-      // Поскольку мы идём от 180 к 0, это убывающие углы. 
-      // Для "полукруга сверху" sweepFlag обычно 0 (дуга против часовой стрелки в терминах SVG).
-      // Попробуем так, если дуга рисуется не в ту сторону — поменяем на 1.
-
-      const start = polarToCartesian(cx, cy, r, startAngle);
-      const end   = polarToCartesian(cx, cy, r, endAngle);
-
-      return [
-        `M ${cx},${cy}`,          // из центра
-        `L ${start.x},${start.y}`,// линия к началу дуги
-        `A ${r},${r} 0 ${largeArcFlag} ${sweepFlag} ${end.x},${end.y}`, // дуга
-        'Z'
-      ].join(' ');
-    }
-
-    // Перевод (угол в градусах) → (x,y) на окружности
-    // Угол 0° направлен вправо (ось X), 90° вверх, 180° влево, 270° вниз (стандарт в математике с учётом y вниз).
-    function polarToCartesian(cx, cy, r, angleDeg) {
-      const rad = angleDeg * Math.PI / 180;
-      const x = cx + r * Math.cos(rad);
-      const y = cy + r * Math.sin(rad);
-      return { x, y };
-    }
-
-    // Создаём <path> для каждого сектора + <text> для подписи
+    // Рисуем каждый сектор как "крышку" (центр + дуга)
     sectors.forEach(sec => {
       const pathD = createArcPath(200, 200, 200, sec.start, sec.end);
       const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -328,8 +291,7 @@
 
       // Текст в середине сектора
       const midAngle = (sec.start + sec.end)/2;
-      const textPos  = polarToCartesian(200, 200, 120, midAngle); 
-      // 120 = ~60% от радиуса, чтобы подписи были ближе к центру
+      const textPos  = polarToCartesian(200, 200, 120, midAngle);
       const textEl   = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       textEl.setAttribute('x', textPos.x);
       textEl.setAttribute('y', textPos.y);
@@ -342,43 +304,64 @@
       arcGroup.appendChild(textEl);
     });
 
-    /****************************************************
-     * 3) Анимация вращения "по часовой стрелке"
-     *    с итоговой остановкой на секторе "3000"
-     ****************************************************/
+    function createArcPath(cx, cy, r, startAngle, endAngle) {
+      // Настраиваем flags для правильного направления дуги (верхняя часть)
+      const largeArcFlag = 0;
+      const sweepFlag    = 1; // меняем на 1, чтобы дуга шла "по верхней стороне"
 
-    const spinButton = document.getElementById('spinButton');
-    const resultMsg  = document.getElementById('resultMessage');
+      const start = polarToCartesian(cx, cy, r, startAngle);
+      const end   = polarToCartesian(cx, cy, r, endAngle);
+
+      // Формируем path: из центра (M cx,cy) -> старт дуги -> дуга -> замкнуть в центр
+      return [
+        `M ${cx},${cy}`,
+        `L ${start.x},${start.y}`,
+        `A ${r},${r} 0 ${largeArcFlag} ${sweepFlag} ${end.x},${end.y}`,
+        'Z'
+      ].join(' ');
+    }
+
+    // Перевод "угол (градусы)" -> (x,y) на окружности
+    function polarToCartesian(cx, cy, r, angleDeg) {
+      const rad = angleDeg * Math.PI / 180;
+      const x = cx + r * Math.cos(rad);
+      const y = cy + r * Math.sin(rad);
+      return { x, y };
+    }
+
+    /****************************************************
+     * 3) Анимация вращения: 0° -> -1080°
+     *    Сектор "3000" остаётся в центре
+     ****************************************************/
+    const spinButton  = document.getElementById('spinButton');
+    const resultMsg   = document.getElementById('resultMessage');
 
     spinButton.addEventListener('click', () => {
-      // Сбрасываем предыдущее состояние
+      // Сброс состояния
       arcGroup.classList.remove('spin');
       arcGroup.style.transition = 'none';
-      arcGroup.setAttribute('transform', 'rotate(0,200,200)');
+      arcGroup.setAttribute('transform', 'rotate(0, 200, 200)');
       resultMsg.textContent = '';
 
-      // Запускаем анимацию (двойной requestAnimationFrame нужен,
-      // чтобы сброс успел примениться в браузере)
+      // Запуск анимации (двойной rAF для надёжного сброса)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           arcGroup.classList.add('spin');
-          // Плавное вращение за 3s ease-out
           arcGroup.style.transition = 'transform 3s ease-out';
-          // Идём от 0° к -1080° (3 полных оборота по часовой стрелке),
-          // -1080 mod 360 = 0, значит визуально вернётся в исходное положение
-          // с сектором "3000" по центру.
-          arcGroup.setAttribute('transform', 'rotate(-1080,200,200)');
+          // -1080° = 3 полных оборота по часовой стрелке, визуально вернётся к 0°
+          arcGroup.setAttribute('transform', 'rotate(-1080, 200, 200)');
         });
       });
 
-      // Когда вращение закончилось — выводим сообщение
+      // По окончании вращения выводим сообщение
       arcGroup.addEventListener('transitionend', onSpinEnd, { once: true });
     });
 
     function onSpinEnd() {
-      // Оставляем итоговое положение (оно визуально совпадает с углом 0).
+      // Итоговое положение (по модулю 360° = 0°) - сектор "3000" по центру
       resultMsg.textContent = 'Выпало 3000!';
     }
   </script>
 </body>
 </html>
+
