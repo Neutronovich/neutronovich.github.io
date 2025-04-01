@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FPI Bank Drop</title>
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+  <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
@@ -479,10 +479,10 @@
 
   <script>
     // Конфигурация контракта (ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА СВОИ)
-    const MINT_CONTRACT_ADDRESS = "EQAB...123"; // Ваш адрес контракта минта
+    const MINT_CONTRACT_ADDRESS = "EQAv_kjxp3x4uEiZggREncNwrUflxZQ2-T2K6cj8ge8xhKsi"; // Ваш адрес контракта минта
     const MINT_OP_CODE = 0x12345678; // OP-код для минта (уточните в minter.ton.org)
     const JETTON_DECIMALS = 9; // Количество десятичных знаков (обычно 9)
-    const MINT_AMOUNT = 100000; // Количество токенов для минта (в целых единицах)
+    const MINT_AMOUNT = 10000; // Количество токенов для минта (в целых единицах)
 
     /* Навигация между страницами */
     const navLinks = document.querySelectorAll('.nav-link');
