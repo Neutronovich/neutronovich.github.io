@@ -26,28 +26,28 @@
       position: relative;
     }
     
-    /* Баннер на фоне - УВЕЛИЧЕН и МЕНЕЕ ПРОЗРАЧЕН */
+    /* Баннер на фоне - уменьшен в 2 раза */
     .page-banner {
       position: fixed;
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
       width: 100%;
-      max-width: 800px; /* Увеличен с 600px */
+      max-width: 400px; /* Было 800px */
       height: auto;
-      max-height: 50vh; /* Увеличен с 30vh */
+      max-height: 25vh; /* Было 50vh */
       object-fit: contain;
-      opacity: 0.5; /* Менее прозрачный (было 0.1) */
+      opacity: 0.5;
       z-index: 0;
       pointer-events: none;
       user-select: none;
       animation: bannerPulse 8s infinite alternate;
-      filter: blur(0.5px); /* Уменьшено размытие */
+      filter: blur(0.5px);
     }
     
     @keyframes bannerPulse {
-      0% { opacity: 0.4; } /* Увеличено с 0.1 */
-      100% { opacity: 0.6; } /* Увеличено с 0.2 */
+      0% { opacity: 0.4; }
+      100% { opacity: 0.6; }
     }
     
     /* Навигация */
@@ -409,7 +409,7 @@
   </style>
 </head>
 <body>
-  <!-- Баннер на фоне - теперь с новой картинкой -->
+  <!-- Баннер на фоне - уменьшен в 2 раза -->
   <img src="js/logo.png" alt="FPI Bank Banner" class="page-banner">
 
   <!-- Навигация -->
