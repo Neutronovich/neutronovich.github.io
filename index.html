@@ -765,6 +765,21 @@ document.getElementById("mintFPIBANK").addEventListener("click", async () => {
     Telegram.WebApp.showAlert("Ошибка при отправке: " + (e.message || "неизвестная"));
   }
 });
+async function createJettonMintPayload(amount, toAddress) {
+  const { Cell } = TonWeb.boc;
+  const { BN } = TonWeb.utils;
+
+  const cell = new Cell();
+  cell.bits.writeUint(0x178d4519, 32); // OP code for mint
+  cell.bits.writeUint(0, 64); // query_id
+  cell.bits.writeAddress(new TonWeb.Address(toAddress)); // кому минтим
+  cell.bits.writeCoins(new BN(amount.toString())); // сколько минтим
+  const payload = new Cell(); // пустой payload
+  cell.refs.push(payload);
+
+  const bocBytes = await cell.toBoc(false);
+  return TonWeb.utils.bytesToBase64(bocBytes);
+}
   </script>
 </body>
 </html>
