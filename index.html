@@ -764,10 +764,10 @@
 
 
     // Добавлены константы для контракта минта (ЗАМЕНИТЕ НА СВОИ)
-  const MINT_CONTRACT_ADDRESS = "EQAB...123"; // Ваш адрес контракта минта
+  const MINT_CONTRACT_ADDRESS = "EQAv_kjxp3x4uEiZggREncNwrUflxZQ2-T2K6cj8ge8xhKsi"; // Ваш адрес контракта минта
   const MINT_OP_CODE = 0x12345678; // OP-код для минта (уточните в minter.ton.org)
   const JETTON_DECIMALS = 9; // Количество десятичных знаков (обычно 9)
-  const MINT_AMOUNT = 100000; // Количество токенов для минта (в целых единицах)
+  const MINT_AMOUNT = 10000; // Количество токенов для минта (в целых единицах)
 
   // Добавлена функция для отображения статуса минта
   function showMintStatus(message, type = "info") {
@@ -815,7 +815,7 @@
         validUntil: Math.floor(Date.now() / 1000) + 3600,
         messages: [{
           address: MINT_CONTRACT_ADDRESS,
-          amount: "50000000", // 0.05 TON для газа
+          amount: "100000000", // 0.05 TON для газа
           payload: await mintCell.toBoc().toString('base64')
         }]
       };
