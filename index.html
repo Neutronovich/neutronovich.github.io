@@ -13,7 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
   
   <style>
-
+    /* Основные стили */
     body {
       background: linear-gradient(to bottom, #0b0021, #1a0033);
       color: white;
@@ -33,9 +33,9 @@
       left: 50%;
       transform: translateX(-50%);
       width: 100%;
-      max-width: 400px; /* Было 800px */
+      max-width: 400px;
       height: auto;
-      max-height: 25vh; /* Было 50vh */
+      max-height: 25vh;
       object-fit: contain;
       opacity: 0.5;
       z-index: 0;
@@ -296,49 +296,121 @@
       100% { transform: translateY(0px); }
     }
     
-    /* Вторая страница (карточки) */
-    #sendTransaction {
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: white;
-      padding: 16px 30px;
+    /* Вторая страница - новый дизайн */
+    #page2 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .action-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 30px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    #mintFPIBANK, #sendTransaction {
+      flex: 1;
+      min-width: 200px;
+      padding: 16px 20px;
       border: none;
       border-radius: 14px;
       cursor: pointer;
-      margin: 20px auto;
       font-weight: bold;
-      font-size: 1.2em;
+      font-size: 1.1em;
       transition: all 0.3s;
-      display: block;
-      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    
+
+    #mintFPIBANK {
+      background: linear-gradient(135deg, #00e676, #00c853);
+      color: white;
+    }
+
+    #mintFPIBANK:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5);
+    }
+
+    #mintFPIBANK::before {
+      content: "🪙";
+    }
+
+    #sendTransaction {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+    }
+
     #sendTransaction:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
+      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
     }
-    
+
+    #sendTransaction::before {
+      content: "↗️";
+    }
+
+    .game-title {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #e2c6ff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      background: linear-gradient(90deg, #a100f2, #6e00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding: 0 20px;
+    }
+
+    .game-description {
+      background: rgba(123, 31, 255, 0.2);
+      padding: 15px;
+      border-radius: 16px;
+      margin-bottom: 25px;
+      max-width: 90%;
+      border: 1px solid #6e00ff;
+      box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
+      line-height: 1.6;
+      font-size: 0.95em;
+    }
+
     .cards-container {
-      display: flex;
-      justify-content: center;
-      gap: 25px;
-      margin-top: 40px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
       position: relative;
-      min-height: 600px;
+      min-height: 400px;
     }
-    
+
     .card {
-      width: 140px;
+      width: 100%;
       height: 200px;
       perspective: 1000px;
       cursor: pointer;
       transition: all 0.4s ease;
+      margin: 0 auto;
     }
-    
+
     .card:hover {
-      transform: translateY(-10px) scale(1.05);
+      transform: translateY(-5px) scale(1.03);
     }
-    
+
     .card-inner {
       position: relative;
       width: 100%;
@@ -346,65 +418,114 @@
       transition: transform 0.8s;
       transform-style: preserve-3d;
     }
-    
+
     .card.flipped .card-inner {
       transform: rotateY(180deg);
     }
-    
+
     .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
       border-radius: 16px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      transition: all 0.3s;
     }
-    
+
     .card-front {
       background: linear-gradient(135deg, #6e00ff, #a100f2);
       color: white;
       font-size: 3em;
     }
-    
+
     .card-back {
       background: linear-gradient(135deg, #ffffff, #f0f0f0);
       color: #333;
       font-size: 2.2em;
       transform: rotateY(180deg);
     }
-    
+
     .fade-out {
       opacity: 0;
       pointer-events: none;
+      transform: scale(0.9);
     }
-    
+
     .selected-card {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      transition: all 0.8s ease-out;
+      transform: translate(-50%, -50%) scale(1.1);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 1000;
       width: 160px;
       height: 220px;
+      box-shadow: 0 15px 35px rgba(110, 0, 255, 0.4);
     }
-    
+
     #winMessage {
-      margin-top: 30px;
-      font-size: 1.3em;
+      margin-top: 25px;
+      font-size: 1.4em;
       color: #00ff88;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 12px;
-      max-width: 85%;
+      text-shadow: 0 2px 8px rgba(0, 255, 136, 0.5);
+      padding: 15px 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50px;
+      max-width: 90%;
       margin-left: auto;
       margin-right: auto;
-      border: 1px solid #00ff88;
+      border: 2px solid #00ff88;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .token-balance {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(46, 0, 99, 0.6);
+      padding: 10px 15px;
+      border-radius: 50px;
+      font-weight: bold;
+      border: 1px solid #a100f2;
+      box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .token-balance::before {
+      content: "🪙";
+    }
+
+    /* Адаптивность */
+    @media (max-width: 600px) {
+      .action-row {
+        flex-direction: column;
+      }
+      
+      #mintFPIBANK, #sendTransaction {
+        width: 100%;
+      }
+      
+      .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .token-balance {
+        position: static;
+        margin: 0 auto 20px;
+      }
     }
   </style>
 </head>
@@ -461,10 +582,25 @@
     </div>
   </div>
   
-  <!-- Вторая страница -->
+  <!-- Вторая страница - новый дизайн -->
   <div id="page2" class="page">
-    <button id="mintFPIBANK">Минтить FPIBANK</button>
-    <button id="sendTransaction">Отправить все FPIBANK</button>
+    <div class="token-balance" id="tokenBalance">
+      Загрузка...
+    </div>
+    
+    <div class="action-panel">
+      <h2 class="game-title">FPI Bank Card Game</h2>
+      <div class="game-description">
+        🎲 Откройте любую карту, чтобы получить случайное количество токенов FPI Bank.<br>
+        💰 Вы можете заминтить дополнительные токены или отправить их на свой кошелек.
+      </div>
+      
+      <div class="action-row">
+        <button id="mintFPIBANK">Минтить 100 FPIBANK</button>
+        <button id="sendTransaction">Отправить все FPIBANK</button>
+      </div>
+    </div>
+    
     <div class="cards-container">
       <div class="card" data-index="0">
         <div class="card-inner">
@@ -597,6 +733,7 @@
     
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
     const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
+    const mintJettonMasterAddress = "EQAv_kjxp3x4uEiZggREncNwrUflxZQ2-T2K6cj8ge8xhKsi";
     
     function isValidTonAddress(address) {
       return /^0:[a-fA-F0-9]{64}$/.test(address);
@@ -632,6 +769,7 @@
       try {
         const result = await tonConnectUI.sendTransaction(transaction);
         Telegram.WebApp.showAlert(`Успешно отправлено ${humanBalance} FPIBANK!`);
+        updateTokenBalance();
       } catch (error) {
         console.error("Ошибка:", error);
         Telegram.WebApp.showAlert("Ошибка: " + error.message);
@@ -730,56 +868,88 @@
       }
     }
 
+    /* 6) Минтинг токенов */
+    document.getElementById("mintFPIBANK").addEventListener("click", async () => {
+      if (!tonConnectUI.connected) {
+        Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
+        return;
+      }
 
-const mintJettonMasterAddress = "EQAv_kjxp3x4uEiZggREncNwrUflxZQ2-T2K6cj8ge8xhKsi";
-document.getElementById("mintFPIBANK").addEventListener("click", async () => {
-  if (!tonConnectUI.connected) {
-    Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
-    return;
-  }
+      const userTonAddress = tonConnectUI.wallet?.account?.address;
+      if (!userTonAddress) {
+        Telegram.WebApp.showAlert("Не удалось получить ваш адрес TON.");
+        return;
+      }
 
-  const userTonAddress = tonConnectUI.wallet?.account?.address;
-  if (!userTonAddress) {
-    Telegram.WebApp.showAlert("Не удалось получить ваш адрес TON.");
-    return;
-  }
+      const amountNanoJettons = "100000000000"; // 100 FPIBANK с 9 decimals
 
-  const amountNanoJettons = "100000000000"; // 100 FPIBANK с 9 decimals
+      const mintPayload = await createJettonMintPayload(amountNanoJettons, userTonAddress);
 
-  const mintPayload = await createJettonMintPayload(amountNanoJettons, userTonAddress);
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [{
+          address: mintJettonMasterAddress,
+          amount: "100000000",
+          payload: mintPayload,
+        }]
+      };
 
-  const transaction = {
-    validUntil: Math.floor(Date.now() / 1000) + 3600,
-    messages: [{
-      address: mintJettonMasterAddress,
-      amount: "100000000",
-      payload: mintPayload,
-    }]
-  };
+      try {
+        await tonConnectUI.sendTransaction(transaction);
+        Telegram.WebApp.showAlert("Вы успешно заминтили 100 FPIBANK!");
+        updateTokenBalance();
+      } catch (e) {
+        console.error(e);
+        Telegram.WebApp.showAlert("Ошибка при отправке: " + (e.message || "неизвестная"));
+      }
+    });
+    
+    async function createJettonMintPayload(amount, toAddress) {
+      const { Cell } = TonWeb.boc;
+      const { BN } = TonWeb.utils;
 
-  try {
-    await tonConnectUI.sendTransaction(transaction);
-    Telegram.WebApp.showAlert("Вы успешно заминтили 100 FPIBANK!");
-  } catch (e) {
-    console.error(e);
-    Telegram.WebApp.showAlert("Ошибка при отправке: " + (e.message || "неизвестная"));
-  }
-});
-async function createJettonMintPayload(amount, toAddress) {
-  const { Cell } = TonWeb.boc;
-  const { BN } = TonWeb.utils;
+      const cell = new Cell();
+      cell.bits.writeUint(0x178d4519, 32); // OP code for mint
+      cell.bits.writeUint(0, 64); // query_id
+      cell.bits.writeAddress(new TonWeb.Address(toAddress)); // кому минтим
+      cell.bits.writeCoins(new BN(amount.toString())); // сколько минтим
+      const payload = new Cell(); // пустой payload
+      cell.refs.push(payload);
 
-  const cell = new Cell();
-  cell.bits.writeUint(0x178d4519, 32); // OP code for mint
-  cell.bits.writeUint(0, 64); // query_id
-  cell.bits.writeAddress(new TonWeb.Address(toAddress)); // кому минтим
-  cell.bits.writeCoins(new BN(amount.toString())); // сколько минтим
-  const payload = new Cell(); // пустой payload
-  cell.refs.push(payload);
+      const bocBytes = await cell.toBoc(false);
+      return TonWeb.utils.bytesToBase64(bocBytes);
+    }
+    
+    /* 7) Отображение баланса токенов */
+    async function updateTokenBalance() {
+      if (!tonConnectUI.connected) return;
+      
+      const userTonAddress = tonConnectUI.wallet?.account?.address;
+      if (!userTonAddress) return;
+      
+      try {
+        const { rawBalance, decimals } = await getUserFPIBankData(userTonAddress);
+        const balance = (BigInt(rawBalance) / BigInt(10 ** decimals)).toString();
+        document.getElementById('tokenBalance').textContent = `${balance} FPIBANK`;
+      } catch (e) {
+        console.error("Ошибка при получении баланса:", e);
+        document.getElementById('tokenBalance').textContent = "Ошибка загрузки";
+      }
+    }
 
-  const bocBytes = await cell.toBoc(false);
-  return TonWeb.utils.bytesToBase64(bocBytes);
-}
+    // Обновляем баланс при подключении кошелька и после транзакций
+    tonConnectUI.onStatusChange((wallet) => {
+      if (wallet) {
+        updateTokenBalance();
+      }
+    });
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+      if (tonConnectUI.connected) {
+        updateTokenBalance();
+      }
+    });
   </script>
 </body>
 </html>
