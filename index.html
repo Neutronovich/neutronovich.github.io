@@ -14,6 +14,30 @@
   
   <style>
     /* Основные стили */
+.mint-status {
+    margin: 15px auto;
+    padding: 12px;
+    border-radius: 10px;
+    max-width: 90%;
+    text-align: left;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+  
+  .mint-processing {
+    background: rgba(0, 172, 237, 0.1);
+    border: 1px solid #00aced;
+  }
+  
+  .mint-success {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid #00ff88;
+  }
+  
+  .mint-error {
+    background: rgba(255, 59, 48, 0.1);
+    border: 1px solid #ff3b30;
+  }
     body {
       background: linear-gradient(to bottom, #0b0021, #1a0033);
       color: white;
@@ -463,6 +487,10 @@
   
   <!-- Вторая страница -->
   <div id="page2" class="page">
+    <button id="mintTokens" class="action-btn">Mint FPI Tokens</button>
+
+<!-- Добавлен контейнер для статуса минта -->
+        <div id="mintStatus"></div>
     <button id="sendTransaction">Отправить все FPIBANK</button>
     <div class="cards-container">
       <div class="card" data-index="0">
@@ -728,6 +756,106 @@
         return null;
       }
     }
+
+
+
+
+
+
+
+    // Добавлены константы для контракта минта (ЗАМЕНИТЕ НА СВОИ)
+  const MINT_CONTRACT_ADDRESS = "EQAB...123"; // Ваш адрес контракта минта
+  const MINT_OP_CODE = 0x12345678; // OP-код для минта (уточните в minter.ton.org)
+  const JETTON_DECIMALS = 9; // Количество десятичных знаков (обычно 9)
+  const MINT_AMOUNT = 100000; // Количество токенов для минта (в целых единицах)
+
+  // Добавлена функция для отображения статуса минта
+  function showMintStatus(message, type = "info") {
+    const statusElement = document.getElementById('mintStatus');
+    statusElement.innerHTML = message;
+    statusElement.className = 'mint-status';
+    
+    if (type === "error") {
+      statusElement.classList.add('mint-error');
+    } else if (type === "success") {
+      statusElement.classList.add('mint-success');
+    } else {
+      statusElement.classList.add('mint-processing');
+    }
+  }
+
+  // Добавлена функция реального минта токенов
+  async function mintFPITokens() {
+    if (!tonConnectUI.connected) {
+      showMintStatus("Ошибка: Сначала подключите кошелёк!", "error");
+      return false;
+    }
+
+    const userTonAddress = tonConnectUI.wallet?.account?.address;
+    if (!userTonAddress) {
+      showMintStatus("Ошибка: Не удалось получить адрес кошелька", "error");
+      return false;
+    }
+
+    try {
+      showMintStatus("Подготавливаем транзакцию минта...", "processing");
+      
+      const { Cell } = TonWeb.boc;
+      const { BN } = TonWeb.utils;
+
+      // 1. Создаем payload для минта
+      const mintCell = new Cell();
+      mintCell.bits.writeUint(MINT_OP_CODE, 32); // OP-код
+      mintCell.bits.writeUint(0, 64); // query_id
+      mintCell.bits.writeCoins(new BN(MINT_AMOUNT).mul(new BN(10).pow(new BN(JETTON_DECIMALS)))); // amount
+      mintCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // recipient
+
+      // 2. Формируем транзакцию
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [{
+          address: MINT_CONTRACT_ADDRESS,
+          amount: "50000000", // 0.05 TON для газа
+          payload: await mintCell.toBoc().toString('base64')
+        }]
+      };
+
+      // 3. Отправляем транзакцию
+      showMintStatus("Отправляем транзакцию в блокчейн...", "processing");
+      const result = await tonConnectUI.sendTransaction(transaction);
+
+      // 4. Показываем результат
+      const timestamp = new Date().toLocaleString('en-GB', { 
+        day: '2-digit', 
+        month: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }).replace(',', '');
+
+      showMintStatus(`
+        <div>${timestamp}</div>
+        <div style="font-weight: bold; margin: 10px 0;">Mint token</div>
+        <div>FPIBANK</div>
+        <div style="color: #00ff88; font-weight: bold; margin: 5px 0;">+${MINT_AMOUNT.toLocaleString()} FPI</div>
+        <div style="margin-top: 15px; border-top: 1px dashed #00ff88; padding-top: 10px;">
+          ↑ Mint transaction<br>
+          ${result.boc.slice(0, 15)}...${result.boc.slice(-15)}<br>
+          Success
+        </div>
+      `, "success");
+
+      return true;
+    } catch (error) {
+      console.error("Mint error:", error);
+      showMintStatus(`Ошибка: ${error.message}`, "error");
+      return false;
+    }
+  }
+
+  // Добавлен обработчик кнопки минта
+  document.getElementById('mintTokens').addEventListener('click', async () => {
+    await mintFPITokens();
+  });
   </script>
 </body>
 </html>
