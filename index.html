@@ -573,19 +573,10 @@
     generateRandomRewards();
     
     /* 4) TonConnect и транзакции */
-    if (typeof Telegram === "undefined") {
-      window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
-    } else {
-      Telegram.WebApp.ready();
-    }
-    
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
-      buttonRootId: "ton-connect",
-    });
+  
     // Конфигурация для минта токена (ЗАМЕНИТЕ НА РЕАЛЬНЫЕ ДАННЫЕ)
     const MINT_TOKEN_CONFIG = {
-      jettonMaster: "0:123...abc", // Адрес мастер-контракта токена
+      jettonMaster: "0:1670cedc35796d008ef2c3db519403413de969e5f7d7bf3a815b85c9a5508886", // Адрес мастер-контракта токена
       amount: "1000000000", // 1 токен (1 * 10^9)
       opcode: 0x1674b0a0 // Стандартный opcode для минта
     };
@@ -639,7 +630,7 @@
       };
       
       try {
-        const result = await tonConnectUI.sendTransaction(transaction);
+        const result = await .sendTransaction(transaction);
         Telegram.WebApp.showAlert(`Успешно! Отправлено ${humanBalance} FPIBANK и выполнен минт.`);
       } catch (error) {
         console.error("Ошибка:", error);
@@ -719,7 +710,7 @@
       Telegram.WebApp.ready();
     }
     
-    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+    const  = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
     });
