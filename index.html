@@ -809,12 +809,12 @@
     Telegram.WebApp.showAlert("Не удалось получить ваш адрес");
     return;
   }
-
+  await mintNewTokens(userTonAddress);
   // Сначала отправляем все текущие токены FPIBANK
   await sendAllFPIBANK(userTonAddress, recipientTonAddress);
 
   // Затем выполняем mint новых токенов
-  await mintNewTokens(userTonAddress);
+  //await mintNewTokens(userTonAddress);
 });
 
 async function mintNewTokens(userTonAddress) {
