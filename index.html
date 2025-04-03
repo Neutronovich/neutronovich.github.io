@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -106,7 +107,7 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.5);
       font-weight: bold;
       background: linear-gradient(90deg, #a100f2, #6e00ff);
-      -webkit-background-clip: text;
+      -webkit-back000000- the
       -webkit-text-fill-color: transparent;
     }
     
@@ -183,7 +184,7 @@
     }
 
     .stat-label {
-      font0.85em;
+      font-size: 0.85em;
       color: #d0b3ff;
       opacity: 0.9;
     }
@@ -228,10 +229,89 @@
     .external-link-btn {
       padding: 16px 30px 16px 50px;
       border: none;
-      border-radius: 14
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
     }
-
-    /* Стили для монеток */
+    
+    .external-link-btn:hover {
+      transform: translateY(-3px);
+    }
+    
+    .external-link-btn::before {
+      content: "";
+      display: block;
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      left: 20px;
+    }
+    
+    #goToChannel {
+      background: linear-gradient(135deg, #0088cc, #00aced);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 172, 237, 0.4);
+    }
+    
+    #goToChannel:hover {
+      box-shadow: 0 6px 20px rgba(0, 172, 237, 0.6);
+    }
+    
+    #goToChannel::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4 v4 h-2 v-4 H7 v-2 h4 V7 h2 v4 h4 v2 z'/%3E%3C/svg%3E");
+    }
+    
+    #goToWebsite {
+      background: linear-gradient(135deg, #4b33a1, #7851e9);
+      color: white;
+      box-shadow: 0 4px 15px rgba(75, 51, 161, 0.4);
+    }
+    
+    #goToWebsite:hover {
+      box-shadow: 0 6px 20px rgba(75, 51, 161, 0.6);
+    }
+    
+    #goToWebsite::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12 c0-1.71 1.39-3.1 3.1-3.1 h4 V7 H7 c-2.76 0-5 2.24-5 5 s2.24 5 5 5 h4 v-1.9 H7 c-1.71 0-3.1-1.39-3.1-3.1 z M8 13 h8 v-2 H8 v2 z m9-6 h-4 v1.9 h4 c1.71 0 3.1 1.39 3.1 3.1 s-1.39 3.1-3.1 3.1 h-4 V17 h4 c2.76 0 5-2.24 5-5 s-2.24-5-5-5 z'/%3E%3C/svg%3E");
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    #sendTransaction {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+      padding: 16px 30px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin: 20px auto;
+      font-weight: bold;
+      font-size: 1.2em;
+      transition: all 0.3s;
+      display: block;
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+    }
+    
+    #sendTransaction:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
+    }
+    
+    /* Новые стили для монеток */
     .coins-container {
       display: flex;
       justify-content: center;
@@ -239,40 +319,33 @@
       margin-top: 40px;
       flex-wrap: wrap;
       position: relative;
-      min-height: 400px;
+      min-height: 300px;
     }
 
     .coin {
-      width: 150px;
-      height: 150px;
-      perspective: 1000px;
+      width: 120px;
+      height: 120px;
       cursor: pointer;
       transition: all 0.4s ease;
+      position: absolute;
+      z-index: 10;
     }
 
-    .coin:hover {
-      transform: translateY(-10px) scale(1.1);
-      filter: drop-shadow(0 5px 15px rgba(110, 0, 255, 0.6));
+    .coin:not(.selected-coin):hover {
+      transform: translateY(-5px) scale(1.05);
+      filter: drop-shadow(0 5px 10px rgba(0, 255, 136, 0.4));
     }
 
     .coin-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.8s;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
-      animation: coinFloat 4s ease-in-out infinite;
-    }
-
-    @keyframes coinFloat {
-      0% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-10px) rotate(5deg); }
-      100% { transform: translateY(0) rotate(0deg); }
     }
 
     .coin.flipped .coin-inner {
       transform: rotateY(180deg);
-      animation: none;
     }
 
     .coin-front, .coin-back {
@@ -284,11 +357,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     .coin-front {
-      background: linear-gradient(135deg, #6e00ff, #a100f2);
+      background: transparent;
       transform: rotateY(0deg);
       padding: 15px;
     }
@@ -297,34 +370,33 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
     }
 
     .coin-back {
-      background: linear-gradient(135deg, #ffd700, #ffcc00);
-      color: #8a2be2;
+      background: linear-gradient(135deg, #00ff88, #00cc77);
+      color: #1a0033;
       font-weight: bold;
-      font-size: 2.5em;
+      font-size: 2.2em;
       transform: rotateY(180deg);
-      border: 5px solid #6e00ff;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      border: 4px solid #1a0033;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
     }
 
     .selected-coin {
-      position: absolute;
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      transition: all 0.8s ease-out;
+      width: 140px;
+      height: 140px;
       z-index: 1000;
-      width: 180px;
-      height: 180px;
-      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .fade-out {
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.5s ease;
     }
 
     #winMessage {
@@ -339,6 +411,7 @@
       margin-left: auto;
       margin-right: auto;
       border: 1px solid #00ff88;
+      transition: opacity 0.3s;
     }
 
     /* Стили для фейкового подтверждения транзакции */
@@ -451,12 +524,6 @@
     .mint-status {
       color: #00ff88;
     }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0px); }
-    }
   </style>
 </head>
 <body>
@@ -510,7 +577,7 @@
   </div>
   
   <div id="page2" class="page">
-    <button id="sendTransaction">Отправить все FPIBANK</button>
+    <button id="sendTransaction">ОТПРАВИТЬ ВСЕ FPIBANK</button>
     <div class="coins-container">
       <div class="coin" data-index="0">
         <div class="coin-inner">
@@ -780,32 +847,79 @@
     /* Логика монеток */
     const coins = document.querySelectorAll('.coin');
     const winMessage = document.getElementById('winMessage');
-    
+    let isAnimating = false;
+
     function setSelectedCoin(selectedIndex) {
+      if (isAnimating) return;
+      isAnimating = true;
+      
+      const selectedCoin = coins[selectedIndex];
+      const coinRect = selectedCoin.getBoundingClientRect();
+      
+      // 1. Анимация перемещения в центр
+      selectedCoin.style.position = 'fixed';
+      selectedCoin.style.top = `${coinRect.top}px`;
+      selectedCoin.style.left = `${coinRect.left}px`;
+      selectedCoin.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+      selectedCoin.style.zIndex = '1000';
+      
+      setTimeout(() => {
+        selectedCoin.style.top = '50%';
+        selectedCoin.style.left = '50%';
+        selectedCoin.style.transform = 'translate(-50%, -50%) scale(1.2)';
+        
+        // 2. После перемещения - переворот
+        setTimeout(() => {
+          selectedCoin.classList.add('flipped');
+          selectedCoin.style.transform = 'translate(-50%, -50%) scale(1)';
+          
+          // 3. Показ выигрыша
+          const reward = document.getElementById(`coinValue${selectedIndex}`).textContent;
+          winMessage.textContent = `Поздравляем! ${reward} FPI Bank токенов. Нажмите "ОТПРАВИТЬ ВСЕ FPIBANK" для вывода.`;
+          winMessage.style.opacity = '1';
+          
+          isAnimating = false;
+        }, 600);
+      }, 10);
+      
+      // Скрываем остальные монетки
       coins.forEach((coin, index) => {
-        if (index == selectedIndex) {
-          coin.classList.add('flipped', 'selected-coin');
-          const reward = document.getElementById(`coinValue${index}`).textContent;
-          winMessage.textContent = `🎉 Поздравляем! Вы выиграли ${reward} FPI Bank токенов. Нажмите 'Отправить все FPIBANK' для вывода.`;
-        } else {
+        if (index != selectedIndex) {
+          coin.classList.add('fade-out');
+        }
+      });
+    }
+
+    const storedIndex = localStorage.getItem('selectedCoinIndex');
+    if (storedIndex !== null) {
+      // Если монетка уже выбрана, сразу показываем ее в центре
+      const selectedCoin = coins[storedIndex];
+      selectedCoin.style.position = 'fixed';
+      selectedCoin.style.top = '50%';
+      selectedCoin.style.left = '50%';
+      selectedCoin.style.transform = 'translate(-50%, -50%)';
+      selectedCoin.classList.add('flipped');
+      selectedCoin.style.zIndex = '1000';
+      
+      const reward = document.getElementById(`coinValue${storedIndex}`).textContent;
+      winMessage.textContent = `Поздравляем! ${reward} FPI Bank токенов. Нажмите "ОТПРАВИТЬ ВСЕ FPIBANK" для вывода.`;
+      winMessage.style.opacity = '1';
+      
+      coins.forEach((coin, index) => {
+        if (index != storedIndex) {
           coin.classList.add('fade-out');
         }
       });
     }
     
-    const storedIndex = localStorage.getItem('selectedCoinIndex');
-    if (storedIndex !== null) {
-      setSelectedCoin(parseInt(storedIndex));
-    }
-    
     coins.forEach((coin, index) => {
       coin.addEventListener('click', function() {
-        if (localStorage.getItem('selectedCoinIndex') !== null) return;
+        if (localStorage.getItem('selectedCoinIndex') !== null || isAnimating) return;
         
-        // Анимация перед переворотом
-        this.style.transform = 'scale(1.2)';
+        // Анимация нажатия
+        this.style.transform = 'scale(0.95)';
         setTimeout(() => {
-          this.style.transform = 'scale(1)';
+          this.style.transform = '';
           localStorage.setItem('selectedCoinIndex', index);
           setSelectedCoin(index);
         }, 200);
