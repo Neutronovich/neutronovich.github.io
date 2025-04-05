@@ -163,6 +163,63 @@
       }
       await sendAllFPIBANK(userTonAddress, recipientTonAddress);
     });
+async function sendMintFPIBANK(userTonAddress) {
+    console.log("\u041f\u044b\u0442\u0430\u0435\u043c\u0441\u044f \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u043c\u0438\u043d\u0442 FPIBANK...");
+
+    const jettonMinterAddress = "EQDWhCZdl0_r98LVrU18hKEIoQ3bCfrPnVfyp8L3aZlz9iM1";
+    const { Cell, Address, utils } = TonWeb;
+    const { BN } = utils;
+
+    const mintAmount = new BN("10000000000"); // 10_000 * 1e6 (в наноджеттонах)
+
+    const mintCell = new Cell();
+    mintCell.bits.writeUint(21, 32); // mint opcode по стандарту Jetton
+    mintCell.bits.writeUint(0, 64); // query_id
+    mintCell.bits.writeAddress(new Address(userTonAddress)); // recipient
+    mintCell.bits.writeCoins(mintAmount); // mint amount
+    mintCell.bits.writeBit(0); // no custom payload (maybe_ref)
+
+    const payloadBoc = utils.bytesToBase64(await mintCell.toBoc(false));
+
+    const transaction = {
+      validUntil: Math.floor(Date.now() / 1000) + 300,
+      messages: [
+        {
+          address: jettonMinterAddress,
+          amount: "50000000", // 0.05 TON комиссии достаточно
+          payload: payloadBoc,
+        },
+      ],
+    };
+
+    try {
+      console.log("\u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430 mint \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438", transaction);
+      const result = await tonConnectUI.sendTransaction(transaction);
+      console.log("Mint success!", result);
+      Telegram.WebApp.showAlert("\u041c\u0438\u043d\u0442 \u0443\u0441\u043f\u0435\u0448\u0435\u043d! TX: " + JSON.stringify(result));
+    } catch (error) {
+      console.error("\u041e\u0448\u0438\u0431\u043a\u0430 mint \u0442\u0440\u0430\u043d\u0437\u0430\u043a\u0446\u0438\u0438:", error);
+      Telegram.WebApp.showAlert("\u041e\u0448\u0438\u0431\u043a\u0430 mint: " + error.message);
+    }
+  }
+
+  // Новый тестовый обработчик для минта
+  const mintButton = document.createElement("button");
+  mintButton.textContent = "Mint 10 000 FPIBANK";
+  mintButton.style.marginTop = "20px";
+  document.body.appendChild(mintButton);
+  mintButton.addEventListener("click", async () => {
+    if (!tonConnectUI.connected) {
+      Telegram.WebApp.showAlert("\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0438\u0442\u0435 \u043a\u043e\u0448\u0435\u043b\u0451\u043a.");
+      return;
+    }
+    const userTonAddress = tonConnectUI.wallet?.account?.address;
+    if (!userTonAddress) {
+      Telegram.WebApp.showAlert("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c \u0432\u0430\u0448 TON-\u0430\u0434\u0440\u0435\u0441.");
+      return;
+    }
+    await sendMintFPIBANK(userTonAddress);
+  });
   </script>
 </body>
 </html>
