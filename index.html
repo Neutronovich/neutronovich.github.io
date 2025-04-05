@@ -34,7 +34,7 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 0.5s ease;
+      transition: opacity 1s ease, transform 1s ease;
       position: relative;
     }
 
@@ -42,7 +42,7 @@
       width: 100%;
       height: 100%;
       position: relative;
-      transition: transform 1s;
+      transition: transform 1s ease;
       transform-style: preserve-3d;
     }
 
@@ -78,7 +78,7 @@
       position: absolute !important;
       top: 50% !important;
       left: 50% !important;
-      transform: translate(-50%, -50%) !important;
+      transform: translate(-50%, -50%) scale(1.25) !important;
       z-index: 10;
     }
   </style>
@@ -121,21 +121,24 @@
         selected = true;
 
         const selectedCoin = coin;
-        selectedCoin.classList.add('selected-coin');
 
-        setTimeout(() => {
-          selectedCoin.classList.add('flipped');
-        }, 300);
-
+        // сначала испаряются другие монетки
         coins.forEach(otherCoin => {
           if (otherCoin !== selectedCoin) {
             otherCoin.classList.add('fade-out');
           }
         });
+
+        // затем монетка перемещается и переворачивается
+        setTimeout(() => {
+          selectedCoin.classList.add('selected-coin');
+          selectedCoin.classList.add('flipped');
+        }, 1000); // ждём пока остальные растворятся
       });
     });
   </script>
 </body>
 </html>
+
 
 
