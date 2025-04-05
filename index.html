@@ -34,7 +34,7 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 1s ease, transform 1s ease;
+      transition: opacity 1.5s ease, transform 1.5s ease;
       position: relative;
     }
 
@@ -42,7 +42,7 @@
       width: 100%;
       height: 100%;
       position: relative;
-      transition: transform 1s ease;
+      transition: transform 1.6s ease-in-out;
       transform-style: preserve-3d;
     }
 
@@ -71,15 +71,14 @@
 
     .fade-out {
       opacity: 0;
+      transform: scale(0.8);
       pointer-events: none;
     }
 
     .selected-coin {
       position: absolute !important;
-      top: 50% !important;
-      left: 50% !important;
-      transform: translate(-50%, -50%) scale(1.25) !important;
       z-index: 10;
+      transition: transform 1.5s ease-in-out, top 1.5s ease-in-out, left 1.5s ease-in-out;
     }
   </style>
 </head>
@@ -113,6 +112,7 @@
 
   <script>
     const coins = document.querySelectorAll('.coin');
+    const container = document.querySelector('.coins-container');
     let selected = false;
 
     coins.forEach(coin => {
@@ -121,24 +121,35 @@
         selected = true;
 
         const selectedCoin = coin;
+        const rect = selectedCoin.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
 
-        // сначала испаряются другие монетки
+        const offsetX = rect.left + rect.width / 2 - (containerRect.left + containerRect.width / 2);
+        const offsetY = rect.top + rect.height / 2 - (containerRect.top + containerRect.height / 2);
+
+        selectedCoin.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+        // Плавно исчезают другие монетки
         coins.forEach(otherCoin => {
           if (otherCoin !== selectedCoin) {
             otherCoin.classList.add('fade-out');
           }
         });
 
-        // затем монетка перемещается и переворачивается
+        // Затем перемещаем и увеличиваем выбранную монетку в центр и переворачиваем
         setTimeout(() => {
           selectedCoin.classList.add('selected-coin');
-          selectedCoin.classList.add('flipped');
-        }, 1000); // ждём пока остальные растворятся
+          selectedCoin.style.top = '50%';
+          selectedCoin.style.left = '50%';
+          selectedCoin.style.transform = 'translate(-50%, -50%) scale(1.25)';
+
+          setTimeout(() => {
+            selectedCoin.classList.add('flipped');
+          }, 300);
+
+        }, 1500);
       });
     });
   </script>
 </body>
 </html>
-
-
-
