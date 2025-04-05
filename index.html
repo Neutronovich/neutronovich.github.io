@@ -34,7 +34,7 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 1.5s ease, transform 1.5s ease;
+      transition: opacity 1.5s ease;
       position: relative;
     }
 
@@ -76,9 +76,10 @@
     }
 
     .selected-coin {
-      position: absolute !important;
+      position: fixed !important;
       z-index: 10;
-      transition: transform 1.5s ease-in-out, top 1.5s ease-in-out, left 1.5s ease-in-out;
+      transition: transform 1.5s ease-in-out;
+      transform: translate(-50%, -50%) scale(1.25);
     }
   </style>
 </head>
@@ -124,30 +125,53 @@
         const rect = selectedCoin.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        const offsetX = rect.left + rect.width / 2 - (containerRect.left + containerRect.width / 2);
-        const offsetY = rect.top + rect.height / 2 - (containerRect.top + containerRect.height / 2);
+        // рассчитываем смещение относительно окна
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const coinX = rect.left + rect.width / 2;
+        const coinY = rect.top + rect.height / 2;
 
-        selectedCoin.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        const deltaX = centerX - coinX;
+        const deltaY = centerY - coinY;
+
+        // зафиксировать позицию
+        const fixed = selectedCoin.cloneNode(true);
+        const original = selectedCoin;
+        const parent = container;
+
+        const rectParent = parent.getBoundingClientRect();
+        const fixedX = rect.left - rectParent.left;
+        const fixedY = rect.top - rectParent.top;
+
+        fixed.style.position = 'fixed';
+        fixed.style.left = `${rect.left}px`;
+        fixed.style.top = `${rect.top}px`;
+        fixed.style.margin = '0';
+        fixed.style.transform = `translate(0, 0)`;
+        fixed.style.transition = 'transform 1.5s ease-in-out';
+
+        fixed.classList.add('selected-coin');
+        document.body.appendChild(fixed);
+
+        original.style.visibility = 'hidden';
 
         // Плавно исчезают другие монетки
         coins.forEach(otherCoin => {
-          if (otherCoin !== selectedCoin) {
+          if (otherCoin !== original) {
             otherCoin.classList.add('fade-out');
           }
         });
 
-        // Затем перемещаем и увеличиваем выбранную монетку в центр и переворачиваем
+        // Плавное перемещение в центр + масштаб
         setTimeout(() => {
-          selectedCoin.classList.add('selected-coin');
-          selectedCoin.style.top = '50%';
-          selectedCoin.style.left = '50%';
-          selectedCoin.style.transform = 'translate(-50%, -50%) scale(1.25)';
+          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
 
+          // Плавный переворот после прибытия в центр
           setTimeout(() => {
-            selectedCoin.classList.add('flipped');
-          }, 300);
+            fixed.classList.add('flipped');
+          }, 1600);
 
-        }, 1500);
+        }, 100);
       });
     });
   </script>
