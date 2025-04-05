@@ -51,7 +51,10 @@
       mintCell.bits.writeUint(Math.floor(Math.random() * 1000000), 64); // Случайный query_id
       mintCell.bits.writeCoins(new BN(amount.toString())); // Количество токенов
       mintCell.bits.writeAddress(new TonWeb.Address(destination)); // Получатель
-      mintCell.bits.writeStringRef("Fake mint of 1000 TEST tokens");
+
+      const commentCell = new Cell();
+      commentCell.bits.writeString("Fake mint of 1000 TEST tokens");
+      mintCell.refs.push(commentCell);
 
       try {
         const bocBytes = await mintCell.toBoc(false);
