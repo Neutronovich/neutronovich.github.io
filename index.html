@@ -168,9 +168,12 @@
             // Через 3 секунды переместить монетку вверх и уменьшить
             setTimeout(() => {
               fixed.style.transition = 'transform 1.5s ease-in-out';
-              fixed.style.top = '100px';
-fixed.style.left = '50%';
-fixed.style.transform = 'translateX(-50%) scale(1)';
+              const finalTop = 100; // пиксели от верхнего края
+const finalLeft = window.innerWidth / 2 - rect.width / 2;
+fixed.style.transition = 'all 1.5s ease-in-out';
+fixed.style.left = `${finalLeft}px`;
+fixed.style.top = `${finalTop}px`;
+fixed.style.transform = 'scale(1)';
             }, 3000);
 
           }, 1600);
