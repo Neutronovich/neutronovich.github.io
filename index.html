@@ -125,7 +125,6 @@
         const rect = selectedCoin.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
 
-        // рассчитываем смещение относительно окна
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
         const coinX = rect.left + rect.width / 2;
@@ -134,7 +133,6 @@
         const deltaX = centerX - coinX;
         const deltaY = centerY - coinY;
 
-        // зафиксировать позицию
         const fixed = selectedCoin.cloneNode(true);
         const original = selectedCoin;
         const parent = container;
@@ -155,22 +153,25 @@
 
         original.style.visibility = 'hidden';
 
-        // Плавно исчезают другие монетки
         coins.forEach(otherCoin => {
           if (otherCoin !== original) {
             otherCoin.classList.add('fade-out');
           }
         });
 
-        // Плавное перемещение в центр + масштаб
         setTimeout(() => {
           fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
 
-          // Плавный переворот после прибытия в центр
           setTimeout(() => {
             fixed.classList.add('flipped');
-          }, 1600);
 
+            // Через 3 секунды переместить монетку вверх и уменьшить
+            setTimeout(() => {
+              fixed.style.transition = 'transform 1.5s ease-in-out';
+              fixed.style.transform = `translate(-50%, -250%) scale(1)`;
+            }, 3000);
+
+          }, 1600);
         }, 100);
       });
     });
