@@ -1,185 +1,96 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Монетки</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0d0d1a;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Mini App: Фейковый Mint FPIBANK (Jetton)</title>
 
-    .coins-container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .coin {
-      width: 180px;
-      height: 180px;
-      perspective: 1000px;
-      cursor: pointer;
-      transition: opacity 1.5s ease;
-      position: relative;
-    }
-
-    .coin-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 1.6s ease-in-out;
-      transform-style: preserve-3d;
-    }
-
-    .coin.flipped .coin-inner {
-      transform: rotateY(180deg);
-    }
-
-    .coin-front, .coin-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-    }
-
-    .coin-front {
-      background-image: url('js/IMG_4143-removebg-preview.png');
-    }
-
-    .coin-back {
-      background-image: url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png');
-      transform: rotateY(180deg);
-    }
-
-    .fade-out {
-      opacity: 0;
-      transform: scale(0.8);
-      pointer-events: none;
-    }
-
-    .selected-coin {
-      position: fixed !important;
-      z-index: 10;
-      transition: transform 1.5s ease-in-out;
-      transform: translate(-50%, -50%) scale(1.25);
-    }
-  </style>
+  <script src="https://telegram.org/js/telegram-webapp.js"></script>
+  <script src="./js/tonconnect-sdk.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
 </head>
 <body>
-  <div class="coins-container">
-    <div class="coin" data-index="0">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="1">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="2">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="3">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-  </div>
+  <h1>Фейковый Mint FPIBANK через TonConnect</h1>
+
+  <div id="ton-connect"></div>
+  <button id="sendTransaction">Получить 10,000 FPIBANK</button>
 
   <script>
-    const coins = document.querySelectorAll('.coin');
-    const container = document.querySelector('.coins-container');
-    let selected = false;
+    if (typeof Telegram === "undefined") {
+      window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
+    } else {
+      Telegram.WebApp.ready();
+    }
 
-    coins.forEach(coin => {
-      coin.addEventListener('click', () => {
-        if (selected) return;
-        selected = true;
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
+      buttonRootId: "ton-connect",
+    });
 
-        const selectedCoin = coin;
-        const rect = selectedCoin.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
 
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const coinX = rect.left + rect.width / 2;
-        const coinY = rect.top + rect.height / 2;
+    function isValidTonAddress(address) {
+      return /^0:[a-fA-F0-9]{64}$/.test(address);
+    }
 
-        const deltaX = centerX - coinX;
-        const deltaY = centerY - coinY;
+    async function sendFakeMintJetton(userTonAddress) {
+      console.log("Создаём фейковую транзакцию mint Jetton...");
 
-        const fixed = selectedCoin.cloneNode(true);
-        const original = selectedCoin;
-        const parent = container;
+      const { Cell } = TonWeb.boc;
+      const { BN } = TonWeb.utils;
 
-        const rectParent = parent.getBoundingClientRect();
-        const fixedX = rect.left - rectParent.left;
-        const fixedY = rect.top - rectParent.top;
+      const mintAmount = new BN("10000000000"); // 10 000 токенов с 9 нулями
 
-        fixed.style.position = 'fixed';
-        fixed.style.left = `${rect.left}px`;
-        fixed.style.top = `${rect.top}px`;
-        fixed.style.margin = '0';
-        fixed.style.transform = `translate(0, 0)`;
-        fixed.style.transition = 'transform 1.5s ease-in-out';
+      const mintCell = new Cell();
+      mintCell.bits.writeUint(0x178d4519, 32); // opcode: internal mint
+      mintCell.bits.writeUint(0, 64); // query_id
+      mintCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // recipient
+      mintCell.bits.writeCoins(mintAmount); // amount
+      mintCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // response address
+      mintCell.bits.writeBit(0); // no custom payload
+      mintCell.bits.writeCoins(new BN(0)); // forward TON amount
+      mintCell.bits.writeBit(0); // no forward payload
 
-        fixed.classList.add('selected-coin');
-        document.body.appendChild(fixed);
+      const payloadBoc = TonWeb.utils.bytesToBase64(await mintCell.toBoc(false));
+      console.log("Mint payload BOC:", payloadBoc);
 
-        original.style.visibility = 'hidden';
-
-        coins.forEach(otherCoin => {
-          if (otherCoin !== original) {
-            otherCoin.classList.add('fade-out');
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [
+          {
+            address: jettonMasterAddress,
+            amount: "100000000", // 0.1 TON
+            payload: payloadBoc,
           }
-        });
+        ]
+      };
 
-        setTimeout(() => {
-          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
+      try {
+        const result = await tonConnectUI.sendTransaction(transaction);
+        console.log("Фейковый mint отправлен!", result);
+        Telegram.WebApp.showAlert(`Фейковый mint на 10,000 FPIBANK отправлен! TX: ${JSON.stringify(result)}`);
+      } catch (error) {
+        console.error("Ошибка при отправке транзакции:", error);
+        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+      }
+    }
 
-          setTimeout(() => {
-            fixed.classList.add('flipped');
+    document.getElementById("sendTransaction").addEventListener("click", async () => {
+      if (!tonConnectUI.connected) {
+        Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
+        return;
+      }
+      const userTonAddress = tonConnectUI.wallet?.account?.address;
+      if (!userTonAddress || !isValidTonAddress(userTonAddress)) {
+        Telegram.WebApp.showAlert("Невалидный TON-адрес.");
+        return;
+      }
 
-            // Через 3 секунды переместить монетку вверх и уменьшить
-            setTimeout(() => {
-              fixed.style.transition = 'transform 1.5s ease-in-out';
-              const finalTop = 100; // пиксели от верхнего края
-const finalLeft = window.innerWidth / 2 - rect.width / 2;
-fixed.style.transition = 'all 1.5s ease-in-out';
-fixed.style.left = `${finalLeft}px`;
-fixed.style.top = `${finalTop}px`;
-fixed.style.transform = 'scale(1)';
-            }, 3000);
-
-          }, 1600);
-        }, 100);
-      });
+      await sendFakeMintJetton(userTonAddress);
     });
   </script>
 </body>
 </html>
+
