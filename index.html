@@ -183,9 +183,20 @@ fixed.style.transform = 'scale(1)';
   
         // показать сообщение через 1 секунду после перемещения
         setTimeout(() => {
-          const msg = document.getElementById('win-message');
-          msg.style.opacity = '1';
-        }, 1000);
+              fixed.style.transition = 'all 1.5s ease-in-out';
+              const finalTop = 100;
+              const finalLeft = window.innerWidth / 2 - rect.width / 2;
+              fixed.style.left = `${finalLeft}px`;
+              fixed.style.top = `${finalTop}px`;
+              fixed.style.transform = 'scale(1)';
+
+              // показать сообщение после окончания перемещения
+              setTimeout(() => {
+                const msg = document.getElementById('win-message');
+                msg.style.opacity = '1';
+              }, 1600);
+
+            }, 3000);
 </script>
   <div id="win-message" style="
     position: fixed;
