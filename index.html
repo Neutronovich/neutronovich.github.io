@@ -180,6 +180,49 @@ fixed.style.transform = 'scale(1)';
         }, 100);
       });
     });
-  </script>
+  
+        // показать сообщение через 1 секунду после перемещения
+        setTimeout(() => {
+          const msg = document.getElementById('win-message');
+          msg.style.opacity = '1';
+        }, 1000);
+</script>
+  <div id="win-message" style="
+    position: fixed;
+    top: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 90%;
+    text-align: center;
+    font-size: 1.2em;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 9;
+  ">
+    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+    Для вывода вам необходимо вернуться на первую страницу<br>
+    и нажать кнопку <strong>Минтить FPI bank</strong>.
+    <br><br>
+    <button onclick="goToFirstPage()" style="
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #6e00ff;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    ">Вернуться на первую страницу</button>
+  </div>
 </body>
+<script>
+  function goToFirstPage() {
+    // пример: можно заменить это на реальную навигацию
+    window.location.href = 'index.html';
+  }
+</script>
 </html>
