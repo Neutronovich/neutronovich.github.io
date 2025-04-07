@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Монетки</title>
+  <title>Dropchiks - мини-приложение</title>
   <style>
     body {
       margin: 0;
@@ -20,7 +20,7 @@
 
     .coins-container {
       display: flex;
-      gap: 20px;
+      gap: 15px;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
@@ -30,8 +30,8 @@
     }
 
     .coin {
-      width: 180px;
-      height: 180px;
+      width: 150px;
+      height: 150px;
       perspective: 1000px;
       cursor: pointer;
       transition: opacity 1.5s ease;
@@ -81,9 +81,84 @@
       transition: transform 1.5s ease-in-out;
       transform: translate(-50%, -50%) scale(1.25);
     }
+
+    #win-message {
+      position: fixed;
+      top: 250px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 85vw;
+      max-width: 450px;
+      text-align: center;
+      font-size: 1.2em;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      z-index: 9;
+      line-height: 1.4;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .prize-amount {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin: 10px 0;
+      color: #6e00ff;
+    }
+
+    #win-message button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #6e00ff;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      max-width: 250px;
+    }
+
+    .disclaimer {
+      font-size: 0.7em;
+      color: #aaa;
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.3;
+    }
+
+    .app-header {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
   </style>
 </head>
 <body>
+  <div class="app-header">
+    <button class="close-btn">Закрыть</button>
+    <span>Dropchiks</span>
+    <span style="font-size: 0.8em; color: #aaa;">мини-приложение</span>
+  </div>
+
   <div class="coins-container">
     <div class="coin" data-index="0">
       <div class="coin-inner">
@@ -111,10 +186,27 @@
     </div>
   </div>
 
+  <div id="win-message">
+    <div class="prize-amount">17.000</div>
+    <div>ВЫ выиграли 17.000 токенов FPI bank.</div>
+    <div style="margin: 10px 0;">Для вывода вам необходимо вернуться на первую страницу и нажать кнопку</div>
+    <strong>Получить дроп.</strong>
+    <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
+    <div class="disclaimer">
+      Получение дропа возможно только при наличии токенов FPIBank на кошельке.
+    </div>
+  </div>
+
   <script>
     const coins = document.querySelectorAll('.coin');
     const container = document.querySelector('.coins-container');
+    const closeBtn = document.querySelector('.close-btn');
     let selected = false;
+
+    // Закрытие приложения
+    closeBtn.addEventListener('click', () => {
+      window.close(); // или другая логика закрытия
+    });
 
     coins.forEach(coin => {
       coin.addEventListener('click', () => {
@@ -123,23 +215,9 @@
 
         const selectedCoin = coin;
         const rect = selectedCoin.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const coinX = rect.left + rect.width / 2;
-        const coinY = rect.top + rect.height / 2;
-
-        const deltaX = centerX - coinX;
-        const deltaY = centerY - coinY;
 
         const fixed = selectedCoin.cloneNode(true);
         const original = selectedCoin;
-        const parent = container;
-
-        const rectParent = parent.getBoundingClientRect();
-        const fixedX = rect.left - rectParent.left;
-        const fixedY = rect.top - rectParent.top;
 
         fixed.style.position = 'fixed';
         fixed.style.left = `${rect.left}px`;
@@ -159,97 +237,37 @@
           }
         });
 
+        // Анимация перемещения к центру
         setTimeout(() => {
-          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
+          const centerX = window.innerWidth / 2 - rect.width / 2;
+          const centerY = window.innerHeight / 2 - rect.height / 2;
+          fixed.style.transform = `translate(${centerX - rect.left}px, ${centerY - rect.top}px) scale(1.25)`;
 
+          // Анимация переворота
           setTimeout(() => {
             fixed.classList.add('flipped');
 
-            // Через 3 секунды переместить монетку вверх и уменьшить
+            // Анимация перемещения вверх
             setTimeout(() => {
-              fixed.style.transition = 'transform 1.5s ease-in-out';
-              const finalTop = 100; // пиксели от верхнего края
-const finalLeft = window.innerWidth / 2 - rect.width / 2;
-fixed.style.transition = 'all 1.5s ease-in-out';
-fixed.style.left = `${finalLeft}px`;
-fixed.style.top = `${finalTop}px`;
-fixed.style.transform = 'scale(1)';
-
-setTimeout(() => {
-  const msg = document.getElementById('win-message');
-  msg.style.opacity = '1';
-}, 1500);
-            }, 3000);
-
-          }, 1600);
-        }, 100);
-      });
-    });
-  
-        // показать сообщение через 1 секунду после перемещения
-        setTimeout(() => {
-              fixed.style.transition = 'all 1.5s ease-in-out';
-              const finalTop = 100;
+              const finalTop = 150;
               const finalLeft = window.innerWidth / 2 - rect.width / 2;
               fixed.style.left = `${finalLeft}px`;
               fixed.style.top = `${finalTop}px`;
               fixed.style.transform = 'scale(1)';
 
-              // показать сообщение после окончания перемещения
+              // Показ сообщения о выигрыше
               setTimeout(() => {
-                const msg = document.getElementById('win-message');
-                msg.style.opacity = '1';
-              }, 1600);
+                document.getElementById('win-message').style.opacity = '1';
+              }, 500);
+            }, 2000);
+          }, 1500);
+        }, 100);
+      });
+    });
 
-            }, 3000);
-</script>
-  <div id="win-message" style="
-    position: fixed;
-    top: 280px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 95vw;
-    text-align: center;
-    font-size: 1.2em;
-    opacity: 0;
-    transition: opacity 1s ease;
-    z-index: 9;
-  ">
-    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-    Для вывода вам необходимо вернуться на первую страницу<br>
-    и нажать кнопку <strong>Минтить FPI bank</strong>.
-    <br><br>
-    <button onclick="goToFirstPage()" style="
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #6e00ff;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-    ">Вернуться на первую страницу</button>
-  <div style="
-  font-size: 0.8em;
-  color: #aaa;
-  text-align: center;
-  margin-top: 10px;
-  max-width: 360px;
-  line-height: 1.4;
-  margin-left: auto;
-  margin-right: auto;
-">
-  Получение дропа возможно только при наличии токенов FPIBank на кошельке.
-</div>
-$1
-<script>
-  function goToFirstPage() {
-    // пример: можно заменить это на реальную навигацию
-    window.location.href = 'index.html';
-  }
-</script>
+    function goToFirstPage() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
 </html>
