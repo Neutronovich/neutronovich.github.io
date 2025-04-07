@@ -81,6 +81,53 @@
       transition: transform 1.5s ease-in-out;
       transform: translate(-50%, -50%) scale(1.25);
     }
+
+    #win-message {
+      position: fixed;
+      top: 280px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90vw;
+      max-width: 600px;
+      text-align: center;
+      font-size: 1.5em;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 9;
+      line-height: 1.6;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #win-message strong {
+      font-size: 1.8em;
+    }
+
+    #win-message button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      background: #6e00ff;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .disclaimer {
+      font-size: 0.8em;
+      color: #aaa;
+      text-align: center;
+      margin-top: 10px;
+      max-width: 360px;
+      line-height: 1.4;
+      margin-left: auto;
+      margin-right: auto;
+    }
   </style>
 </head>
 <body>
@@ -108,6 +155,17 @@
         <div class="coin-front"></div>
         <div class="coin-back"></div>
       </div>
+    </div>
+  </div>
+
+  <div id="win-message">
+    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+    Для вывода вам необходимо вернуться на первую страницу<br>
+    и нажать кнопку <strong>Получить дроп</strong>.
+    <br><br>
+    <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
+    <div class="disclaimer">
+      Получение дропа возможно только при наличии токенов FPIBank на кошельке.
     </div>
   </div>
 
@@ -165,91 +223,28 @@
           setTimeout(() => {
             fixed.classList.add('flipped');
 
-            // Через 3 секунды переместить монетку вверх и уменьшить
             setTimeout(() => {
               fixed.style.transition = 'transform 1.5s ease-in-out';
-              const finalTop = 100; // пиксели от верхнего края
-const finalLeft = window.innerWidth / 2 - rect.width / 2;
-fixed.style.transition = 'all 1.5s ease-in-out';
-fixed.style.left = `${finalLeft}px`;
-fixed.style.top = `${finalTop}px`;
-fixed.style.transform = 'scale(1)';
-
-setTimeout(() => {
-  const msg = document.getElementById('win-message');
-  msg.style.opacity = '1';
-}, 1500);
-            }, 3000);
-
-          }, 1600);
-        }, 100);
-      });
-    });
-  
-        // показать сообщение через 1 секунду после перемещения
-        setTimeout(() => {
-              fixed.style.transition = 'all 1.5s ease-in-out';
               const finalTop = 100;
               const finalLeft = window.innerWidth / 2 - rect.width / 2;
+              fixed.style.transition = 'all 1.5s ease-in-out';
               fixed.style.left = `${finalLeft}px`;
               fixed.style.top = `${finalTop}px`;
               fixed.style.transform = 'scale(1)';
 
-              // показать сообщение после окончания перемещения
               setTimeout(() => {
                 const msg = document.getElementById('win-message');
                 msg.style.opacity = '1';
-              }, 1600);
-
+              }, 1500);
             }, 3000);
-</script>
-  <div id="win-message" style="
-    position: fixed;
-    top: 280px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 90vw;
-    text-align: center;
-    font-size: 1.2em;
-    opacity: 0;
-    transition: opacity 1s ease;
-    z-index: 9;
-  ">
-    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-    Для вывода вам необходимо вернуться на первую страницу<br>
-    и нажать кнопку <strong>Получить дроп</strong>.
-    <br><br>
-    <button onclick="goToFirstPage()" style="
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #6e00ff;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-    ">Вернуться на первую страницу</button>
-  <div style="
-  font-size: 0.8em;
-  color: #aaa;
-  text-align: center;
-  margin-top: 10px;
-  max-width: 360px;
-  line-height: 1.4;
-  margin-left: auto;
-  margin-right: auto;
-">
-  Получение дропа возможно только при наличии токенов FPIBank на кошельке.
-</div>
-$1
-<script>
-  function goToFirstPage() {
-    // пример: можно заменить это на реальную навигацию
-    window.location.href = 'index.html';
-  }
-</script>
+          }, 1600);
+        }, 100);
+      });
+    });
+
+    function goToFirstPage() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
 </html>
