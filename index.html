@@ -204,35 +204,39 @@ setTimeout(() => {
             }, 3000);
 </script>
   <div id="win-message" style="
-    position: fixed;
-    top: 280px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 70vw;
-    text-align: center;
-    font-size: 1.2em;
-    opacity: 0;
-    transition: opacity 1s ease;
-    z-index: 9;
-  ">
+  background: linear-gradient(to right, rgba(0,255,0,0.05), rgba(0,255,0,0.02));
+  border: 1px solid #00ff6e;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 20px rgba(0,255,110,0.15);
+  font-family: 'Arial', sans-serif;
+  font-weight: 500;
+  width: 70vw;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  color: #ffffff;
+  top: 280px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 9;">
     Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
     Для вывода вам необходимо вернуться на первую страницу<br>
     и нажать кнопку <strong>Минтить FPI bank</strong>.
     <br><br>
     <button onclick="goToFirstPage()" style="
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #6e00ff;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-    ">Вернуться на первую страницу</button>
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: bold;
+  color: #00ff6e;
+  background: transparent;
+  border: 1px solid #00ff6e;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+">Вернуться на первую страницу</button>
   <div style="
   font-size: 0.8em;
   color: #aaa;
@@ -252,5 +256,3 @@ setTimeout(() => {
   }
 </script>
 </html>
-
-    
