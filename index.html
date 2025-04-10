@@ -84,7 +84,7 @@
     }
     .floating-glow {
     animation: floatGlow 3s ease-in-out infinite;
-    box-shadow: 0 0 20px rgba(0, 255, 110, 0.5), 0 0 30px rgba(0, 255, 110, 0.3);
+    box-shadow: 0 0 30px 10px rgba(0, 255, 110, 0.4);
   }
 
   @keyframes floatGlow {
@@ -191,7 +191,11 @@ fixed.style.transition = 'all 1.5s ease-in-out';
 fixed.style.left = `${finalLeft}px`;
 fixed.style.top = `${finalTop}px`;
 fixed.style.transform = 'scale(1)';
-fixed.classList.add('floating-glow');
+
+// Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
+setTimeout(() => {
+  fixed.classList.add('floating-glow');
+}, 1500);
 
 setTimeout(() => {
   const msg = document.getElementById('win-message');
