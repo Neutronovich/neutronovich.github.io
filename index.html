@@ -95,8 +95,8 @@
 </style>
 </head>
 <body>
-  <div class="coins-container">
-    <div class="coin" data-index="0">
+  <div class="coins-container" style="pointer-events: auto;">
+    <div class="coin" data-index="$1" style="pointer-events: auto;">
       <div class="coin-inner">
         <div class="coin-front"></div>
         <div class="coin-back"></div>
@@ -186,15 +186,15 @@
             setTimeout(() => {
               fixed.style.transition = 'transform 1.5s ease-in-out';
               const finalTop = 100; // пиксели от верхнего края
-const finalLeft = window.innerWidth / 2 - rect.width / 2;
-fixed.style.transition = 'all 1.5s ease-in-out';
-fixed.style.left = `${finalLeft}px`;
-fixed.style.top = `${finalTop}px`;
-fixed.style.transform = 'scale(1)';
+const finalX = deltaX;
+const finalY = -coinY + finalTop + rect.height / 2;
+fixed.style.transition = 'transform 1.5s ease-in-out';
+fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
 
 // Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
 setTimeout(() => {
-  fixed.classList.add('floating-glow');
+  fixed.querySelector('.coin-inner').style.boxShadow = '0 0 30px 10px rgba(0, 255, 110, 0.4)';
+fixed.querySelector('.coin-inner').classList.add('floating-glow');
 }, 1500);
 
 setTimeout(() => {
