@@ -88,6 +88,15 @@
     50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
     100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
   }
+  @keyframes floatCoin {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
+  }
+
+  .floating-coin {
+    animation: floatCoin 3s ease-in-out infinite;
+  }
 </style>
 </head>
 <body>
@@ -193,6 +202,7 @@ setTimeout(() => {
 }, 1500);
 
 setTimeout(() => {
+  fixed.classList.add('floating-coin');
   const msg = document.getElementById('win-message');
   msg.style.opacity = '1';
 }, 1500);
