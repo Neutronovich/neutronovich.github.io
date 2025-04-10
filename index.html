@@ -82,13 +82,9 @@
       transition: transform 1.5s ease-in-out;
       transform: translate(-50%, -50%) scale(1.25);
     }
-    .floating-glow {
-    animation: floatGlow 3s ease-in-out infinite;
-    box-shadow: 0 0 30px 10px rgba(0, 255, 110, 0.4);
-  }
+    
 
-  @keyframes floatGlow {
-    0%   { transform: translate(-50%, -50%) scale(1) translateY(0); }
+  
     50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
     100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
   }
@@ -193,8 +189,7 @@ fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
 
 // Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
 setTimeout(() => {
-  fixed.querySelector('.coin-inner').style.boxShadow = '0 0 30px 10px rgba(0, 255, 110, 0.4)';
-fixed.querySelector('.coin-inner').classList.add('floating-glow');
+  
 }, 1500);
 
 setTimeout(() => {
