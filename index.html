@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Анимированная монетка</title>
+  <title>Монетки</title>
   <style>
     body {
       margin: 0;
@@ -22,8 +22,10 @@
       display: flex;
       gap: 20px;
       flex-wrap: wrap;
+      flex-direction: row;
       justify-content: center;
       align-items: center;
+      position: relative;
       width: 100vw;
       height: 100vh;
     }
@@ -33,7 +35,7 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: all 0.8s ease;
+      transition: opacity 1.5s ease;
       position: relative;
     }
 
@@ -41,7 +43,7 @@
       width: 100%;
       height: 100%;
       position: relative;
-      transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 1.6s ease-in-out;
       transform-style: preserve-3d;
     }
 
@@ -57,7 +59,6 @@
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
     }
 
     .coin-front {
@@ -71,71 +72,36 @@
 
     .fade-out {
       opacity: 0;
-      transform: scale(0.7);
+      transform: scale(0.8);
       pointer-events: none;
-      transition: all 1s ease;
     }
 
     .selected-coin {
-      position: fixed;
+      position: fixed !important;
       z-index: 10;
-      transition: all 1.5s cubic-bezier(0.33, 1, 0.68, 1);
+      transition: transform 1.5s ease-in-out;
+      transform: translate(-50%, -50%) scale(1.25);
     }
+    
 
-    @keyframes floating {
-      0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
-      25% { transform: translate(-50%, -8px) rotate(1deg); }
-      50% { transform: translate(-50%, -12px) rotate(-1deg); }
-      75% { transform: translate(-50%, -6px) rotate(0.5deg); }
-    }
+  
+    50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
+    100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
+  }
+  @keyframes floatCoin {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0); }
+  }
 
-    .floating-coin {
-      animation: floating 6s ease-in-out infinite;
-      filter: drop-shadow(0 0 15px rgba(200, 0, 255, 0.6));
-      left: 50% !important;
-      top: 80px !important;
-      transform: translateX(-50%) !important;
-    }
-
-    #win-message {
-      background: linear-gradient(135deg, rgba(0,255,110,0.15), rgba(0,200,255,0.1));
-      border: 1px solid #00ff6e;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 40px rgba(0,255,110,0.3);
-      width: 75vw;
-      padding: 25px;
-      border-radius: 16px;
-      text-align: center;
-      position: absolute;
-      top: calc(80px + 200px);
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 1.2s ease;
-      z-index: 9;
-    }
-
-    #win-message button {
-      margin-top: 20px;
-      padding: 14px 28px;
-      font-size: 1.1em;
-      background: linear-gradient(45deg, #c800ff, #a000d4);
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-      color: white !important;
-      font-weight: bold;
-    }
-
-    #win-message button:hover {
-      transform: translateY(-3px);
-    }
-  </style>
+  .floating-coin {
+    animation: floatCoin 3s ease-in-out infinite;
+  }
+</style>
 </head>
 <body>
-  <div class="coins-container">
-    <div class="coin" data-index="0">
+  <div class="coins-container" style="pointer-events: auto;">
+    <div class="coin" data-index="$1" style="pointer-events: auto;">
       <div class="coin-inner">
         <div class="coin-front"></div>
         <div class="coin-back"></div>
@@ -161,17 +127,9 @@
     </div>
   </div>
 
-  <div id="win-message">
-    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-    Для вывода вам необходимо вернуться на первую страницу<br>
-    и нажать кнопку <strong>Минтить FPI bank</strong>.
-    <br><br>
-    <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
-  </div>
-
   <script>
     const coins = document.querySelectorAll('.coin');
-    const winMessage = document.getElementById('win-message');
+    const container = document.querySelector('.coins-container');
     let selected = false;
 
     coins.forEach(coin => {
@@ -179,57 +137,151 @@
         if (selected) return;
         selected = true;
 
-        const rect = coin.getBoundingClientRect();
+        const selectedCoin = coin;
+        const rect = selectedCoin.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
-        const finalY = 80;
+        const coinX = rect.left + rect.width / 2;
+        const coinY = rect.top + rect.height / 2;
 
-        // Прячем все другие монетки
-        coins.forEach(c => {
-          if (c !== coin) {
-            c.classList.add('fade-out');
+        const deltaX = centerX - coinX;
+        const deltaY = centerY - coinY;
+
+        const fixed = selectedCoin.cloneNode(true);
+        const original = selectedCoin;
+        const parent = container;
+
+        const rectParent = parent.getBoundingClientRect();
+        const fixedX = rect.left - rectParent.left;
+        const fixedY = rect.top - rectParent.top;
+
+        fixed.style.position = 'fixed';
+        fixed.style.left = `${rect.left}px`;
+        fixed.style.top = `${rect.top}px`;
+        fixed.style.margin = '0';
+        fixed.style.transform = `translate(0, 0)`;
+        fixed.style.transition = 'transform 1.5s ease-in-out';
+
+        fixed.classList.add('selected-coin');
+        document.body.appendChild(fixed);
+
+        // Удалим исходный клон, если он уже был добавлен ранее (предотвращает дублирование)
+        const existing = document.querySelectorAll('.selected-coin');
+        existing.forEach(el => {
+          if (el !== fixed) el.remove();
+        });
+
+        original.style.visibility = 'hidden';
+
+        coins.forEach(otherCoin => {
+          if (otherCoin !== original) {
+            otherCoin.classList.add('fade-out');
           }
         });
 
-        // Превращаем выбранную монетку в фиксированную позицию
-        coin.style.position = 'fixed';
-        coin.style.left = `${rect.left}px`;
-        coin.style.top = `${rect.top}px`;
-        coin.style.margin = '0';
-        coin.style.transform = 'none';
-        coin.style.transition = 'all 1.5s cubic-bezier(0.33, 1, 0.68, 1)';
-        coin.classList.add('selected-coin');
-
-        // 1. Плавное движение в центр
         setTimeout(() => {
-          coin.style.left = `${centerX - 90}px`;
-          coin.style.top = `${centerY - 90}px`;
+          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
 
-          // 2. Переворот с задержкой
           setTimeout(() => {
-            coin.classList.add('flipped');
+            fixed.classList.add('flipped');
 
-            // 3. Плавный подъем вверх
+            // Через 3 секунды переместить монетку вверх и уменьшить
             setTimeout(() => {
-              coin.style.transition = 'all 1.8s cubic-bezier(0.12, 0, 0.39, 0)';
-              coin.style.left = `${centerX - 90}px`;
-              coin.style.top = `${finalY}px`;
+              fixed.style.transition = 'transform 1.5s ease-in-out';
+              const finalTop = 100; // пиксели от верхнего края
+const finalX = deltaX;
+const finalY = -coinY + finalTop + rect.height / 2;
+fixed.style.transition = 'transform 1.5s ease-in-out';
+fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
 
-              // 4. Финал - включаем анимацию плавания
-              setTimeout(() => {
-                coin.style.transition = 'none';
-                coin.classList.add('floating-coin');
-                winMessage.style.opacity = '1';
-              }, 1800);
-            }, 1600);
-          }, 1200);
-        }, 10);
+// Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
+setTimeout(() => {
+  
+}, 1500);
+
+setTimeout(() => {
+  fixed.classList.add('floating-coin');
+  const msg = document.getElementById('win-message');
+  msg.style.opacity = '1';
+}, 1500);
+            }, 3000);
+
+          }, 1600);
+        }, 100);
       });
     });
+  
+        // показать сообщение через 1 секунду после перемещения
+        setTimeout(() => {
+              fixed.style.transition = 'all 1.5s ease-in-out';
+              const finalTop = 100;
+              const finalLeft = window.innerWidth / 2 - rect.width / 2;
+              fixed.style.left = `${finalLeft}px`;
+              fixed.style.top = `${finalTop}px`;
+              fixed.style.transform = 'scale(1)';
 
-    function goToFirstPage() {
-      window.location.href = 'index.html';
-    }
-  </script>
-</body>
+              // показать сообщение после окончания перемещения
+              setTimeout(() => {
+                const msg = document.getElementById('win-message');
+                msg.style.opacity = '1';
+              }, 1600);
+
+            }, 3000);
+</script>
+  <div id="win-message" style="
+  background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
+  border: 1px solid #00ff6e;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 30px rgba(0,255,110,0.25);
+  font-family: 'Arial', sans-serif;
+  font-weight: 500;
+  width: 75vw;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  color: #ffffff;
+  position: absolute;
+  top: calc(100px + 220px);
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 9;">
+    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+    Для вывода вам необходимо вернуться на первую страницу<br>
+    и нажать кнопку <strong>Минтить FPI bank</strong>.
+    <br><br>
+    <button onclick="goToFirstPage()" style="
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  background: #c800ff;
+  border: 1px solid #c800ff;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+">Вернуться на первую страницу</button>
+  <div style="
+  font-size: 0.8em;
+  color: #aaa;
+  text-align: center;
+  margin-top: 10px;
+  max-width: 360px;
+  line-height: 1.4;
+  margin-left: auto;
+  margin-right: auto;
+">
+  Получение дропа возможно только при наличии токенов FPIBank на кошельке.
+</div>
+<script>
+  function goToFirstPage() {
+    // пример: можно заменить это на реальную навигацию
+    window.location.href = 'index.html';
+  }
+</script>
 </html>
+    
