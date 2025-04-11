@@ -73,51 +73,28 @@
       opacity: 0;
       transform: scale(0.7);
       pointer-events: none;
+      transition: all 1s ease;
     }
 
     .selected-coin {
-      position: fixed !important;
+      position: fixed;
       z-index: 10;
-      will-change: transform, left, top;
+      transition: all 1.5s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
     @keyframes floating {
-      0%, 100% { transform: translate(-50%, -10px) rotate(0deg); }
-      25% { transform: translate(-52%, -15px) rotate(1.5deg); }
-      50% { transform: translate(-48%, -8px) rotate(-1deg); }
-      75% { transform: translate(-51%, -12px) rotate(1deg); }
+      0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
+      25% { transform: translate(-50%, -8px) rotate(1deg); }
+      50% { transform: translate(-50%, -12px) rotate(-1deg); }
+      75% { transform: translate(-50%, -6px) rotate(0.5deg); }
     }
 
     .floating-coin {
-      animation: floating 8s ease-in-out infinite;
+      animation: floating 6s ease-in-out infinite;
       filter: drop-shadow(0 0 15px rgba(200, 0, 255, 0.6));
       left: 50% !important;
       top: 80px !important;
       transform: translateX(-50%) !important;
-    }
-
-    .particle {
-      position: absolute;
-      background: linear-gradient(45deg, #c800ff, #00d4ff);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 8;
-      opacity: 0;
-      animation: particle-float 6s infinite ease-in-out;
-    }
-
-    @keyframes particle-float {
-      0% {
-        transform: translate(0, 0);
-        opacity: 0;
-      }
-      20% {
-        opacity: 0.7;
-      }
-      100% {
-        transform: translate(var(--tx), var(--ty));
-        opacity: 0;
-      }
     }
 
     #win-message {
@@ -197,81 +174,55 @@
     const winMessage = document.getElementById('win-message');
     let selected = false;
 
-    function createParticles(x, y) {
-      const colors = ['#c800ff', '#00d4ff', '#ff00aa'];
-      for (let i = 0; i < 18; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        const size = Math.random() * 8 + 4;
-        const tx = (Math.random() - 0.5) * 120;
-        const ty = (Math.random() - 0.5) * 120;
-        
-        p.style.cssText = `
-          width: ${size}px;
-          height: ${size}px;
-          left: ${x}px;
-          top: ${y}px;
-          background: ${colors[i%3]};
-          --tx: ${tx}px;
-          --ty: ${ty}px;
-          animation-delay: ${Math.random() * 2}s;
-        `;
-        
-        document.body.appendChild(p);
-        setTimeout(() => p.style.opacity = '0.7', 50);
-      }
-    }
-
     coins.forEach(coin => {
       coin.addEventListener('click', () => {
         if (selected) return;
         selected = true;
 
         const rect = coin.getBoundingClientRect();
-        const centerX = window.innerWidth / 2 - 90;
-        const centerY = window.innerHeight / 2 - 90;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
         const finalY = 80;
 
-        const floatingCoin = coin.cloneNode(true);
-        floatingCoin.style.cssText = `
-          position: fixed;
-          left: ${rect.left}px;
-          top: ${rect.top}px;
-          transition: 
-            left 1.4s cubic-bezier(0.33, 1, 0.68, 1),
-            top 1.4s cubic-bezier(0.33, 1, 0.68, 1),
-            transform 0.01s;
-        `;
-        
-        document.body.appendChild(floatingCoin);
-        coin.style.visibility = 'hidden';
-        coins.forEach(c => c !== coin && c.classList.add('fade-out'));
+        // Прячем все другие монетки
+        coins.forEach(c => {
+          if (c !== coin) {
+            c.classList.add('fade-out');
+          }
+        });
 
+        // Превращаем выбранную монетку в фиксированную позицию
+        coin.style.position = 'fixed';
+        coin.style.left = `${rect.left}px`;
+        coin.style.top = `${rect.top}px`;
+        coin.style.margin = '0';
+        coin.style.transform = 'none';
+        coin.style.transition = 'all 1.5s cubic-bezier(0.33, 1, 0.68, 1)';
+        coin.classList.add('selected-coin');
+
+        // 1. Плавное движение в центр
         setTimeout(() => {
-          floatingCoin.style.left = `${centerX}px`;
-          floatingCoin.style.top = `${centerY}px`;
+          coin.style.left = `${centerX - 90}px`;
+          coin.style.top = `${centerY - 90}px`;
 
+          // 2. Переворот с задержкой
           setTimeout(() => {
-            floatingCoin.classList.add('flipped');
+            coin.classList.add('flipped');
 
+            // 3. Плавный подъем вверх
             setTimeout(() => {
-              floatingCoin.style.transition = 'top 2s cubic-bezier(0.12, 0, 0.39, 0)';
-              floatingCoin.style.top = `${finalY}px`;
+              coin.style.transition = 'all 1.8s cubic-bezier(0.12, 0, 0.39, 0)';
+              coin.style.left = `${centerX - 90}px`;
+              coin.style.top = `${finalY}px`;
 
+              // 4. Финал - включаем анимацию плавания
               setTimeout(() => {
-                floatingCoin.style.cssText = `
-                  position: fixed;
-                  left: 50% !important;
-                  top: 80px !important;
-                  transform: translateX(-50%) !important;
-                  animation: floating 8s ease-in-out infinite;
-                  filter: drop-shadow(0 0 15px rgba(200, 0, 255, 0.6));
-                `;
-                createParticles(window.innerWidth/2, finalY + 90);
+                coin.style.transition = 'none';
+                coin.classList.add('floating-coin');
                 winMessage.style.opacity = '1';
-              }, 2000);
+              }, 1800);
             }, 1600);
-          }, 1400);
+          }, 1200);
         }, 10);
       });
     });
