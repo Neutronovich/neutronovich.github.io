@@ -88,14 +88,33 @@
     50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
     100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
   }
-  @keyframes floatCoin {
-    0% { transform: translateY(0); }
+  
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
     50% { transform: translateY(-8px); }
     100% { transform: translateY(0); }
   }
 
   .floating-coin {
     animation: floatCoin 3s ease-in-out infinite;
+  }
+  @keyframes floatCoin {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+  }
+
+  
+  .floating-glow {
+    animation: floatGlow 3s ease-in-out infinite;
+    box-shadow: 0 0 30px 10px rgba(0, 255, 110, 0.4);
+  }
+
+  @keyframes floatGlow {
+    0%   { transform: translate(-50%, -50%) scale(1) translateY(0); }
+    50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
+    100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
   }
 </style>
 </head>
@@ -104,10 +123,8 @@
     <div class="coin" data-index="$1" style="pointer-events: auto;">
       <div class="coin-inner">
         <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="1">
+        <div class="coin-back"></div>$1
+    $1<div class="coin-float-wrapper">
       <div class="coin-inner">
         <div class="coin-front"></div>
         <div class="coin-back"></div>
@@ -202,7 +219,7 @@ setTimeout(() => {
 }, 1500);
 
 setTimeout(() => {
-  fixed.classList.add('floating-coin');
+  
   const msg = document.getElementById('win-message');
   msg.style.opacity = '1';
 }, 1500);
@@ -221,6 +238,12 @@ setTimeout(() => {
               fixed.style.left = `${finalLeft}px`;
               fixed.style.top = `${finalTop}px`;
               fixed.style.transform = 'scale(1)';
+
+setTimeout(() => {
+  fixed.classList.add('floating-glow');
+  const msg = document.getElementById('win-message');
+  msg.style.opacity = '1';
+}, 1500);
 
               // показать сообщение после окончания перемещения
               setTimeout(() => {
@@ -258,9 +281,9 @@ setTimeout(() => {
   padding: 12px 24px;
   font-size: 1em;
   font-weight: bold;
-  color: #fff;
-  background: #c800ff;
-  border: 1px solid #c800ff;
+  color: #ffffff;
+  background: transparent;
+  border: 1px solid #3a005e;
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -284,4 +307,3 @@ setTimeout(() => {
   }
 </script>
 </html>
-    
