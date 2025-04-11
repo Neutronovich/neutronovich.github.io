@@ -88,10 +88,8 @@
     50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
     100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
   }
-  
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
+  @keyframes floatCoin {
+    0% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
     100% { transform: translateY(0); }
   }
@@ -99,13 +97,6 @@
   .floating-coin {
     animation: floatCoin 3s ease-in-out infinite;
   }
-  @keyframes floatCoin {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0); }
-  }
-
-  
 </style>
 </head>
 <body>
@@ -113,8 +104,10 @@
     <div class="coin" data-index="$1" style="pointer-events: auto;">
       <div class="coin-inner">
         <div class="coin-front"></div>
-        <div class="coin-back"></div>$1
-    $1<div class="coin-float-wrapper">
+        <div class="coin-back"></div>
+      </div>
+    </div>
+    <div class="coin" data-index="1">
       <div class="coin-inner">
         <div class="coin-front"></div>
         <div class="coin-back"></div>
@@ -209,7 +202,7 @@ setTimeout(() => {
 }, 1500);
 
 setTimeout(() => {
-  
+  fixed.classList.add('floating-coin');
   const msg = document.getElementById('win-message');
   msg.style.opacity = '1';
 }, 1500);
