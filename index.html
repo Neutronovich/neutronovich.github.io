@@ -7,13 +7,13 @@
   
   <!-- Скрипты и стили TonConnect / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
-  <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+  <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
   
   <style>
-    /* Основные стили */
+    /* Стили первой страницы (без изменений) */
     body {
       background: linear-gradient(to bottom, #0b0021, #1a0033);
       color: white;
@@ -26,7 +26,6 @@
       background-attachment: fixed;
     }
     
-    /* Навигация */
     .nav {
       background: rgba(26, 0, 51, 0.8);
       backdrop-filter: blur(10px);
@@ -53,7 +52,6 @@
       text-shadow: 0 0 8px rgba(179, 136, 255, 0.6);
     }
     
-    /* Страницы */
     .page {
       display: none;
       padding: 20px;
@@ -62,7 +60,6 @@
       text-align: center;
     }
     
-    /* Первая страница */
     #page1 img {
       max-width: 280px;
       height: auto;
@@ -228,17 +225,30 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
     }
     
-    /* Вторая страница - монетки */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Стили второй страницы (без изменений) */
     #page2 {
-      background: #0d0d1a;
+      margin: 0;
       padding: 0;
+      background: #0d0d1a;
+      color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: calc(100vh - 60px);
-      position: relative;
+      overflow: hidden;
     }
-    
+
     .coins-container {
       display: flex;
       gap: 20px;
@@ -246,18 +256,17 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      width: 100%;
-      height: 100%;
-      padding: 20px;
-      box-sizing: border-box;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
     }
 
     .coin {
-      width: 150px;
-      height: 150px;
+      width: 180px;
+      height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: all 0.5s ease;
+      transition: opacity 1.5s ease;
       position: relative;
     }
 
@@ -279,26 +288,16 @@
       height: 100%;
       backface-visibility: hidden;
       border-radius: 50%;
-      background-size: contain;
-      background-repeat: no-repeat;
+      background-size: cover;
       background-position: center;
-      background-color: #2a1a4a;
-      border: 3px solid #6e00ff;
-      box-shadow: 0 0 20px rgba(110, 0, 255, 0.5);
     }
 
     .coin-front {
-      background-image: url('https://i.imgur.com/JQl1hXG.png');
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-weight: bold;
-      font-size: 1.2em;
+      background-image: url('js/IMG_4143-removebg-preview.png');
     }
 
     .coin-back {
-      background-image: url('https://i.imgur.com/3QZ2Zn1.png');
+      background-image: url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png');
       transform: rotateY(180deg);
     }
 
@@ -315,13 +314,6 @@
       transform: translate(-50%, -50%) scale(1.25);
     }
     
-    .floating-coin {
-      animation: floatCoin 3s ease-in-out infinite;
-      top: 100px !important;
-      left: 50% !important;
-      transform: translateX(-50%) scale(1) !important;
-    }
-    
     #win-message {
       background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
       border: 1px solid #00ff6e;
@@ -329,20 +321,18 @@
       box-shadow: 0 0 30px rgba(0,255,110,0.25);
       font-family: 'Arial', sans-serif;
       font-weight: 500;
-      width: 80%;
-      max-width: 500px;
+      width: 75vw;
       padding: 20px;
       border-radius: 16px;
       text-align: center;
       color: #ffffff;
       position: absolute;
-      top: 50%;
+      top: calc(100px + 220px);
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       opacity: 0;
       transition: opacity 1s ease;
       z-index: 9;
-      display: none;
     }
     
     #win-message button {
@@ -373,44 +363,14 @@
       margin-right: auto;
     }
     
-    /* Анимации */
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0px); }
-    }
-    
     @keyframes floatCoin {
-      0% { transform: translate(-50%, -10px); }
-      50% { transform: translate(-50%, 10px); }
-      100% { transform: translate(-50%, -10px); }
-    }
-    
-    .float {
-      animation: float 4s ease-in-out infinite;
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
     }
 
-    @media (max-width: 768px) {
-      .coin {
-        width: 120px;
-        height: 120px;
-      }
-      
-      .coins-container {
-        gap: 15px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .coin {
-        width: 100px;
-        height: 100px;
-      }
-      
-      #win-message {
-        width: 90%;
-        padding: 15px;
-      }
+    .floating-coin {
+      animation: floatCoin 3s ease-in-out infinite;
     }
   </style>
 </head>
@@ -421,7 +381,7 @@
     <span class="nav-link" data-page="page2">Открыть карточку</span>
   </div>
   
-  <!-- Первая страница -->
+  <!-- Первая страница (без изменений) -->
   <div id="page1" class="page">
     <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
     
@@ -463,41 +423,41 @@
     </div>
   </div>
   
-  <!-- Вторая страница -->
+  <!-- Вторая страница (без изменений) -->
   <div id="page2" class="page">
-    <div class="coins-container">
+    <div class="coins-container" style="pointer-events: auto;">
+      <div class="coin" data-index="$1" style="pointer-events: auto;">
+        <div class="coin-inner">
+          <div class="coin-front"></div>
+          <div class="coin-back"></div>
+        </div>
+      </div>
       <div class="coin" data-index="1">
         <div class="coin-inner">
-          <div class="coin-front">1</div>
+          <div class="coin-front"></div>
           <div class="coin-back"></div>
         </div>
       </div>
       <div class="coin" data-index="2">
         <div class="coin-inner">
-          <div class="coin-front">2</div>
+          <div class="coin-front"></div>
           <div class="coin-back"></div>
         </div>
       </div>
       <div class="coin" data-index="3">
         <div class="coin-inner">
-          <div class="coin-front">3</div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
-      <div class="coin" data-index="4">
-        <div class="coin-inner">
-          <div class="coin-front">4</div>
+          <div class="coin-front"></div>
           <div class="coin-back"></div>
         </div>
       </div>
     </div>
-    
+
     <div id="win-message">
       Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
       Для вывода вам необходимо вернуться на первую страницу<br>
       и нажать кнопку <strong>Минтить FPI bank</strong>.
       <br><br>
-      <button onclick="showPage('page1')">Вернуться на первую страницу</button>
+      <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
       <div class="win-note">
         Получение дропа возможно только при наличии токенов FPIBank на кошельке.
       </div>
@@ -505,7 +465,7 @@
   </div>
   
   <script>
-    /* 0) Навигация между страницами */
+    /* Навигация между страницами */
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     
@@ -514,27 +474,26 @@
         p.style.display = (p.id === pageId) ? 'block' : 'none';
       });
       
-      // Скрываем сообщение о выигрыше при переключении страниц
-      document.getElementById('win-message').style.display = 'none';
-      document.getElementById('win-message').style.opacity = '0';
-      
-      // Сбрасываем состояние монеток при переходе на страницу 2
+      // При переходе на вторую страницу сбрасываем состояние
       if (pageId === 'page2') {
         resetCoins();
       }
     }
     
     function resetCoins() {
+      // Удаляем все клонированные монетки
+      document.querySelectorAll('.selected-coin').forEach(el => el.remove());
+      
+      // Восстанавливаем оригинальные монетки
       const coins = document.querySelectorAll('.coin');
       coins.forEach(coin => {
         coin.classList.remove('flipped', 'fade-out');
         coin.style.visibility = 'visible';
         coin.style.opacity = '1';
-        coin.style.transform = 'scale(1)';
       });
       
-      // Удаляем все клонированные монетки
-      document.querySelectorAll('.selected-coin').forEach(el => el.remove());
+      // Скрываем сообщение о выигрыше
+      document.getElementById('win-message').style.opacity = '0';
       
       // Сбрасываем флаг выбора
       window.coinSelected = false;
@@ -550,7 +509,7 @@
     // По умолчанию показываем страницу 1
     showPage('page1');
     
-    /* 1) Кнопки внешних ссылок */
+    /* Код первой страницы (без изменений) */
     document.getElementById('goToChannel').addEventListener('click', () => {
       window.open('https://t.me/fpibank', '_blank');
     });
@@ -559,10 +518,8 @@
       window.open('https://fpibank.com/#tokenPrice', '_blank');
     });
     
-    /* 2) Таймер обратного отсчета (14 дней) */
     function updateTimer() {
       const timer = document.getElementById('nextDropTimer');
-      // 14 дней, 2 часа, 12 минут, 0 секунд
       let days = 14;
       let hours = 2;
       let minutes = 12;
@@ -590,8 +547,6 @@
         }
         
         timer.textContent = `${days}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        // Красный если меньше 1 дня
         timer.style.color = days < 1 ? '#ff5555' : '#00ff88';
       };
       
@@ -601,7 +556,6 @@
     
     updateTimer();
     
-    /* 3) TonConnect и транзакции */
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
@@ -656,7 +610,6 @@
       }
     }
     
-    /* Вспомогательные функции для TonConnect */
     async function getUserFPIBankData(userTonAddress) {
       try {
         const response = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
@@ -701,66 +654,87 @@
       }
     }
     
-    /* 4) Логика монеток на второй странице */
-    window.coinSelected = false;
+    /* Код второй страницы (без изменений) */
+    const coins = document.querySelectorAll('.coin');
+    const container = document.querySelector('.coins-container');
+    let selected = false;
 
-    document.querySelectorAll('.coin').forEach(coin => {
-      coin.addEventListener('click', function() {
-        if (window.coinSelected) return;
-        window.coinSelected = true;
-        
-        const coin = this;
-        const coinRect = coin.getBoundingClientRect();
-        
-        // Создаем копию монетки для анимации
-        const clonedCoin = coin.cloneNode(true);
-        clonedCoin.style.position = 'fixed';
-        clonedCoin.style.left = `${coinRect.left}px`;
-        clonedCoin.style.top = `${coinRect.top}px`;
-        clonedCoin.style.width = `${coinRect.width}px`;
-        clonedCoin.style.height = `${coinRect.height}px`;
-        clonedCoin.style.margin = '0';
-        clonedCoin.style.zIndex = '100';
-        clonedCoin.style.transition = 'all 1s ease';
-        document.body.appendChild(clonedCoin);
-        
-        // Скрываем оригинальную монетку
-        coin.style.visibility = 'hidden';
-        
-        // Затемняем другие монетки
-        document.querySelectorAll('.coin').forEach(c => {
-          if (c !== coin) {
-            c.classList.add('fade-out');
+    coins.forEach(coin => {
+      coin.addEventListener('click', () => {
+        if (selected) return;
+        selected = true;
+
+        const selectedCoin = coin;
+        const rect = selectedCoin.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const coinX = rect.left + rect.width / 2;
+        const coinY = rect.top + rect.height / 2;
+
+        const deltaX = centerX - coinX;
+        const deltaY = centerY - coinY;
+
+        const fixed = selectedCoin.cloneNode(true);
+        const original = selectedCoin;
+        const parent = container;
+
+        const rectParent = parent.getBoundingClientRect();
+        const fixedX = rect.left - rectParent.left;
+        const fixedY = rect.top - rectParent.top;
+
+        fixed.style.position = 'fixed';
+        fixed.style.left = `${rect.left}px`;
+        fixed.style.top = `${rect.top}px`;
+        fixed.style.margin = '0';
+        fixed.style.transform = `translate(0, 0)`;
+        fixed.style.transition = 'transform 1.5s ease-in-out';
+
+        fixed.classList.add('selected-coin');
+        document.body.appendChild(fixed);
+
+        const existing = document.querySelectorAll('.selected-coin');
+        existing.forEach(el => {
+          if (el !== fixed) el.remove();
+        });
+
+        original.style.visibility = 'hidden';
+
+        coins.forEach(otherCoin => {
+          if (otherCoin !== original) {
+            otherCoin.classList.add('fade-out');
           }
         });
-        
-        // Центрируем монетку
+
         setTimeout(() => {
-          clonedCoin.style.left = '50%';
-          clonedCoin.style.top = '50%';
-          clonedCoin.style.transform = 'translate(-50%, -50%) scale(1.5)';
-          
-          // Переворачиваем монетку
+          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
+
           setTimeout(() => {
-            clonedCoin.classList.add('flipped');
-            
-            // Показываем сообщение о выигрыше
+            fixed.classList.add('flipped');
+
             setTimeout(() => {
-              const winMessage = document.getElementById('win-message');
-              winMessage.style.display = 'block';
+              fixed.style.transition = 'transform 1.5s ease-in-out';
+              const finalTop = 100;
+              const finalX = deltaX;
+              const finalY = -coinY + finalTop + rect.height / 2;
+              fixed.style.transition = 'transform 1.5s ease-in-out';
+              fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
+
               setTimeout(() => {
-                winMessage.style.opacity = '1';
-              }, 50);
-              
-              // Поднимаем монетку вверх
-              clonedCoin.style.top = '100px';
-              clonedCoin.style.transform = 'translate(-50%, 0) scale(1)';
-              clonedCoin.classList.add('floating-coin');
-            }, 1500);
-          }, 1000);
+                fixed.classList.add('floating-coin');
+                const msg = document.getElementById('win-message');
+                msg.style.opacity = '1';
+              }, 1500);
+            }, 3000);
+          }, 1600);
         }, 100);
       });
     });
+  
+    function goToFirstPage() {
+      showPage('page1');
+    }
   </script>
 </body>
 </html>
