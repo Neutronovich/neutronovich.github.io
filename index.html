@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Монетки</title>
+  <title>Монетка с анимацией</title>
   <style>
     body {
       margin: 0;
@@ -79,30 +79,55 @@
     .selected-coin {
       position: fixed !important;
       z-index: 10;
-      transition: transform 1.5s ease-in-out, left 1.5s ease-in-out, top 1.5s ease-in-out;
+      transition: all 1.5s cubic-bezier(0.2, 0.9, 0.3, 1.3);
     }
 
-    /* Анимация плавания */
+    /* Анимация плавания (более плавная) */
     @keyframes floatCoin {
       0%, 100% {
         transform: translate(-50%, 0) rotate(0deg);
       }
-      25% {
-        transform: translate(-53%, -8px) rotate(2deg);
+      20% {
+        transform: translate(-52%, -5px) rotate(1.5deg);
       }
-      50% {
-        transform: translate(-50%, -12px) rotate(0deg);
+      40% {
+        transform: translate(-48%, -8px) rotate(-1deg);
       }
-      75% {
-        transform: translate(-47%, -8px) rotate(-2deg);
+      60% {
+        transform: translate(-52%, -10px) rotate(1deg);
+      }
+      80% {
+        transform: translate(-48%, -6px) rotate(-1.5deg);
       }
     }
 
     .floating-coin {
-      animation: floatCoin 3s ease-in-out infinite;
+      animation: floatCoin 8s ease-in-out infinite;
       left: 50% !important;
       top: 100px !important;
       transform: translate(-50%, 0) !important;
+      filter: drop-shadow(0 0 10px rgba(200, 0, 255, 0.7));
+    }
+
+    /* Стили для парящих частиц */
+    .particle {
+      position: absolute;
+      background: rgba(200, 0, 255, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 8;
+      animation: floatParticle 8s infinite ease-in-out;
+    }
+
+    @keyframes floatParticle {
+      0%, 100% {
+        transform: translate(0, 0);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translate(20px, -20px);
+        opacity: 0.4;
+      }
     }
 
     #win-message {
@@ -200,6 +225,37 @@
     const winMessage = document.getElementById('win-message');
     let selected = false;
 
+    // Функция создания частиц
+    function createParticles(centerX, centerY) {
+      const colors = [
+        'rgba(200, 0, 255, 0.6)',
+        'rgba(0, 200, 255, 0.5)',
+        'rgba(255, 200, 0, 0.4)'
+      ];
+      
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Случайные параметры частицы
+        const size = Math.random() * 8 + 4;
+        const posX = (Math.random() - 0.5) * 100;
+        const posY = (Math.random() - 0.5) * 100;
+        const delay = Math.random() * 5;
+        const duration = 5 + Math.random() * 10;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${centerX + posX}px`;
+        particle.style.top = `${centerY + posY}px`;
+        particle.style.background = color;
+        particle.style.animation = `floatParticle ${duration}s ${delay}s infinite ease-in-out`;
+        
+        document.body.appendChild(particle);
+      }
+    }
+
     coins.forEach(coin => {
       coin.addEventListener('click', () => {
         if (selected) return;
@@ -224,7 +280,7 @@
         fixed.style.top = `${rect.top}px`;
         fixed.style.margin = '0';
         fixed.style.transform = 'translate(0, 0)';
-        fixed.style.transition = 'transform 1.5s ease-in-out, left 1.5s ease-in-out, top 1.5s ease-in-out';
+        fixed.style.transition = 'all 1.5s cubic-bezier(0.2, 0.9, 0.3, 1.3)';
         fixed.classList.add('selected-coin');
         document.body.appendChild(fixed);
 
@@ -244,17 +300,20 @@
           setTimeout(() => {
             fixed.classList.add('flipped');
 
-            // Поднимаем вверх
+            // Поднимаем вверх и создаем частицы
             setTimeout(() => {
               fixed.style.left = '50%';
               fixed.style.top = '100px';
               fixed.style.transform = 'translate(-50%, 0) scale(1)';
-
+              
+              // Создаем частицы вокруг монетки
+              createParticles(centerX, 100 + 90); // 90 - половина высоты монетки
+              
               // Включаем анимацию плавания
               setTimeout(() => {
                 fixed.classList.add('floating-coin');
                 if (winMessage) winMessage.style.opacity = '1';
-              }, 1500);
+              }, 500);
             }, 3000);
           }, 1600);
         }, 100);
