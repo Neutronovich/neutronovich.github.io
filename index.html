@@ -236,6 +236,7 @@
       justify-content: center;
       align-items: center;
       height: calc(100vh - 60px);
+      position: relative;
     }
     
     .coins-container {
@@ -245,17 +246,18 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      position: relative;
-      width: 100vw;
+      width: 100%;
       height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .coin {
-      width: 180px;
-      height: 180px;
+      width: 150px;
+      height: 150px;
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 1.5s ease;
+      transition: all 0.5s ease;
       position: relative;
     }
 
@@ -277,16 +279,26 @@
       height: 100%;
       backface-visibility: hidden;
       border-radius: 50%;
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
+      background-color: #2a1a4a;
+      border: 3px solid #6e00ff;
+      box-shadow: 0 0 20px rgba(110, 0, 255, 0.5);
     }
 
     .coin-front {
-      background-image: url('https://i.imgur.com/placeholder1.png');
+      background-image: url('https://i.imgur.com/JQl1hXG.png');
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2em;
     }
 
     .coin-back {
-      background-image: url('https://i.imgur.com/placeholder2.png');
+      background-image: url('https://i.imgur.com/3QZ2Zn1.png');
       transform: rotateY(180deg);
     }
 
@@ -305,6 +317,9 @@
     
     .floating-coin {
       animation: floatCoin 3s ease-in-out infinite;
+      top: 100px !important;
+      left: 50% !important;
+      transform: translateX(-50%) scale(1) !important;
     }
     
     #win-message {
@@ -314,18 +329,20 @@
       box-shadow: 0 0 30px rgba(0,255,110,0.25);
       font-family: 'Arial', sans-serif;
       font-weight: 500;
-      width: 75vw;
+      width: 80%;
+      max-width: 500px;
       padding: 20px;
       border-radius: 16px;
       text-align: center;
       color: #ffffff;
       position: absolute;
-      top: calc(100px + 220px);
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       opacity: 0;
       transition: opacity 1s ease;
       z-index: 9;
+      display: none;
     }
     
     #win-message button {
@@ -364,13 +381,36 @@
     }
     
     @keyframes floatCoin {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
+      0% { transform: translate(-50%, -10px); }
+      50% { transform: translate(-50%, 10px); }
+      100% { transform: translate(-50%, -10px); }
     }
     
     .float {
       animation: float 4s ease-in-out infinite;
+    }
+
+    @media (max-width: 768px) {
+      .coin {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .coins-container {
+        gap: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .coin {
+        width: 100px;
+        height: 100px;
+      }
+      
+      #win-message {
+        width: 90%;
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -425,28 +465,28 @@
   
   <!-- Вторая страница -->
   <div id="page2" class="page">
-    <div class="coins-container" style="pointer-events: auto;">
-      <div class="coin" data-index="$1" style="pointer-events: auto;">
-        <div class="coin-inner">
-          <div class="coin-front"></div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
+    <div class="coins-container">
       <div class="coin" data-index="1">
         <div class="coin-inner">
-          <div class="coin-front"></div>
+          <div class="coin-front">1</div>
           <div class="coin-back"></div>
         </div>
       </div>
       <div class="coin" data-index="2">
         <div class="coin-inner">
-          <div class="coin-front"></div>
+          <div class="coin-front">2</div>
           <div class="coin-back"></div>
         </div>
       </div>
       <div class="coin" data-index="3">
         <div class="coin-inner">
-          <div class="coin-front"></div>
+          <div class="coin-front">3</div>
+          <div class="coin-back"></div>
+        </div>
+      </div>
+      <div class="coin" data-index="4">
+        <div class="coin-inner">
+          <div class="coin-front">4</div>
           <div class="coin-back"></div>
         </div>
       </div>
@@ -475,9 +515,29 @@
       });
       
       // Скрываем сообщение о выигрыше при переключении страниц
-      if (pageId !== 'page2') {
-        document.getElementById('win-message').style.opacity = '0';
+      document.getElementById('win-message').style.display = 'none';
+      document.getElementById('win-message').style.opacity = '0';
+      
+      // Сбрасываем состояние монеток при переходе на страницу 2
+      if (pageId === 'page2') {
+        resetCoins();
       }
+    }
+    
+    function resetCoins() {
+      const coins = document.querySelectorAll('.coin');
+      coins.forEach(coin => {
+        coin.classList.remove('flipped', 'fade-out');
+        coin.style.visibility = 'visible';
+        coin.style.opacity = '1';
+        coin.style.transform = 'scale(1)';
+      });
+      
+      // Удаляем все клонированные монетки
+      document.querySelectorAll('.selected-coin').forEach(el => el.remove());
+      
+      // Сбрасываем флаг выбора
+      window.coinSelected = false;
     }
     
     navLinks.forEach(link => {
@@ -642,82 +702,62 @@
     }
     
     /* 4) Логика монеток на второй странице */
-    const coins = document.querySelectorAll('.coin');
-    const container = document.querySelector('.coins-container');
-    let selected = false;
+    window.coinSelected = false;
 
-    coins.forEach(coin => {
-      coin.addEventListener('click', () => {
-        if (selected) return;
-        selected = true;
-
-        const selectedCoin = coin;
-        const rect = selectedCoin.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const coinX = rect.left + rect.width / 2;
-        const coinY = rect.top + rect.height / 2;
-
-        const deltaX = centerX - coinX;
-        const deltaY = centerY - coinY;
-
-        const fixed = selectedCoin.cloneNode(true);
-        const original = selectedCoin;
-        const parent = container;
-
-        const rectParent = parent.getBoundingClientRect();
-        const fixedX = rect.left - rectParent.left;
-        const fixedY = rect.top - rectParent.top;
-
-        fixed.style.position = 'fixed';
-        fixed.style.left = `${rect.left}px`;
-        fixed.style.top = `${rect.top}px`;
-        fixed.style.margin = '0';
-        fixed.style.transform = `translate(0, 0)`;
-        fixed.style.transition = 'transform 1.5s ease-in-out';
-
-        fixed.classList.add('selected-coin');
-        document.body.appendChild(fixed);
-
-        // Удалим исходный клон, если он уже был добавлен ранее (предотвращает дублирование)
-        const existing = document.querySelectorAll('.selected-coin');
-        existing.forEach(el => {
-          if (el !== fixed) el.remove();
-        });
-
-        original.style.visibility = 'hidden';
-
-        coins.forEach(otherCoin => {
-          if (otherCoin !== original) {
-            otherCoin.classList.add('fade-out');
+    document.querySelectorAll('.coin').forEach(coin => {
+      coin.addEventListener('click', function() {
+        if (window.coinSelected) return;
+        window.coinSelected = true;
+        
+        const coin = this;
+        const coinRect = coin.getBoundingClientRect();
+        
+        // Создаем копию монетки для анимации
+        const clonedCoin = coin.cloneNode(true);
+        clonedCoin.style.position = 'fixed';
+        clonedCoin.style.left = `${coinRect.left}px`;
+        clonedCoin.style.top = `${coinRect.top}px`;
+        clonedCoin.style.width = `${coinRect.width}px`;
+        clonedCoin.style.height = `${coinRect.height}px`;
+        clonedCoin.style.margin = '0';
+        clonedCoin.style.zIndex = '100';
+        clonedCoin.style.transition = 'all 1s ease';
+        document.body.appendChild(clonedCoin);
+        
+        // Скрываем оригинальную монетку
+        coin.style.visibility = 'hidden';
+        
+        // Затемняем другие монетки
+        document.querySelectorAll('.coin').forEach(c => {
+          if (c !== coin) {
+            c.classList.add('fade-out');
           }
         });
-
+        
+        // Центрируем монетку
         setTimeout(() => {
-          fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
-
+          clonedCoin.style.left = '50%';
+          clonedCoin.style.top = '50%';
+          clonedCoin.style.transform = 'translate(-50%, -50%) scale(1.5)';
+          
+          // Переворачиваем монетку
           setTimeout(() => {
-            fixed.classList.add('flipped');
-
-            // Через 3 секунды переместить монетку вверх и уменьшить
+            clonedCoin.classList.add('flipped');
+            
+            // Показываем сообщение о выигрыше
             setTimeout(() => {
-              fixed.style.transition = 'transform 1.5s ease-in-out';
-              const finalTop = 100; // пиксели от верхнего края
-              const finalX = deltaX;
-              const finalY = -coinY + finalTop + rect.height / 2;
-              fixed.style.transition = 'transform 1.5s ease-in-out';
-              fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
-
-              // Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
+              const winMessage = document.getElementById('win-message');
+              winMessage.style.display = 'block';
               setTimeout(() => {
-                fixed.classList.add('floating-coin');
-                const msg = document.getElementById('win-message');
-                msg.style.opacity = '1';
-              }, 1500);
-            }, 3000);
-          }, 1600);
+                winMessage.style.opacity = '1';
+              }, 50);
+              
+              // Поднимаем монетку вверх
+              clonedCoin.style.top = '100px';
+              clonedCoin.style.transform = 'translate(-50%, 0) scale(1)';
+              clonedCoin.classList.add('floating-coin');
+            }, 1500);
+          }, 1000);
         }, 100);
       });
     });
