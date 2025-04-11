@@ -81,7 +81,6 @@
       will-change: transform, left, top;
     }
 
-    /* Анимация плавания */
     @keyframes floating {
       0%, 100% { transform: translate(-50%, -10px) rotate(0deg); }
       25% { transform: translate(-52%, -15px) rotate(1.5deg); }
@@ -92,9 +91,11 @@
     .floating-coin {
       animation: floating 8s ease-in-out infinite;
       filter: drop-shadow(0 0 15px rgba(200, 0, 255, 0.6));
+      left: 50% !important;
+      top: 80px !important;
+      transform: translateX(-50%) !important;
     }
 
-    /* Стили для частиц */
     .particle {
       position: absolute;
       background: linear-gradient(45deg, #c800ff, #00d4ff);
@@ -146,6 +147,8 @@
       border-radius: 12px;
       cursor: pointer;
       transition: transform 0.3s ease;
+      color: white !important;
+      font-weight: bold;
     }
 
     #win-message button:hover {
@@ -244,25 +247,27 @@
         coin.style.visibility = 'hidden';
         coins.forEach(c => c !== coin && c.classList.add('fade-out'));
 
-        // 1. Движение в центр
         setTimeout(() => {
           floatingCoin.style.left = `${centerX}px`;
           floatingCoin.style.top = `${centerY}px`;
 
-          // 2. Переворот
           setTimeout(() => {
             floatingCoin.classList.add('flipped');
 
-            // 3. Подъем вверх
             setTimeout(() => {
               floatingCoin.style.transition = 'top 2s cubic-bezier(0.12, 0, 0.39, 0)';
               floatingCoin.style.top = `${finalY}px`;
 
-              // 4. Запуск финальной анимации
               setTimeout(() => {
-                floatingCoin.style.transition = 'none';
-                floatingCoin.classList.add('floating-coin');
-                createParticles(centerX + 90, finalY + 90);
+                floatingCoin.style.cssText = `
+                  position: fixed;
+                  left: 50% !important;
+                  top: 80px !important;
+                  transform: translateX(-50%) !important;
+                  animation: floating 8s ease-in-out infinite;
+                  filter: drop-shadow(0 0 15px rgba(200, 0, 255, 0.6));
+                `;
+                createParticles(window.innerWidth/2, finalY + 90);
                 winMessage.style.opacity = '1';
               }, 2000);
             }, 1600);
