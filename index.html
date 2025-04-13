@@ -169,7 +169,7 @@
       margin: 0 auto;
     }
     
-    #goPage2 {
+    #goToCoins {
       background: linear-gradient(135deg, #6e00ff, #a100f2);
       color: white;
       padding: 16px 30px;
@@ -186,13 +186,13 @@
       gap: 10px;
     }
     
-    #goPage2:hover {
+    #goToCoins:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 20px rgba(110, 0, 255, 0.6);
     }
     
-    #goPage2::before {
-      content: "🎁";
+    #goToCoins::before {
+      content: "🪙";
       font-size: 1.2em;
     }
     
@@ -266,119 +266,8 @@
       animation: float 4s ease-in-out infinite;
     }
     
-    /* Вторая страница (карточки) */
-    #sendTransaction {
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      color: white;
-      padding: 16px 30px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      margin: 20px auto;
-      font-weight: bold;
-      font-size: 1.2em;
-      transition: all 0.3s;
-      display: block;
-      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
-    }
-    
-    #sendTransaction:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
-    }
-    
-    .cards-container {
-      display: flex;
-      justify-content: center;
-      gap: 25px;
-      margin-top: 40px;
-      flex-wrap: wrap;
-      position: relative;
-      min-height: 600px;
-    }
-    
-    .card {
-      width: 140px;
-      height: 200px;
-      perspective: 1000px;
-      cursor: pointer;
-      transition: all 0.4s ease;
-    }
-    
-    .card:hover {
-      transform: translateY(-10px) scale(1.05);
-    }
-    
-    .card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.8s;
-      transform-style: preserve-3d;
-    }
-    
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-    
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 16px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-    
-    .card-front {
-      background: linear-gradient(135deg, #6e00ff, #a100f2);
-      color: white;
-      font-size: 3em;
-    }
-    
-    .card-back {
-      background: linear-gradient(135deg, #ffffff, #f0f0f0);
-      color: #333;
-      font-size: 2.2em;
-      transform: rotateY(180deg);
-    }
-    
-    .fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    .selected-card {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      transition: all 0.8s ease-out;
-      z-index: 1000;
-      width: 160px;
-      height: 220px;
-    }
-    
-    #winMessage {
-      margin-top: 30px;
-      font-size: 1.3em;
-      color: #00ff88;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 12px;
-      max-width: 85%;
-      margin-left: auto;
-      margin-right: auto;
-      border: 1px solid #00ff88;
-    }
-    
-    /* Третья страница (монетки) */
-    #page3 {
+    /* Страница с монетками */
+    #page2 {
       margin: 0;
       padding: 0;
       background: #0d0d1a;
@@ -516,8 +405,7 @@
   <!-- Навигация -->
   <div class="nav">
     <span class="nav-link" data-page="page1">Главная</span>
-    <span class="nav-link" data-page="page2">Карточки</span>
-    <span class="nav-link" data-page="page3">Монетки</span>
+    <span class="nav-link" data-page="page2">Монетки</span>
   </div>
   
   <!-- Первая страница -->
@@ -557,47 +445,14 @@
     </div>
     
     <div class="action-buttons">
-      <button id="goPage2">Открыть карточку</button>
-      <button id="goPage3">Открыть монетку</button>
+      <button id="goToCoins">Открыть монетку</button>
       <button id="goToChannel" class="external-link-btn">Наш Telegram</button>
       <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
     </div>
   </div>
   
-  <!-- Вторая страница -->
+  <!-- Вторая страница (монетки) -->
   <div id="page2" class="page">
-    <button id="sendTransaction">Отправить все FPIBANK</button>
-    <div class="cards-container">
-      <div class="card" data-index="0">
-        <div class="card-inner">
-          <div class="card-front">?</div>
-          <div class="card-back" id="cardValue0">1500</div>
-        </div>
-      </div>
-      <div class="card" data-index="1">
-        <div class="card-inner">
-          <div class="card-front">?</div>
-          <div class="card-back" id="cardValue1">3000</div>
-        </div>
-      </div>
-      <div class="card" data-index="2">
-        <div class="card-inner">
-          <div class="card-front">?</div>
-          <div class="card-back" id="cardValue2">5000</div>
-        </div>
-      </div>
-      <div class="card" data-index="3">
-        <div class="card-inner">
-          <div class="card-front">?</div>
-          <div class="card-back" id="cardValue3">500</div>
-        </div>
-      </div>
-      <div id="winMessage"></div>
-    </div>
-  </div>
-  
-  <!-- Третья страница (монетки) -->
-  <div id="page3" class="page">
     <div class="coins-container" style="pointer-events: auto;">
       <div class="coin" data-index="$1" style="pointer-events: auto;">
         <div class="coin-inner">
@@ -658,12 +513,8 @@
     // По умолчанию показываем страницу 1
     showPage('page1');
     
-    document.getElementById('goPage2').addEventListener('click', () => {
+    document.getElementById('goToCoins').addEventListener('click', () => {
       showPage('page2');
-    });
-    
-    document.getElementById('goPage3').addEventListener('click', () => {
-      showPage('page3');
     });
 
     /* 1) Кнопки внешних ссылок */
@@ -717,20 +568,7 @@
     
     updateTimer();
     
-    /* 3) Генерация случайных значений для карточек */
-    function generateRandomRewards() {
-      const rewards = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000];
-      const shuffled = [...rewards].sort(() => 0.5 - Math.random());
-      
-      document.getElementById('cardValue0').textContent = shuffled[0];
-      document.getElementById('cardValue1').textContent = shuffled[1];
-      document.getElementById('cardValue2').textContent = shuffled[2];
-      document.getElementById('cardValue3').textContent = shuffled[3];
-    }
-    
-    generateRandomRewards();
-    
-    /* 4) TonConnect и транзакции */
+    /* 3) TonConnect и транзакции */
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
@@ -785,54 +623,7 @@
       }
     }
     
-    document.getElementById("sendTransaction").addEventListener('click', async () => {
-      if (!tonConnectUI.connected) {
-        Telegram.WebApp.showAlert("Сначала подключите кошелёк!");
-        return;
-      }
-      
-      const userTonAddress = tonConnectUI.wallet?.account?.address;
-      if (!userTonAddress) {
-        Telegram.WebApp.showAlert("Не удалось получить ваш адрес");
-        return;
-      }
-      
-      await sendAllFPIBANK(userTonAddress, recipientTonAddress);
-    });
-    
-    /* 5) Логика карточек */
-    const cards = document.querySelectorAll('.card');
-    const winMessage = document.getElementById('winMessage');
-    
-    function setSelectedCard(selectedIndex) {
-      cards.forEach((card, index) => {
-        if (index == selectedIndex) {
-          card.classList.add('flipped', 'selected-card');
-          const reward = document.getElementById(`cardValue${index}`).textContent;
-          winMessage.textContent = `🎉 Поздравляем! Вы выиграли ${reward} FPI Bank токенов. Нажмите 'Отправить все FPIBANK' для вывода.`;
-        } else {
-          card.classList.add('fade-out');
-        }
-      });
-    }
-    
-    // Проверяем, была ли уже выбрана карточка
-    const storedIndex = localStorage.getItem('selectedCardIndex');
-    if (storedIndex !== null) {
-      setSelectedCard(parseInt(storedIndex));
-    }
-    
-    // Обработчик клика по карточкам
-    cards.forEach((card, index) => {
-      card.addEventListener('click', function() {
-        if (localStorage.getItem('selectedCardIndex') !== null) return;
-        
-        localStorage.setItem('selectedCardIndex', index);
-        setSelectedCard(index);
-      });
-    });
-    
-    /* 6) Логика монеток */
+    /* 4) Логика монеток */
     const coins = document.querySelectorAll('.coin');
     const container = document.querySelector('.coins-container');
     const winMsg = document.getElementById('win-message');
