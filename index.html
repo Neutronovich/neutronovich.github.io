@@ -346,12 +346,13 @@
       left: 50%;
       transform: translateX(-50%) scale(1);
       z-index: 10;
+      transition: none !important;
     }
     
     @keyframes floatCoin {
-      0% { transform: translateY(0) translateX(-50%); }
-      50% { transform: translateY(-8px) translateX(-50%); }
-      100% { transform: translateY(0) translateX(-50%); }
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-8px); }
+      100% { transform: translateX(-50%) translateY(0); }
     }
     
     #win-message {
@@ -494,6 +495,7 @@
   <script>
     /* Глобальные переменные */
     let selectedCoin = null;
+    let originalCoin = null;
     let isCoinSelected = false;
     
     /* 0) Навигация между страницами */
@@ -510,6 +512,16 @@
         selectedCoin.remove();
         selectedCoin = null;
         isCoinSelected = false;
+      } else if (pageId === 'page2') {
+        // При возврате на вторую страницу сбрасываем состояние
+        if (originalCoin) {
+          originalCoin.style.visibility = 'visible';
+        }
+        const coins = document.querySelectorAll('.coin');
+        coins.forEach(coin => {
+          coin.classList.remove('fade-out');
+        });
+        document.getElementById('win-message').style.opacity = '0';
       }
     }
     
@@ -525,17 +537,6 @@
     
     document.getElementById('goToCoins').addEventListener('click', () => {
       showPage('page2');
-      
-      // Сбрасываем состояние монеток при переходе, если монетка не выбрана
-      if (!isCoinSelected) {
-        const coins = document.querySelectorAll('.coin');
-        coins.forEach(coin => {
-          coin.classList.remove('flipped', 'fade-out');
-          coin.style.visibility = 'visible';
-        });
-        
-        document.getElementById('win-message').style.opacity = '0';
-      }
     });
 
     /* 1) Кнопки внешних ссылок */
@@ -653,20 +654,14 @@
         coin.addEventListener('click', function() {
           if (isCoinSelected) return;
           isCoinSelected = true;
-
-          const rect = coin.getBoundingClientRect();
-          const centerX = window.innerWidth / 2;
-          const centerY = window.innerHeight / 2;
-          const coinX = rect.left + rect.width / 2;
-          const coinY = rect.top + rect.height / 2;
+          originalCoin = coin;
 
           // Создаем копию монетки для анимации
           const floatingCoin = coin.cloneNode(true);
           floatingCoin.style.position = 'fixed';
-          floatingCoin.style.left = `${coinX - 90}px`;
-          floatingCoin.style.top = `${rect.top}px`;
-          floatingCoin.style.margin = '0';
-          floatingCoin.style.transform = 'translate(0, 0)';
+          floatingCoin.style.left = '50%';
+          floatingCoin.style.top = '50%';
+          floatingCoin.style.transform = 'translate(-50%, -50%)';
           floatingCoin.style.transition = 'all 1.5s ease-in-out';
           floatingCoin.style.zIndex = '1000';
           
@@ -683,26 +678,20 @@
             }
           });
 
-          // Анимация перемещения к центру
+          // Анимация переворота
           setTimeout(() => {
-            floatingCoin.style.left = `${centerX - 90}px`;
-            floatingCoin.style.top = `${centerY - 90}px`;
+            floatingCoin.classList.add('flipped');
 
-            // Анимация переворота
+            // Анимация перемещения вверх
             setTimeout(() => {
-              floatingCoin.classList.add('flipped');
+              floatingCoin.style.top = '100px';
+              floatingCoin.classList.add('floating-coin');
 
-              // Анимация перемещения вверх
+              // Показываем сообщение о выигрыше
               setTimeout(() => {
-                floatingCoin.style.top = '100px';
-                floatingCoin.classList.add('floating-coin');
-
-                // Показываем сообщение о выигрыше
-                setTimeout(() => {
-                  winMsg.style.opacity = '1';
-                }, 1500);
-              }, 3000);
-            }, 1600);
+                winMsg.style.opacity = '1';
+              }, 500);
+            }, 1500);
           }, 100);
         });
       });
