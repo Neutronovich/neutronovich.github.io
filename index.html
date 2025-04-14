@@ -297,9 +297,24 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 1.5s ease;
       position: relative;
       margin: 0 auto;
+      transition: all 0.5s ease;
+      will-change: transform;
+    }
+
+    .coin.selected {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) !important;
+      z-index: 1000;
+      transition: all 1s ease-in-out;
+    }
+
+    .coin.floating {
+      top: 100px !important;
+      animation: float 3s ease-in-out infinite;
     }
 
     .coin-inner {
@@ -334,25 +349,10 @@
     }
 
     .fade-out {
-      opacity: 0;
-      transform: scale(0.8);
+      opacity: 0.3;
+      transform: scale(0.9);
       pointer-events: none;
-    }
-
-    .floating-coin {
-      animation: floatCoin 3s ease-in-out infinite;
-      position: fixed;
-      top: 100px;
-      left: 50%;
-      transform: translateX(-50%) scale(1);
-      z-index: 10;
-      transition: none !important;
-    }
-    
-    @keyframes floatCoin {
-      0% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-8px); }
-      100% { transform: translateX(-50%) translateY(0); }
+      transition: all 0.5s ease;
     }
     
     #win-message {
@@ -495,7 +495,6 @@
   <script>
     /* Глобальные переменные */
     let selectedCoin = null;
-    let originalCoin = null;
     let isCoinSelected = false;
     
     /* 0) Навигация между страницами */
@@ -507,22 +506,26 @@
         p.style.display = (p.id === pageId) ? 'block' : 'none';
       });
       
-      if (pageId === 'page1' && selectedCoin) {
-        // При переходе на первую страницу удаляем выбранную монетку
-        selectedCoin.remove();
-        selectedCoin = null;
-        isCoinSelected = false;
-      } else if (pageId === 'page2') {
-        // При возврате на вторую страницу сбрасываем состояние
-        if (originalCoin) {
-          originalCoin.style.visibility = 'visible';
-        }
-        const coins = document.querySelectorAll('.coin');
-        coins.forEach(coin => {
-          coin.classList.remove('fade-out');
-        });
-        document.getElementById('win-message').style.opacity = '0';
+      if (pageId === 'page1') {
+        // При переходе на первую страницу сбрасываем состояние монеток
+        resetCoins();
       }
+    }
+    
+    function resetCoins() {
+      const coins = document.querySelectorAll('.coin');
+      coins.forEach(coin => {
+        coin.classList.remove('selected', 'flipped', 'floating');
+        coin.style.position = '';
+        coin.style.top = '';
+        coin.style.left = '';
+        coin.style.transform = '';
+        coin.style.zIndex = '';
+      });
+      
+      document.querySelectorAll('.coin').forEach(c => c.classList.remove('fade-out'));
+      document.getElementById('win-message').style.opacity = '0';
+      isCoinSelected = false;
     }
     
     navLinks.forEach(link => {
@@ -654,22 +657,10 @@
         coin.addEventListener('click', function() {
           if (isCoinSelected) return;
           isCoinSelected = true;
-          originalCoin = coin;
+          selectedCoin = coin;
 
-          // Создаем копию монетки для анимации
-          const floatingCoin = coin.cloneNode(true);
-          floatingCoin.style.position = 'fixed';
-          floatingCoin.style.left = '50%';
-          floatingCoin.style.top = '50%';
-          floatingCoin.style.transform = 'translate(-50%, -50%)';
-          floatingCoin.style.transition = 'all 1.5s ease-in-out';
-          floatingCoin.style.zIndex = '1000';
-          
-          document.body.appendChild(floatingCoin);
-          selectedCoin = floatingCoin;
-
-          // Скрываем оригинальную монетку
-          coin.style.visibility = 'hidden';
+          // Делаем монетку "выбранной" (перемещаем в центр)
+          coin.classList.add('selected');
 
           // Затемняем другие монетки
           coins.forEach(otherCoin => {
@@ -680,12 +671,11 @@
 
           // Анимация переворота
           setTimeout(() => {
-            floatingCoin.classList.add('flipped');
+            coin.classList.add('flipped');
 
             // Анимация перемещения вверх
             setTimeout(() => {
-              floatingCoin.style.top = '100px';
-              floatingCoin.classList.add('floating-coin');
+              coin.classList.add('floating');
 
               // Показываем сообщение о выигрыше
               setTimeout(() => {
