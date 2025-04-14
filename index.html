@@ -268,7 +268,7 @@
     
     /* Страница с монетками */
     #page2 {
-      background: linear-gradient(to bottom, #0b0021, #1a0033);
+      background: #0d0d1a;
       margin: 0;
       padding: 0;
       color: white;
@@ -282,14 +282,17 @@
     }
 
     .coins-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
-      width: 100%;
-      max-width: 420px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 100vw;
+      height: 100%;
       padding: 20px;
       box-sizing: border-box;
-      margin: 0 auto;
     }
 
     .coin {
@@ -297,24 +300,8 @@
       height: 180px;
       perspective: 1000px;
       cursor: pointer;
+      transition: opacity 1.5s ease;
       position: relative;
-      margin: 0 auto;
-      transition: all 0.5s ease;
-      will-change: transform;
-    }
-
-    .coin.selected {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) !important;
-      z-index: 1000;
-      transition: all 1s ease-in-out;
-    }
-
-    .coin.floating {
-      top: 100px !important;
-      animation: float 3s ease-in-out infinite;
     }
 
     .coin-inner {
@@ -349,10 +336,26 @@
     }
 
     .fade-out {
-      opacity: 0.3;
-      transform: scale(0.9);
+      opacity: 0;
+      transform: scale(0.8);
       pointer-events: none;
-      transition: all 0.5s ease;
+    }
+
+    .selected-coin {
+      position: fixed !important;
+      z-index: 10;
+      transition: transform 1.5s ease-in-out;
+      transform: translate(-50%, -50%) scale(1.25);
+    }
+
+    @keyframes floatCoin {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
+
+    .floating-coin {
+      animation: floatCoin 3s ease-in-out infinite;
     }
     
     #win-message {
@@ -453,8 +456,8 @@
   
   <!-- Вторая страница (монетки) -->
   <div id="page2" class="page">
-    <div class="coins-container">
-      <div class="coin" data-index="$1">
+    <div class="coins-container" style="pointer-events: auto;">
+      <div class="coin" data-index="$1" style="pointer-events: auto;">
         <div class="coin-inner">
           <div class="coin-front"></div>
           <div class="coin-back"></div>
@@ -507,25 +510,18 @@
       });
       
       if (pageId === 'page1') {
-        // При переходе на первую страницу сбрасываем состояние монеток
-        resetCoins();
+        // При переходе на первую страницу удаляем выбранную монетку
+        const selected = document.querySelector('.selected-coin');
+        if (selected) selected.remove();
+        isCoinSelected = false;
+        
+        // Восстанавливаем видимость оригинальных монеток
+        const coins = document.querySelectorAll('.coin');
+        coins.forEach(coin => {
+          coin.style.visibility = 'visible';
+          coin.classList.remove('fade-out');
+        });
       }
-    }
-    
-    function resetCoins() {
-      const coins = document.querySelectorAll('.coin');
-      coins.forEach(coin => {
-        coin.classList.remove('selected', 'flipped', 'floating');
-        coin.style.position = '';
-        coin.style.top = '';
-        coin.style.left = '';
-        coin.style.transform = '';
-        coin.style.zIndex = '';
-      });
-      
-      document.querySelectorAll('.coin').forEach(c => c.classList.remove('fade-out'));
-      document.getElementById('win-message').style.opacity = '0';
-      isCoinSelected = false;
     }
     
     navLinks.forEach(link => {
@@ -651,37 +647,78 @@
     /* 4) Логика монеток */
     function setupCoins() {
       const coins = document.querySelectorAll('.coin');
+      const container = document.querySelector('.coins-container');
       const winMsg = document.getElementById('win-message');
 
       coins.forEach(coin => {
         coin.addEventListener('click', function() {
           if (isCoinSelected) return;
           isCoinSelected = true;
-          selectedCoin = coin;
 
-          // Делаем монетку "выбранной" (перемещаем в центр)
-          coin.classList.add('selected');
+          const selectedCoin = coin;
+          const rect = selectedCoin.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
 
-          // Затемняем другие монетки
+          const centerX = window.innerWidth / 2;
+          const centerY = window.innerHeight / 2;
+          const coinX = rect.left + rect.width / 2;
+          const coinY = rect.top + rect.height / 2;
+
+          const deltaX = centerX - coinX;
+          const deltaY = centerY - coinY;
+
+          const fixed = selectedCoin.cloneNode(true);
+          const original = selectedCoin;
+          const parent = container;
+
+          const rectParent = parent.getBoundingClientRect();
+          const fixedX = rect.left - rectParent.left;
+          const fixedY = rect.top - rectParent.top;
+
+          fixed.style.position = 'fixed';
+          fixed.style.left = `${rect.left}px`;
+          fixed.style.top = `${rect.top}px`;
+          fixed.style.margin = '0';
+          fixed.style.transform = `translate(0, 0)`;
+          fixed.style.transition = 'transform 1.5s ease-in-out';
+
+          fixed.classList.add('selected-coin');
+          document.body.appendChild(fixed);
+
+          // Удалим исходный клон, если он уже был добавлен ранее
+          const existing = document.querySelectorAll('.selected-coin');
+          existing.forEach(el => {
+            if (el !== fixed) el.remove();
+          });
+
+          original.style.visibility = 'hidden';
+
           coins.forEach(otherCoin => {
-            if (otherCoin !== coin) {
+            if (otherCoin !== original) {
               otherCoin.classList.add('fade-out');
             }
           });
 
-          // Анимация переворота
           setTimeout(() => {
-            coin.classList.add('flipped');
+            fixed.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.25)`;
 
-            // Анимация перемещения вверх
             setTimeout(() => {
-              coin.classList.add('floating');
+              fixed.classList.add('flipped');
 
-              // Показываем сообщение о выигрыше
+              // Через 3 секунды переместить монетку вверх и уменьшить
               setTimeout(() => {
-                winMsg.style.opacity = '1';
-              }, 500);
-            }, 1500);
+                fixed.style.transition = 'transform 1.5s ease-in-out';
+                const finalTop = 100;
+                const finalX = deltaX;
+                const finalY = -coinY + finalTop + rect.height / 2;
+                fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
+
+                setTimeout(() => {
+                  fixed.classList.add('floating-coin');
+                  winMsg.style.opacity = '1';
+                }, 1500);
+              }, 3000);
+            }, 1600);
           }, 100);
         });
       });
