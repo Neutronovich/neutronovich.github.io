@@ -27,13 +27,13 @@
     
     /* Волнообразная SVG-сетка на фоне */
     .wave-grid {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       opacity: 0.5;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
     }
     
@@ -71,6 +71,8 @@
       flex: 1;
       box-sizing: border-box;
       text-align: center;
+      position: relative;
+      background: #0b0021;
     }
     
     /* Первая страница */
@@ -82,6 +84,8 @@
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(106, 0, 255, 0.4);
       transition: transform 0.3s;
+      position: relative;
+      z-index: 1;
     }
     
     #page1 img:hover {
@@ -98,6 +102,8 @@
       background: linear-gradient(90deg, #a100f2, #6e00ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      position: relative;
+      z-index: 1;
     }
     
     .description {
@@ -109,6 +115,8 @@
       border: 1px solid #6e00ff;
       box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
       line-height: 1.6;
+      position: relative;
+      z-index: 1;
     }
     
     #page1 #ton-connect {
@@ -117,6 +125,8 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
     }
     
     .stats-container {
@@ -129,6 +139,8 @@
       padding: 15px;
       border: 1px solid #a100f2;
       box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
+      position: relative;
+      z-index: 1;
     }
 
     .timer-box {
@@ -178,6 +190,8 @@
       gap: 18px;
       max-width: 320px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
     
     #goToCoins {
@@ -279,7 +293,6 @@
     
     /* Страница с монетками */
     #page2 {
-      background: #0b0021;
       margin: 0;
       padding: 0;
       color: white;
@@ -289,7 +302,6 @@
       align-items: center;
       min-height: calc(100vh - 55px);
       overflow: hidden;
-      position: relative;
     }
 
     .coins-container {
@@ -301,6 +313,8 @@
       padding: 20px;
       box-sizing: border-box;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .coin {
@@ -413,33 +427,6 @@
   </style>
 </head>
 <body>
-  <!-- Фоновая волнообразная сетка -->
-  <svg class="wave-grid" viewBox="0 0 2400 1600"" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Горизонтальные волны -->
-    <path d="M0 50 Q300 25 600 50 T1200 50" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 150 Q300 125 600 150 T1200 150" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 250 Q300 225 600 250 T1200 250" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 350 Q300 325 600 350 T1200 350" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 450 Q300 425 600 450 T1200 450" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 550 Q300 525 600 550 T1200 550" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 650 Q300 625 600 650 T1200 650" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M0 750 Q300 725 600 750 T1200 750" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    
-    <!-- Вертикальные волны -->
-   <path d="M50 0 Q50 200 50 400 T50 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M150 0 Q150 200 150 400 T150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M250 0 Q250 200 250 400 T250 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M350 0 Q350 200 350 400 T350 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M450 0 Q450 200 450 400 T450 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M550 0 Q550 200 550 400 T550 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M650 0 Q650 200 650 400 T650 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M750 0 Q750 200 750 400 T750 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M850 0 Q850 200 850 400 T850 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M950 0 Q950 200 950 400 T950 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M1050 0 Q1050 200 1050 400 T1050 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-<path d="M1150 0 Q1150 200 1150 400 T1150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-  </svg>
-
   <!-- Навигация -->
   <div class="nav">
     <span class="nav-link" data-page="page1">Главная</span>
@@ -448,6 +435,33 @@
   
   <!-- Первая страница -->
   <div id="page1" class="page">
+    <!-- Фоновая сетка для первой страницы -->
+    <svg class="wave-grid" viewBox="0 0 2400 1600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Горизонтальные волны -->
+      <path d="M0 50 Q300 25 600 50 T1200 50" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 150 Q300 125 600 150 T1200 150" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 250 Q300 225 600 250 T1200 250" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 350 Q300 325 600 350 T1200 350" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 450 Q300 425 600 450 T1200 450" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 550 Q300 525 600 550 T1200 550" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 650 Q300 625 600 650 T1200 650" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 750 Q300 725 600 750 T1200 750" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      
+      <!-- Вертикальные волны -->
+      <path d="M50 0 Q50 200 50 400 T50 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M150 0 Q150 200 150 400 T150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M250 0 Q250 200 250 400 T250 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M350 0 Q350 200 350 400 T350 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M450 0 Q450 200 450 400 T450 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M550 0 Q550 200 550 400 T550 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M650 0 Q650 200 650 400 T650 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M750 0 Q750 200 750 400 T750 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M850 0 Q850 200 850 400 T850 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M950 0 Q950 200 950 400 T950 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M1050 0 Q1050 200 1050 400 T1050 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M1150 0 Q1150 200 1150 400 T1150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    </svg>
+
     <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
     
     <div class="welcome-text">
@@ -491,6 +505,33 @@
   
   <!-- Вторая страница (монетки) -->
   <div id="page2" class="page">
+    <!-- Фоновая сетка для второй страницы -->
+    <svg class="wave-grid" viewBox="0 0 2400 1600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Горизонтальные волны -->
+      <path d="M0 50 Q300 25 600 50 T1200 50" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 150 Q300 125 600 150 T1200 150" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 250 Q300 225 600 250 T1200 250" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 350 Q300 325 600 350 T1200 350" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 450 Q300 425 600 450 T1200 450" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 550 Q300 525 600 550 T1200 550" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 650 Q300 625 600 650 T1200 650" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M0 750 Q300 725 600 750 T1200 750" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      
+      <!-- Вертикальные волны -->
+      <path d="M50 0 Q50 200 50 400 T50 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M150 0 Q150 200 150 400 T150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M250 0 Q250 200 250 400 T250 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M350 0 Q350 200 350 400 T350 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M450 0 Q450 200 450 400 T450 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M550 0 Q550 200 550 400 T550 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M650 0 Q650 200 650 400 T650 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M750 0 Q750 200 750 400 T750 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M850 0 Q850 200 850 400 T850 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M950 0 Q950 200 950 400 T950 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M1050 0 Q1050 200 1050 400 T1050 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+      <path d="M1150 0 Q1150 200 1150 400 T1150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    </svg>
+
     <div class="coins-container">
       <div class="coin" data-index="$1">
         <div class="coin-inner">
