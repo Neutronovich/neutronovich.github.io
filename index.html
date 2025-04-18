@@ -14,22 +14,15 @@
   
   <style>
     /* Основные стили */
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    body {
       background: #0b0021;
       color: white;
       font-family: 'Arial', sans-serif;
-      overflow-x: hidden;
-    }
-    
-    /* Общий контейнер */
-    .app-container {
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      position: relative;
+      overflow-x: hidden;
     }
     
     /* Волнообразная SVG-сетка на фоне */
@@ -39,8 +32,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.5;
-      z-index: 0;
+      opacity: 0.15;
+      z-index: -1;
       pointer-events: none;
     }
     
@@ -74,10 +67,8 @@
     /* Страницы */
     .page {
       display: none;
-      flex: 1;
-      position: relative;
-      z-index: 1;
       padding: 20px;
+      flex: 1;
       box-sizing: border-box;
       text-align: center;
     }
@@ -91,7 +82,6 @@
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(106, 0, 255, 0.4);
       transition: transform 0.3s;
-      position: relative;
     }
     
     #page1 img:hover {
@@ -108,7 +98,6 @@
       background: linear-gradient(90deg, #a100f2, #6e00ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      position: relative;
     }
     
     .description {
@@ -120,7 +109,6 @@
       border: 1px solid #6e00ff;
       box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
       line-height: 1.6;
-      position: relative;
     }
     
     #page1 #ton-connect {
@@ -129,7 +117,6 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      position: relative;
     }
     
     .stats-container {
@@ -142,7 +129,6 @@
       padding: 15px;
       border: 1px solid #a100f2;
       box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
-      position: relative;
     }
 
     .timer-box {
@@ -192,7 +178,6 @@
       gap: 18px;
       max-width: 320px;
       margin: 0 auto;
-      position: relative;
     }
     
     #goToCoins {
@@ -294,6 +279,7 @@
     
     /* Страница с монетками */
     #page2 {
+      background: #0b0021;
       margin: 0;
       padding: 0;
       color: white;
@@ -303,6 +289,7 @@
       align-items: center;
       min-height: calc(100vh - 55px);
       overflow: hidden;
+      position: relative;
     }
 
     .coins-container {
@@ -314,8 +301,6 @@
       padding: 20px;
       box-sizing: border-box;
       margin: 0 auto;
-      position: relative;
-      z-index: 1;
     }
 
     .coin {
@@ -428,121 +413,109 @@
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Фоновая сетка (общая для всех страниц) -->
-    <svg class="wave-grid" viewBox="0 0 2400 1600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Горизонтальные волны -->
-      <path d="M0 50 Q300 25 600 50 T1200 50" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 150 Q300 125 600 150 T1200 150" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 250 Q300 225 600 250 T1200 250" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 350 Q300 325 600 350 T1200 350" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 450 Q300 425 600 450 T1200 450" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 550 Q300 525 600 550 T1200 550" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 650 Q300 625 600 650 T1200 650" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M0 750 Q300 725 600 750 T1200 750" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      
-      <!-- Вертикальные волны -->
-      <path d="M50 0 Q50 200 50 400 T50 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M150 0 Q150 200 150 400 T150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M250 0 Q250 200 250 400 T250 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M350 0 Q350 200 350 400 T350 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M450 0 Q450 200 450 400 T450 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M550 0 Q550 200 550 400 T550 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M650 0 Q650 200 650 400 T650 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M750 0 Q750 200 750 400 T750 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M850 0 Q850 200 850 400 T850 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M950 0 Q950 200 950 400 T950 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M1050 0 Q1050 200 1050 400 T1050 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-      <path d="M1150 0 Q1150 200 1150 400 T1150 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    </svg>
+  <!-- Фоновая волнообразная сетка -->
+  <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Горизонтальные волны -->
+    <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    
+    <!-- Вертикальные волны -->
+    <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M700 0 Q700 200 700 400 T700 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M900 0 Q900 200 900 400 T900 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+  </svg>
 
-    <!-- Навигация -->
-    <div class="nav">
-      <span class="nav-link" data-page="page1">Главная</span>
-      <span class="nav-link" data-page="page2">Монетки</span>
+  <!-- Навигация -->
+  <div class="nav">
+    <span class="nav-link" data-page="page1">Главная</span>
+    <span class="nav-link" data-page="page2">Монетки</span>
+  </div>
+  
+  <!-- Первая страница -->
+  <div id="page1" class="page">
+    <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
+    
+    <div class="welcome-text">
+      Добро пожаловать в FPI Bank Drop!
     </div>
     
-    <!-- Первая страница -->
-    <div id="page1" class="page">
-      <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
-      
-      <div class="welcome-text">
-        Добро пожаловать в FPI Bank Drop!
+    <div class="description">
+      🎉 Участвуйте в розыгрыше токенов FPI Bank!<br><br>
+      🔹 Каждый участник получает от 500 до 5000 токенов<br>
+      🔹 Просто подключите кошелёк и откройте карточку<br>
+      🔹 Выводите выигрыш моментально
+    </div>
+    
+    <div id="ton-connect"></div>
+    
+    <div class="stats-container">
+      <div class="timer-box">
+        <div class="timer-value" id="nextDropTimer">14:02:12:00</div>
+        <div class="timer-label">До окончания дропа</div>
       </div>
       
-      <div class="description">
-        🎉 Участвуйте в розыгрыше токенов FPI Bank!<br><br>
-        🔹 Каждый участник получает от 500 до 5000 токенов<br>
-        🔹 Просто подключите кошелёк и откройте карточку<br>
-        🔹 Выводите выигрыш моментально
-      </div>
-      
-      <div id="ton-connect"></div>
-      
-      <div class="stats-container">
-        <div class="timer-box">
-          <div class="timer-value" id="nextDropTimer">14:02:12:00</div>
-          <div class="timer-label">До окончания дропа</div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value" id="participantsCount">1,428</div>
+          <div class="stat-label">Участников</div>
         </div>
         
-        <div class="stats-row">
-          <div class="stat-item">
-            <div class="stat-value" id="participantsCount">1,428</div>
-            <div class="stat-label">Участников</div>
-          </div>
-          
-          <div class="stat-item">
-            <div class="stat-value">500-5,000</div>
-            <div class="stat-label">FPI за дроп</div>
-          </div>
+        <div class="stat-item">
+          <div class="stat-value">500-5,000</div>
+          <div class="stat-label">FPI за дроп</div>
         </div>
-      </div>
-      
-      <div class="action-buttons">
-        <button id="goToCoins">Открыть монетку</button>
-        <button id="goToChannel" class="external-link-btn">Наш Telegram</button>
-        <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
       </div>
     </div>
     
-    <!-- Вторая страница (монетки) -->
-    <div id="page2" class="page">
-      <div class="coins-container">
-        <div class="coin" data-index="$1">
-          <div class="coin-inner">
-            <div class="coin-front"></div>
-            <div class="coin-back"></div>
-          </div>
-        </div>
-        <div class="coin" data-index="1">
-          <div class="coin-inner">
-            <div class="coin-front"></div>
-            <div class="coin-back"></div>
-          </div>
-        </div>
-        <div class="coin" data-index="2">
-          <div class="coin-inner">
-            <div class="coin-front"></div>
-            <div class="coin-back"></div>
-          </div>
-        </div>
-        <div class="coin" data-index="3">
-          <div class="coin-inner">
-            <div class="coin-front"></div>
-            <div class="coin-back"></div>
-          </div>
+    <div class="action-buttons">
+      <button id="goToCoins">Открыть монетку</button>
+      <button id="goToChannel" class="external-link-btn">Наш Telegram</button>
+      <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
+    </div>
+  </div>
+  
+  <!-- Вторая страница (монетки) -->
+  <div id="page2" class="page">
+    <div class="coins-container">
+      <div class="coin" data-index="$1">
+        <div class="coin-inner">
+          <div class="coin-front"></div>
+          <div class="coin-back"></div>
         </div>
       </div>
-
-      <div id="win-message">
-        Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-        Для вывода вам необходимо вернуться на первую страницу<br>
-        и нажать кнопку <strong>Минтить FPI bank</strong>.
-        <br><br>
-        <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
-        <div>
-          Получение дропа возможно только при наличии токенов FPIBank на кошельке.
+      <div class="coin" data-index="1">
+        <div class="coin-inner">
+          <div class="coin-front"></div>
+          <div class="coin-back"></div>
         </div>
+      </div>
+      <div class="coin" data-index="2">
+        <div class="coin-inner">
+          <div class="coin-front"></div>
+          <div class="coin-back"></div>
+        </div>
+      </div>
+      <div class="coin" data-index="3">
+        <div class="coin-inner">
+          <div class="coin-front"></div>
+          <div class="coin-back"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="win-message">
+      Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+      Для вывода вам необходимо вернуться на первую страницу<br>
+      и нажать кнопку <strong>Минтить FPI bank</strong>.
+      <br><br>
+      <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
+      <div>
+        Получение дропа возможно только при наличии токенов FPIBank на кошельке.
       </div>
     </div>
   </div>
