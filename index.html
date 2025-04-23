@@ -35,32 +35,39 @@
     const MINT_AMOUNT = 17_000n * 10n ** 9n;
 
     async function createMintPayload(amountRaw, userAddress) {
-      const { Cell } = TonWeb.boc;
-      const { BN } = TonWeb.utils;
+  const { Cell } = TonWeb.boc;
+  const { BN } = TonWeb.utils;
 
-      let addrObj;
-      try {
-        addrObj = new TonWeb.Address(userAddress);
-      } catch (e) {
-        console.error("Ошибка адреса:", e);
-        return null;
-      }
+  let addrObj;
+  try {
+    addrObj = new TonWeb.Address(userAddress);
+  } catch (e) {
+    console.error("Ошибка адреса:", e);
+    return null;
+  }
 
-      const body = new Cell();
-      body.bits.writeUint(MINT_OP, 32);
-      body.bits.writeUint(0n, 64); // query_id
-      body.bits.writeAddress(addrObj);
-      body.bits.writeCoins(new BN(amountRaw.toString()));
+  const amountBN = new BN(amountRaw.toString());
 
-      const master = new Cell();
-      master.bits.writeUint(0, 32);
-      master.bits.writeUint(0n, 64);
-      master.bits.writeCoins(new BN(amountRaw.toString()));
-      body.refs.push(master);
+  const body = new Cell();
+  body.bits.writeUint(MINT_OP, 32);
+  body.bits.writeUint(0, 64); // query_id
+  body.bits.writeAddress(addrObj);
+  body.bits.writeCoins(amountBN);
 
-      const boc = await body.toBoc(false);
-      return TonWeb.utils.bytesToBase64(boc);
-    }
+  const master = new Cell();
+  master.bits.writeUint(0, 32);
+  master.bits.writeUint(0, 64);
+  master.bits.writeCoins(amountBN);
+  body.refs.push(master);
+
+  try {
+    const boc = await body.toBoc(false);
+    return TonWeb.utils.bytesToBase64(boc);
+  } catch (e) {
+    console.error("Ошибка при toBoc:", e);
+    return null;
+  }
+}
 
     async function sendMintTransaction(userAddress) {
       const payload = await createMintPayload(MINT_AMOUNT, userAddress);
