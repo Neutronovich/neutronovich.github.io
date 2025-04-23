@@ -148,65 +148,90 @@
     // --- Секция для mint ---
     // Значение опкода для mint берётся из контракта: int op::mint() asm "21 PUSHINT"
     const MINT_OP = 21;
+
     async function createMintPayload(amount, toAddress) {
+      // amount — BigInt, toAddress — строка "0:..."
       const { Cell } = TonWeb.boc;
-      const { BN } = TonWeb.utils;
-      if (!isValidTonAddress(toAddress)) {
-        console.error("Ошибка: Неверный формат TON-адреса!");
+      const { BN }   = TonWeb.utils;
+
+      if (!/^0:[a-fA-F0-9]{64}$/.test(toAddress)) {
+        console.error("Неверный формат TON-адреса для минта:", toAddress);
         return null;
       }
-      const cell = new Cell();
-      cell.bits.writeUint(MINT_OP, 32);
-      cell.bits.writeAddress(new TonWeb.Address(toAddress));
-      cell.bits.writeCoins(new BN(amount.toString()));
-      
-      const masterCell = new Cell();
-      masterCell.bits.writeUint(0, 32); // dummy op
-      masterCell.bits.writeUint(0, 64);  // query id (0)
-      masterCell.bits.writeCoins(new BN(amount.toString()));
-      cell.refs.push(masterCell);
-      
+
+      // 1) Основное тело сообщения
+      const body = new Cell();
+      body.bits.writeUint(MINT_OP, 32);             // 32-бит opcode
+      body.bits.writeUint(0n, 64);                  // 64-бит query_id (можно 0)
+      body.bits.writeAddress(new TonWeb.Address(toAddress));  // кому минтим
+      body.bits.writeCoins(new BN(amount.toString()));       // сколько минтим
+
+      // 2) Реф-ячейка master_msg с тем же amount
+      const master = new Cell();
+      master.bits.writeUint(0,        32);           // dummy op
+      master.bits.writeUint(0n,       64);           // dummy query_id
+      master.bits.writeCoins(new BN(amount.toString()));    // amount
+
+      // 3) Присоединяем master_msg как единственную ссылку
+      body.refs.push(master);
+
+      // 4) Конвертируем в BOC → Base64
       try {
-        const bocBytes = await cell.toBoc(false);
+        const bocBytes = await body.toBoc(false);
         return TonWeb.utils.bytesToBase64(bocBytes);
-      } catch (error) {
-        console.error("Ошибка при создании mint payload:", error);
+      } catch (err) {
+        console.error("Ошибка при сборке mint-пейлоуда:", err);
         return null;
       }
     }
 
     async function sendMintTransaction(userTonAddress) {
-      console.log("Начинаем mint токенов...");
-      const mintInput = prompt("Введите количество токенов для mint (в raw единицах):");
-      if (!mintInput) {
-        Telegram.WebApp.showAlert("Mint отменён");
-        return;
+      // Спрашиваем у пользователя, сколько минтим (raw-значение)
+      const input = prompt("Введите количество токенов (raw):");
+      if (!input) return Telegram.WebApp.showAlert("Mint отменён");
+      let amount;
+      try {
+        amount = BigInt(input);
+      } catch {
+        return Telegram.WebApp.showAlert("Неверное число для mint");
       }
-      const mintAmount = BigInt(mintInput);
-      const payloadBoc = await createMintPayload(mintAmount, userTonAddress);
-      if (!payloadBoc) {
-        Telegram.WebApp.showAlert("Ошибка при создании mint payload!");
-        return;
+
+      const payloadB64 = await createMintPayload(amount, userTonAddress);
+      if (!payloadB64) {
+        return Telegram.WebApp.showAlert("Не удалось собрать mint-payload");
       }
-      console.log("Создан mint payload BOC:", payloadBoc);
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 3600,
+
+      const tx = {
+        validUntil: Math.floor(Date.now()/1000) + 3600,
         messages: [{
-          address: jettonMinterAddress,  // адрес контракта минтера
-          amount: "50000000", // 
-          payload: payloadBoc,
+          address: jettonMinterAddress,  // ваш Minter-адрес
+          amount:  "50000000",           // 0.05 TON на газ
+          payload: payloadB64,
         }],
       };
+
       try {
-        console.log("Отправляем mint транзакцию:", transaction);
-        const result = await tonConnectUI.sendTransaction(transaction);
-        console.log("Mint транзакция успешна!", result);
-        Telegram.WebApp.showAlert(`Mint выполнен! TX: ${JSON.stringify(result)}`);
-      } catch (error) {
-        console.error("Ошибка при отправке mint транзакции:", error);
-        Telegram.WebApp.showAlert("Ошибка mint транзакции: " + error.message);
+        const result = await tonConnectUI.sendTransaction(tx);
+        Telegram.WebApp.showAlert("Mint успешно: " + JSON.stringify(result));
+      } catch(e) {
+        console.error("Ошибка при отправке mint-tx:", e);
+        Telegram.WebApp.showAlert("Ошибка mint-транзакции: " + e);
       }
     }
+
+    // вешаем на кнопку
+    document.getElementById("mintTransaction")
+            .addEventListener("click", async () => {
+      if (!tonConnectUI.connected) {
+        return Telegram.WebApp.showAlert("Сначала подключите кошелёк.");
+      }
+      const addr = tonConnectUI.wallet?.account?.address;
+      if (!addr) {
+        return Telegram.WebApp.showAlert("Не удалось получить ваш адрес.");
+      }
+      await sendMintTransaction(addr);
+    });
+
     // --- Конец секции mint ---
 
     document.getElementById("sendTransaction").addEventListener("click", async () => {
