@@ -295,30 +295,32 @@
     .coins-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
+      gap: 15px;
       width: 100%;
       max-width: 420px;
-      padding: 20px;
+      padding: 15px;
       box-sizing: border-box;
       margin: 0 auto;
+      justify-items: center;
     }
 
     .coin {
-      width: 180px;
-      height: 180px;
+      width: 150px;
+      height: 150px;
       perspective: 1000px;
       cursor: pointer;
       transition: opacity 1.5s ease;
       position: relative;
-      margin: 0 auto;
+      margin: 0;
     }
 
     .coin-inner {
       width: 100%;
       height: 100%;
       position: relative;
-      transition: transform 1.6s ease-in-out;
+      transition: transform 1.2s ease;
       transform-style: preserve-3d;
+      will-change: transform;
     }
 
     .coin.flipped .coin-inner {
@@ -333,6 +335,7 @@
       border-radius: 50%;
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
     }
 
     .coin-front {
@@ -348,16 +351,17 @@
       opacity: 0;
       transform: scale(0.8);
       pointer-events: none;
+      transition: all 0.8s ease;
     }
 
     .floating-coin {
-      animation: floatCoin 3s ease-in-out infinite;
       position: fixed;
       top: 100px;
       left: 50%;
       transform: translateX(-50%) scale(1);
       z-index: 10;
-      transition: none !important;
+      transition: all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      will-change: transform;
     }
     
     @keyframes floatCoin {
@@ -373,17 +377,18 @@
       box-shadow: 0 0 30px rgba(0,255,110,0.25);
       font-family: 'Arial', sans-serif;
       font-weight: 500;
-      width: 75vw;
+      width: 85%;
+      max-width: 350px;
       padding: 20px;
       border-radius: 16px;
       text-align: center;
       color: #ffffff;
       position: absolute;
-      top: 320px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       opacity: 0;
-      transition: opacity 1s ease;
+      transition: opacity 0.8s ease;
       z-index: 9;
     }
     
@@ -409,6 +414,24 @@
       line-height: 1.4;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    /* Адаптация для мобильных */
+    @media (max-width: 480px) {
+      .coin {
+        width: 130px;
+        height: 130px;
+      }
+
+      .coins-container {
+        gap: 10px;
+        padding: 10px;
+      }
+
+      #win-message {
+        width: 90%;
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -687,10 +710,10 @@
           // Создаем копию монетки для анимации
           const floatingCoin = coin.cloneNode(true);
           floatingCoin.style.position = 'fixed';
-          floatingCoin.style.left = '50%';
-          floatingCoin.style.top = '50%';
+          floatingCoin.style.left = `${coin.getBoundingClientRect().left + coin.offsetWidth/2}px`;
+          floatingCoin.style.top = `${coin.getBoundingClientRect().top + coin.offsetHeight/2}px`;
           floatingCoin.style.transform = 'translate(-50%, -50%)';
-          floatingCoin.style.transition = 'all 1.5s ease-in-out';
+          floatingCoin.style.transition = 'all 1s cubic-bezier(0.25, 0.1, 0.25, 1)';
           floatingCoin.style.zIndex = '1000';
           
           document.body.appendChild(floatingCoin);
@@ -713,13 +736,14 @@
             // Анимация перемещения вверх
             setTimeout(() => {
               floatingCoin.style.top = '100px';
+              floatingCoin.style.left = '50%';
               floatingCoin.classList.add('floating-coin');
 
               // Показываем сообщение о выигрыше
               setTimeout(() => {
                 winMsg.style.opacity = '1';
-              }, 500);
-            }, 1500);
+              }, 800);
+            }, 1200);
           }, 100);
         });
       });
