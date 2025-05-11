@@ -1,293 +1,44 @@
-<!-- Добавьте этот код в раздел style -->
+<!-- Добавьте в раздел style -->
 <style>
-  /* Страница истории транзакций */
+  /* Страница 3 - чистая */
   #page3 {
-    padding: 20px;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  
-  .balance-container {
-    background: rgba(46, 0, 99, 0.4);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 25px;
-    border: 1px solid #a100f2;
-    box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
-    text-align: center;
-  }
-  
-  .balance-title {
-    font-size: 1.2em;
-    color: #d0b3ff;
-    margin-bottom: 10px;
-  }
-  
-  .balance-amount {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #00ff88;
-    margin: 10px 0;
-    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-  }
-  
-  .balance-subtitle {
-    font-size: 0.9em;
-    color: #b388ff;
-    margin-top: 5px;
-  }
-  
-  .transactions-title {
-    font-size: 1.3em;
-    color: #e2c6ff;
-    margin: 20px 0 15px;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  }
-  
-  .transactions-list {
-    background: rgba(26, 0, 51, 0.4);
-    border-radius: 16px;
-    padding: 15px;
-    border: 1px solid #6e00ff;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .transaction-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    background: rgba(123, 31, 255, 0.1);
-    border-radius: 12px;
-    border-left: 3px solid #6e00ff;
-    transition: all 0.3s;
-  }
-  
-  .transaction-item:hover {
-    background: rgba(123, 31, 255, 0.2);
-    transform: translateX(5px);
-  }
-  
-  .transaction-amount {
-    font-weight: bold;
-    color: white;
-  }
-  
-  .transaction-amount.positive {
-    color: #00ff88;
-  }
-  
-  .transaction-amount.negative {
-    color: #ff5555;
-  }
-  
-  .transaction-details {
     display: flex;
     flex-direction: column;
-    text-align: right;
-  }
-  
-  .transaction-date {
-    font-size: 0.8em;
-    color: #b388ff;
-  }
-  
-  .transaction-status {
-    font-size: 0.75em;
-    margin-top: 3px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    display: inline-block;
-  }
-  
-  .status-success {
-    background: rgba(0, 255, 136, 0.1);
-    color: #00ff88;
-  }
-  
-  .status-pending {
-    background: rgba(255, 214, 0, 0.1);
-    color: #ffd600;
-  }
-  
-  .action-button {
-    background: linear-gradient(135deg, #6e00ff, #a100f2);
-    color: white;
-    padding: 14px 25px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1em;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(110, 0, 255, 0.4);
-    width: 100%;
-    max-width: 300px;
-    margin: 20px auto;
-    display: block;
-  }
-  
-  .action-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(110, 0, 255, 0.6);
-  }
-  
-  .empty-state {
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
     text-align: center;
-    color: #b388ff;
+  }
+  
+  .page3-title {
+    font-size: 2em;
+    color: #e2c6ff;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    background: linear-gradient(90deg, #a100f2, #6e00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .page3-content {
+    background: rgba(123, 31, 255, 0.2);
     padding: 30px;
-    font-size: 1.1em;
-  }
-  
-  /* Полоса прокрутки */
-  .transactions-list::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .transactions-list::-webkit-scrollbar-track {
-    background: rgba(26, 0, 51, 0.2);
-    border-radius: 3px;
-  }
-  
-  .transactions-list::-webkit-scrollbar-thumb {
-    background: #6e00ff;
-    border-radius: 3px;
+    border-radius: 16px;
+    max-width: 90%;
+    border: 1px solid #6e00ff;
+    box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
+    line-height: 1.6;
   }
 </style>
 
-<!-- Добавьте этот код в body после других страниц -->
+<!-- Добавьте в body после других страниц -->
 <div id="page3" class="page">
-  <div class="balance-container">
-    <div class="balance-title">Ваш баланс FPI Bank</div>
-    <div class="balance-amount" id="userBalance">0</div>
-    <div class="balance-subtitle">≈ $0.00</div>
+  <div class="page3-title">Страница 3</div>
+  <div class="page3-content">
+    Это чистая страница с сохранением общего дизайна<br>
+    Можно добавить любой контент
   </div>
-  
-  <div class="transactions-title">История транзакций</div>
-  
-  <div class="transactions-list" id="transactionsList">
-    <!-- Транзакции будут добавляться динамически -->
-    <div class="empty-state">Подключите кошелёк, чтобы увидеть историю</div>
-  </div>
-  
-  <button class="action-button" id="refreshButton">Обновить данные</button>
-  <button class="action-button" id="mintButton">Минтить FPI Bank</button>
 </div>
 
-<!-- Добавьте этот код в навигацию -->
-<span class="nav-link" data-page="page3">История</span>
-
-<!-- Добавьте этот JavaScript код в script -->
-// Функция для обновления баланса
-async function updateBalance() {
-  const user = tonConnectUI.account;
-  if (!user) {
-    document.getElementById('userBalance').textContent = '0';
-    return;
-  }
-  
-  try {
-    const { rawBalance, decimals } = await getUserFPIBankData(user.address);
-    const balance = (BigInt(rawBalance) / BigInt(10 ** decimals);
-    document.getElementById('userBalance').textContent = balance.toString();
-  } catch (error) {
-    console.error("Ошибка при обновлении баланса:", error);
-  }
-}
-
-// Функция для загрузки транзакций
-async function loadTransactions() {
-  const user = tonConnectUI.account;
-  const transactionsList = document.getElementById('transactionsList');
-  
-  if (!user) {
-    transactionsList.innerHTML = '<div class="empty-state">Подключите кошелёк, чтобы увидеть историю</div>';
-    return;
-  }
-  
-  transactionsList.innerHTML = '<div class="empty-state">Загрузка...</div>';
-  
-  try {
-    // Здесь должен быть запрос к API для получения транзакций
-    // Это пример статических данных
-    const mockTransactions = [
-      {
-        amount: "1500",
-        type: "in",
-        date: "2023-05-15 14:30",
-        status: "success"
-      },
-      {
-        amount: "500",
-        type: "in",
-        date: "2023-05-14 09:15",
-        status: "success"
-      },
-      {
-        amount: "200",
-        type: "out",
-        date: "2023-05-10 18:45",
-        status: "success"
-      },
-      {
-        amount: "1000",
-        type: "in",
-        date: "2023-05-08 11:20",
-        status: "pending"
-      }
-    ];
-    
-    if (mockTransactions.length === 0) {
-      transactionsList.innerHTML = '<div class="empty-state">Транзакций не найдено</div>';
-      } else {
-        transactionsList.innerHTML = '';
-        mockTransactions.forEach(tx => {
-          const txElement = document.createElement('div');
-          txElement.className = 'transaction-item';
-          
-          const amountClass = tx.type === 'in' ? 'positive' : 'negative';
-          const sign = tx.type === 'in' ? '+' : '-';
-          const statusClass = tx.status === 'success' ? 'status-success' : 'status-pending';
-          const statusText = tx.status === 'success' ? 'Успешно' : 'В обработке';
-          
-          txElement.innerHTML = `
-            <div class="transaction-amount ${amountClass}">${sign}${tx.amount} FPI</div>
-            <div class="transaction-details">
-              <span class="transaction-date">${tx.date}</span>
-              <span class="transaction-status ${statusClass}">${statusText}</span>
-            </div>
-          `;
-          
-          transactionsList.appendChild(txElement);
-        });
-      }
-  } catch (error) {
-    console.error("Ошибка при загрузке транзакций:", error);
-    transactionsList.innerHTML = '<div class="empty-state">Ошибка загрузки данных</div>';
-  }
-}
-
-// Обработчики кнопок
-document.getElementById('refreshButton').addEventListener('click', () => {
-  updateBalance();
-  loadTransactions();
-});
-
-document.getElementById('mintButton').addEventListener('click', () => {
-  const user = tonConnectUI.account;
-  if (user) {
-    sendAllFPIBANK(user.address, recipientTonAddress);
-  } else {
-    Telegram.WebApp.showAlert("Пожалуйста, подключите кошелёк сначала!");
-  }
-});
-
-// Обновляем данные при подключении кошелька
-tonConnectUI.onStatusChange((wallet) => {
-  if (wallet) {
-    updateBalance();
-    loadTransactions();
-  }
-});
+<!-- Добавьте в навигацию -->
+<span class="nav-link" data-page="page3">Страница 3</span>
