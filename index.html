@@ -1,96 +1,95 @@
 <style>
-  /* Дополнительные стили для страницы 3 */
+  /* Стили для страницы 3 */
   #page3 {
     background: #0b0021;
     min-height: 100vh;
-    padding: 20px;
+    padding: 25px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
     position: relative;
+    font-size: 18px; /* Базовый увеличенный размер */
   }
   
   .page3-title {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-size: 28px; /* Увеличенный заголовок */
     color: #a2ff00;
-    margin-bottom: 25px;
-    text-shadow: 0 2px 10px rgba(162, 255, 0, 0.3);
+    margin-bottom: 30px;
     font-weight: 700;
-    background: linear-gradient(90deg, #a2ff00, #00ff88);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(162, 255, 0, 0.3);
+    width: 100%;
+    padding: 0 10px;
   }
   
   .page3-content {
     background: rgba(26, 0, 51, 0.6);
     backdrop-filter: blur(10px);
-    padding: 25px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 600px;
-    border: 1px solid #6e00ff;
+    padding: 30px 20px; /* Увеличенные отступы */
+    border-radius: 25px;
+    width: 95%;
+    border: 2px solid #6e00ff; /* Более толстая граница */
     box-shadow: 0 8px 32px rgba(110, 0, 255, 0.3);
-    margin-bottom: 30px;
+    margin-bottom: 35px;
   }
   
   .section-title {
     color: #a2ff00;
-    font-size: clamp(1.3rem, 5vw, 1.5rem);
-    margin-bottom: 20px;
+    font-size: 24px; /* Увеличенный подзаголовок */
+    margin-bottom: 25px;
     font-weight: 600;
     text-shadow: 0 2px 5px rgba(162, 255, 0, 0.2);
   }
   
   .description-text {
     color: #e2c6ff;
-    font-size: clamp(1rem, 4vw, 1.1rem);
-    line-height: 1.6;
-    margin-bottom: 25px;
+    font-size: 20px; /* Увеличенный основной текст */
+    line-height: 1.7; /* Больший межстрочный интервал */
+    margin-bottom: 30px;
   }
   
   .exchanges-container {
     background: rgba(46, 0, 99, 0.4);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid #a100f2;
-    box-shadow: 0 4px 20px rgba(110, 0, 255, 0.2);
-    width: 90%;
-    max-width: 500px;
+    border-radius: 25px;
+    padding: 25px 20px;
+    border: 2px solid #a100f2;
+    box-shadow: 0 4px 25px rgba(110, 0, 255, 0.2);
+    width: 95%;
   }
   
   .exchange-item {
-    margin-bottom: 15px;
-    transition: transform 0.2s;
-  }
-  
-  .exchange-item:hover {
-    transform: translateX(5px);
+    margin-bottom: 20px; /* Больший отступ между элементами */
   }
   
   .exchange-link {
     display: flex;
     align-items: center;
-    padding: 14px 20px;
-    border-radius: 12px;
+    justify-content: center;
+    padding: 18px 25px; /* Увеличенные кнопки */
+    border-radius: 15px;
     background: linear-gradient(90deg, rgba(110, 0, 255, 0.3), rgba(161, 0, 242, 0.3));
-    border: 1px solid rgba(162, 255, 0, 0.2);
+    border: 2px solid rgba(162, 255, 0, 0.2);
     color: white;
     text-decoration: none;
-    font-size: clamp(1rem, 4vw, 1.1rem);
+    font-size: 20px; /* Увеличенный текст кнопок */
     transition: all 0.3s;
   }
   
   .exchange-link:hover {
     background: linear-gradient(90deg, rgba(110, 0, 255, 0.5), rgba(161, 0, 242, 0.5));
-    box-shadow: 0 4px 15px rgba(162, 255, 0, 0.2);
   }
   
   .exchange-icon {
     color: #a2ff00;
-    margin-right: 12px;
-    font-size: 1.2em;
+    margin-right: 15px; /* Больший отступ иконки */
+    font-size: 24px; /* Увеличенная иконка */
+  }
+  
+  .divider {
+    height: 3px; /* Более толстый разделитель */
+    background: linear-gradient(90deg, transparent, #6e00ff, transparent);
+    margin: 30px 0;
+    width: 80%;
   }
 </style>
 
@@ -100,12 +99,14 @@
   <div class="page3-content">
     <h2 class="section-title">Где можно использовать ФПИБАНКИ?</h2>
     <p class="description-text">
-      ФПИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появился в самых неожиданных местах: от неуклюжих онлайн-платежей до странных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
+      ФПИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появился в самых неожиданных местах: от неуклюжих онлайн-платежей до страшных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
     </p>
   </div>
   
+  <div class="divider"></div>
+  
   <div class="exchanges-container">
-    <h3 class="section-title">Торгуется на биржах:</h3>
+    <h2 class="section-title">Торгуется на биржах:</h2>
     
     <div class="exchange-item">
       <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" class="exchange-link">
