@@ -1,35 +1,122 @@
+<style>
+  /* Дополнительные стили для страницы 3 */
+  #page3 {
+    background: linear-gradient(135deg, #4a00e0, #8e2de2);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .page3-title {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    color: #a2ff00;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    padding: 0 10px;
+  }
+  
+  .page3-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  .exchange-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 25px 0 0 0;
+  }
+  
+  .exchange-item {
+    margin-bottom: 12px;
+    transition: transform 0.2s;
+  }
+  
+  .exchange-item:hover {
+    transform: translateX(5px);
+  }
+  
+  .exchange-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: rgba(161, 0, 242, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+    font-size: clamp(1rem, 4vw, 1.1rem);
+  }
+  
+  .exchange-link:hover {
+    background: rgba(161, 0, 242, 0.5);
+    box-shadow: 0 4px 15px rgba(162, 255, 0, 0.2);
+  }
+  
+  .exchange-icon {
+    color: #a2ff00;
+    margin-right: 12px;
+    font-size: 1.2em;
+  }
+  
+  .description-text {
+    color: white;
+    font-size: clamp(1rem, 4vw, 1.1rem);
+    line-height: 1.6;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  .section-title {
+    color: #a2ff00;
+    font-size: clamp(1.3rem, 5vw, 1.5rem);
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+  }
+</style>
+
 <div id="page3" class="page">
   <div class="page3-title">Где используется FPI Token</div>
   <div class="page3-content">
-    <h2 style="color: #a2ff00; margin-bottom: 20px;">Где можно использовать ФПИБАНКИ?</h2>
-    <p style="color: white; font-size: 1.1em; margin-bottom: 30px;">
+    <h2 class="section-title">Где можно использовать ФПИБАНКИ?</h2>
+    <p class="description-text">
       ФПИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появился в самых неожиданных местах: от неуклюжих онлайн-платежей до странных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
     </p>
     
-    <div style="background: rgba(123, 31, 255, 0.3); padding: 20px; border-radius: 12px; border: 1px solid #6e00ff; margin-top: 30px;">
-      <h3 style="color: #a2ff00; margin-bottom: 15px;">Биржи, где торгуется FPI BANK:</h3>
-      <ul style="list-style-type: none; padding: 0; text-align: left; max-width: 500px; margin: 0 auto;">
-        <li style="margin-bottom: 10px;">
-          <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" style="color: white; text-decoration: none; display: block; padding: 10px; border-radius: 8px; background: rgba(161, 0, 242, 0.2); transition: all 0.3s;">
-            <span style="color: #a2ff00;">►</span> STON.fi
-          </a>
-        </li>
-        <li style="margin-bottom: 10px;">
-          <a href="https://web3.okx.com/ru/token/ton/EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz?shortCode=VhiOWnt&shareSource=app&deeplink=okx%253A%252F%252Fwallet%252Fdex%252Fcoin%252Fdetail%253FchainId%253D607%2526tokenContractAddress%253DEQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz" target="_blank" style="color: white; text-decoration: none; display: block; padding: 10px; border-radius: 8px; background: rgba(161, 0, 242, 0.2); transition: all 0.3s;">
-            <span style="color: #a2ff00;">►</span> OKX
-          </a>
-        </li>
-        <li style="margin-bottom: 10px;">
-          <a href="https://www.bybit.com/en/web3/dex/sol/?utm_content=exchangeSearch" target="_blank" style="color: white; text-decoration: none; display: block; padding: 10px; border-radius: 8px; background: rgba(161, 0, 242, 0.2); transition: all 0.3s;">
-            <span style="color: #a2ff00;">►</span> BYBIT
-          </a>
-        </li>
-        <li>
-          <a href="https://dexscreener.com/ton/eqayrrajgsuyhrggo1himnbgv9tvlndz3uoclaoytw_fgegd" target="_blank" style="color: white; text-decoration: none; display: block; padding: 10px; border-radius: 8px; background: rgba(161, 0, 242, 0.2); transition: all 0.3s;">
-            <span style="color: #a2ff00;">►</span> DEX Screener
-          </a>
-        </li>
-      </ul>
-    </div>
+    <h3 class="section-title">Биржи с FPI BANK</h3>
+    <ul class="exchange-list">
+      <li class="exchange-item">
+        <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" class="exchange-link">
+          <span class="exchange-icon">►</span> STON.fi
+        </a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://web3.okx.com/ru/token/ton/EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz?shortCode=VhiOWnt&shareSource=app&deeplink=okx%253A%252F%252Fwallet%252Fdex%252Fcoin%252Fdetail%253FchainId%253D607%2526tokenContractAddress%253DEQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz" target="_blank" class="exchange-link">
+          <span class="exchange-icon">►</span> OKX
+        </a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://www.bybit.com/en/web3/dex/sol/?utm_content=exchangeSearch" target="_blank" class="exchange-link">
+          <span class="exchange-icon">►</span> BYBIT
+        </a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://dexscreener.com/ton/eqayrrajgsuyhrggo1himnbgv9tvlndz3uoclaoytw_fgegd" target="_blank" class="exchange-link">
+          <span class="exchange-icon">►</span> DEX Screener
+        </a>
+      </li>
+    </ul>
   </div>
 </div>
