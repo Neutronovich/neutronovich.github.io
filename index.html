@@ -1,53 +1,92 @@
 <style>
-  /* Стили для страницы 3 */
+  /* Основные стили */
   #page3 {
     background: #0b0021;
     min-height: 100vh;
-    padding: 25px 15px;
+    height: 100%;
+    padding: 30px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between; /* Распределяем пространство */
     text-align: center;
     position: relative;
-    font-size: 18px; /* Базовый увеличенный размер */
+    overflow: hidden;
+    font-size: 20px;
+    box-sizing: border-box;
   }
-  
+
+  /* Анимированный фон с дымом */
+  .smoke-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.15;
+    overflow: hidden;
+  }
+
+  .smoke {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, #a2ff00, transparent 70%);
+    animation: smoke-anim 15s infinite ease-in-out;
+    opacity: 0;
+  }
+
+  @keyframes smoke-anim {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.5); opacity: 0.3; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* Контент */
+  .page3-header {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+
   .page3-title {
-    font-size: 28px; /* Увеличенный заголовок */
+    font-size: 28px;
     color: #a2ff00;
     margin-bottom: 30px;
     font-weight: 700;
     text-shadow: 0 2px 10px rgba(162, 255, 0, 0.3);
-    width: 100%;
     padding: 0 10px;
   }
-  
+
   .page3-content {
     background: rgba(26, 0, 51, 0.6);
     backdrop-filter: blur(10px);
-    padding: 30px 20px; /* Увеличенные отступы */
+    padding: 30px 20px;
     border-radius: 25px;
     width: 95%;
-    border: 2px solid #6e00ff; /* Более толстая граница */
+    border: 2px solid #6e00ff;
     box-shadow: 0 8px 32px rgba(110, 0, 255, 0.3);
-    margin-bottom: 35px;
+    margin-bottom: 30px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
-  
+
   .section-title {
     color: #a2ff00;
-    font-size: 24px; /* Увеличенный подзаголовок */
+    font-size: 24px;
     margin-bottom: 25px;
     font-weight: 600;
     text-shadow: 0 2px 5px rgba(162, 255, 0, 0.2);
   }
-  
+
   .description-text {
     color: #e2c6ff;
-    font-size: 20px; /* Увеличенный основной текст */
-    line-height: 1.7; /* Больший межстрочный интервал */
+    font-size: 20px;
+    line-height: 1.7;
     margin-bottom: 30px;
   }
-  
+
   .exchanges-container {
     background: rgba(46, 0, 99, 0.4);
     border-radius: 25px;
@@ -55,38 +94,40 @@
     border: 2px solid #a100f2;
     box-shadow: 0 4px 25px rgba(110, 0, 255, 0.2);
     width: 95%;
+    margin-top: auto;
+    margin-bottom: 30px;
   }
-  
+
   .exchange-item {
-    margin-bottom: 20px; /* Больший отступ между элементами */
+    margin-bottom: 20px;
   }
-  
+
   .exchange-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 18px 25px; /* Увеличенные кнопки */
+    padding: 18px 25px;
     border-radius: 15px;
     background: linear-gradient(90deg, rgba(110, 0, 255, 0.3), rgba(161, 0, 242, 0.3));
     border: 2px solid rgba(162, 255, 0, 0.2);
     color: white;
     text-decoration: none;
-    font-size: 20px; /* Увеличенный текст кнопок */
+    font-size: 20px;
     transition: all 0.3s;
   }
-  
+
   .exchange-link:hover {
     background: linear-gradient(90deg, rgba(110, 0, 255, 0.5), rgba(161, 0, 242, 0.5));
   }
-  
+
   .exchange-icon {
     color: #a2ff00;
-    margin-right: 15px; /* Больший отступ иконки */
-    font-size: 24px; /* Увеличенная иконка */
+    margin-right: 15px;
+    font-size: 24px;
   }
-  
+
   .divider {
-    height: 3px; /* Более толстый разделитель */
+    height: 3px;
     background: linear-gradient(90deg, transparent, #6e00ff, transparent);
     margin: 30px 0;
     width: 80%;
@@ -94,7 +135,12 @@
 </style>
 
 <div id="page3" class="page">
-  <div class="page3-title">Где используется FPI Token</div>
+  <!-- Анимированный дым на фоне -->
+  <div class="smoke-bg" id="smoke-bg"></div>
+  
+  <div class="page3-header">
+    <div class="page3-title">Где используется FPI Token</div>
+  </div>
   
   <div class="page3-content">
     <h2 class="section-title">Где можно использовать ФПИБАНКИ?</h2>
@@ -133,3 +179,35 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Создаем анимированный дым на фоне
+  document.addEventListener('DOMContentLoaded', function() {
+    const smokeBg = document.getElementById('smoke-bg');
+    const colors = ['#a2ff00', '#00ff88', '#98FF00'];
+    
+    // Создаем 8 частиц дыма
+    for (let i = 0; i < 8; i++) {
+      const smoke = document.createElement('div');
+      smoke.className = 'smoke';
+      
+      // Случайные параметры
+      const size = Math.random() * 300 + 100;
+      const posX = Math.random() * 100;
+      const posY = Math.random() * 100;
+      const delay = Math.random() * 15;
+      const duration = Math.random() * 10 + 10;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      
+      smoke.style.width = `${size}px`;
+      smoke.style.height = `${size}px`;
+      smoke.style.left = `${posX}%`;
+      smoke.style.top = `${posY}%`;
+      smoke.style.animationDelay = `${delay}s`;
+      smoke.style.animationDuration = `${duration}s`;
+      smoke.style.background = `radial-gradient(circle, ${color}, transparent 70%)`;
+      
+      smokeBg.appendChild(smoke);
+    }
+  });
+</script>
