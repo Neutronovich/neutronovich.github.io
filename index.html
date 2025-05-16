@@ -3,7 +3,7 @@
   #page3 {
     background: #0b0021;
     min-height: 100vh;
-    padding: 30px 20px;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,7 +14,7 @@
     box-sizing: border-box;
   }
 
-  /* Сетчатый фон как в оригинале */
+  /* Сетчатый фон */
   .wave-grid {
     position: fixed;
     top: 0;
@@ -26,72 +26,73 @@
     pointer-events: none;
   }
 
-  /* Заголовок приложения */
-  .app-header {
-    margin-bottom: 40px;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-  }
-
-  .app-title {
-    font-size: 14px;
+  /* Заголовки */
+  .main-title {
+    font-size: 42px;
     color: #a2ff00;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
-  }
-
-  .app-subtitle {
-    font-size: 28px;
-    font-weight: 700;
-    color: white;
     margin-bottom: 40px;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
-  }
-
-  /* Основной контент */
-  .content-block {
-    background: rgba(26, 0, 51, 0.7);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    padding: 35px 25px;
-    width: 100%;
-    max-width: 500px;
-    border: 2px solid #6e00ff;
-    box-shadow: 0 10px 40px rgba(110, 0, 255, 0.3);
-    margin-bottom: 30px;
+    font-weight: 700;
+    text-shadow: 0 4px 15px rgba(162, 255, 0, 0.3);
     position: relative;
     z-index: 2;
   }
 
   .section-title {
-    font-size: 32px;
+    font-size: 36px;
     color: #a2ff00;
-    margin-bottom: 30px;
-    font-weight: 700;
+    margin-bottom: 35px;
+    font-weight: 600;
     position: relative;
-    display: inline-block;
+    z-index: 2;
   }
 
-  .section-title::after {
-    content: '';
-    display: block;
-    width: 60%;
-    height: 3px;
-    background: linear-gradient(90deg, #a2ff00, transparent);
-    margin: 10px auto 0;
+  /* Текстовая табличка */
+  .text-card {
+    background: rgba(26, 0, 51, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 40px 30px;
+    width: 90%;
+    max-width: 650px;
+    border: 3px solid #6e00ff;
+    box-shadow: 0 15px 50px rgba(110, 0, 255, 0.4);
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 2;
   }
 
   .description-text {
-    font-size: 22px;
+    font-size: 28px;
     color: #e2c6ff;
-    line-height: 1.6;
-    margin-bottom: 30px;
+    line-height: 1.7;
+    margin: 0;
   }
 
-  /* Список бирж */
-  .exchanges-list {
+  /* Разделитель */
+  .divider {
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #6e00ff, transparent);
+    margin: 50px auto;
+    width: 85%;
+    max-width: 400px;
+    border-radius: 3px;
+  }
+
+  /* Табличка с биржами */
+  .exchanges-card {
+    background: rgba(46, 0, 99, 0.7);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    padding: 40px 30px;
+    width: 90%;
+    max-width: 650px;
+    border: 3px solid #a100f2;
+    box-shadow: 0 15px 50px rgba(110, 0, 255, 0.4);
+    position: relative;
+    z-index: 2;
+  }
+
+  .exchange-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -99,53 +100,64 @@
   }
 
   .exchange-item {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 
-  .exchange-link {
+  .exchange-btn {
     display: block;
-    padding: 22px;
-    background: linear-gradient(90deg, rgba(110, 0, 255, 0.3), rgba(161, 0, 242, 0.3));
-    border-radius: 18px;
-    border: 2px solid rgba(162, 255, 0, 0.3);
+    padding: 28px;
+    background: linear-gradient(135deg, rgba(110, 0, 255, 0.4), rgba(161, 0, 242, 0.4));
+    border-radius: 25px;
+    border: 3px solid rgba(162, 255, 0, 0.4);
     color: white;
     text-decoration: none;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
 
-  .exchange-link:hover {
-    transform: translateY(-3px);
-    background: linear-gradient(90deg, rgba(110, 0, 255, 0.5), rgba(161, 0, 242, 0.5));
-    box-shadow: 0 8px 25px rgba(162, 255, 0, 0.3);
-  }
-
-  /* Разделитель */
-  .divider {
-    height: 4px;
-    background: linear-gradient(90deg, transparent, #6e00ff, transparent);
-    margin: 40px auto;
-    width: 80%;
-    max-width: 300px;
-    border-radius: 2px;
+  .exchange-btn:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(135deg, rgba(110, 0, 255, 0.6), rgba(161, 0, 242, 0.6));
+    box-shadow: 0 12px 35px rgba(162, 255, 0, 0.4);
   }
 
   /* Адаптация для маленьких экранов */
+  @media (max-width: 600px) {
+    .main-title {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+    .section-title {
+      font-size: 30px;
+    }
+    .text-card,
+    .exchanges-card {
+      padding: 30px 25px;
+    }
+    .description-text {
+      font-size: 24px;
+    }
+    .exchange-btn {
+      padding: 25px;
+      font-size: 28px;
+    }
+  }
+
   @media (max-width: 480px) {
-    .content-block {
-      padding: 30px 20px;
+    .main-title {
+      font-size: 32px;
     }
     .section-title {
       font-size: 28px;
     }
     .description-text {
-      font-size: 20px;
-    }
-    .exchange-link {
-      padding: 20px;
       font-size: 22px;
+    }
+    .exchange-btn {
+      padding: 22px;
+      font-size: 26px;
     }
   }
 </style>
@@ -153,13 +165,10 @@
 <div id="page3" class="page">
   <!-- Сетчатый фон -->
   <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Горизонтальные волны -->
     <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    
-    <!-- Вертикальные волны -->
     <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
@@ -168,40 +177,35 @@
     <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
   </svg>
 
-  <!-- Шапка приложения -->
-  <div class="app-header">
-    <div class="app-title">Dropchiks</div>
-    <div class="app-subtitle">МИНИ–ПРИЛОЖЕНИЕ</div>
-  </div>
+  <!-- Основной заголовок -->
+  <h1 class="main-title">Где используется FPI Token</h1>
 
-  <!-- Основной блок контента -->
-  <div class="content-block">
-    <h1 class="section-title">Где используется FPI Token</h1>
-    
-    <div class="divider"></div>
-    
-    <h2 class="section-title">Где можно использовать ФПИБАНКИ?</h2>
+  <!-- Текстовая табличка -->
+  <div class="text-card">
+    <h2 class="section-title">Где можно использовать ФЛИБАНКИ?</h2>
     <p class="description-text">
-      ФПИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появится в самых неожиданных местах: от неуклюжих онлайн-платежей до страшных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
+      ФЛИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появится в самых неожиданных местах: от неуклюжих онлайн-платежей до страшных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
     </p>
   </div>
 
-  <!-- Список бирж -->
-  <div class="content-block">
+  <div class="divider"></div>
+
+  <!-- Табличка с биржами -->
+  <div class="exchanges-card">
     <h2 class="section-title">Торгуется на биржах:</h2>
     
-    <ul class="exchanges-list">
+    <ul class="exchange-list">
       <li class="exchange-item">
-        <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" class="exchange-link">STON.fi</a>
+        <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" class="exchange-btn">STON.fi</a>
       </li>
       <li class="exchange-item">
-        <a href="https://web3.okx.com/ru/token/ton/EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz?shortCode=VhiOWnt&shareSource=app&deeplink=okx%253A%252F%252Fwallet%252Fdex%252Fcoin%252Fdetail%253FchainId%253D607%2526tokenContractAddress%253DEQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz" target="_blank" class="exchange-link">OKX</a>
+        <a href="https://web3.okx.com/ru/token/ton/EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz?shortCode=VhiOWnt&shareSource=app&deeplink=okx%253A%252F%252Fwallet%252Fdex%252Fcoin%252Fdetail%253FchainId%253D607%2526tokenContractAddress%253DEQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz" target="_blank" class="exchange-btn">OKX</a>
       </li>
       <li class="exchange-item">
-        <a href="https://www.bybit.com/en/web3/dex/sol/?utm_content=exchangeSearch" target="_blank" class="exchange-link">BYBIT</a>
+        <a href="https://www.bybit.com/en/web3/dex/sol/?utm_content=exchangeSearch" target="_blank" class="exchange-btn">BYBIT</a>
       </li>
       <li class="exchange-item">
-        <a href="https://dexscreener.com/ton/eqayrrajgsuyhrggo1himnbgv9tvlndz3uoclaoytw_fgegd" target="_blank" class="exchange-link">DEX Screener</a>
+        <a href="https://dexscreener.com/ton/eqayrrajgsuyhrggo1himnbgv9tvlndz3uoclaoytw_fgegd" target="_blank" class="exchange-btn">DEX Screener</a>
       </li>
     </ul>
   </div>
