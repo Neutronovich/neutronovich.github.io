@@ -16,6 +16,19 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
+      position: relative;
+    }
+
+    /* Добавляем сетку на фон */
+    .wave-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+      z-index: -1;
+      pointer-events: none;
     }
 
     .coins-container {
@@ -82,24 +95,78 @@
       transition: transform 1.5s ease-in-out;
       transform: translate(-50%, -50%) scale(1.25);
     }
-    
 
-  
-    50%  { transform: translate(-50%, -50%) scale(1) translateY(-5px); }
-    100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
-  }
-  @keyframes floatCoin {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-    100% { transform: translateY(0); }
-  }
+    @keyframes floatCoin {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0); }
+    }
 
-  .floating-coin {
-    animation: floatCoin 3s ease-in-out infinite;
-  }
-</style>
+    .floating-coin {
+      animation: floatCoin 3s ease-in-out infinite;
+    }
+
+    #win-message {
+      background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
+      border: 1px solid #00ff6e;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0,255,110,0.25);
+      font-family: 'Arial', sans-serif;
+      font-weight: 500;
+      width: 75vw;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      color: #ffffff;
+      position: absolute;
+      top: calc(100px + 220px);
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 9;
+    }
+
+    #win-message button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #fff;
+      background: #c800ff;
+      border: 1px solid #c800ff;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #win-message div {
+      font-size: 0.8em;
+      color: #aaa;
+      text-align: center;
+      margin-top: 10px;
+      max-width: 360px;
+      line-height: 1.4;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
 </head>
 <body>
+  <!-- Добавляем SVG сетку на фон -->
+  <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M700 0 Q700 200 700 400 T700 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M900 0 Q900 200 900 400 T900 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+  </svg>
+
   <div class="coins-container" style="pointer-events: auto;">
     <div class="coin" data-index="$1" style="pointer-events: auto;">
       <div class="coin-inner">
@@ -124,6 +191,17 @@
         <div class="coin-front"></div>
         <div class="coin-back"></div>
       </div>
+    </div>
+  </div>
+
+  <div id="win-message">
+    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+    Для вывода вам необходимо вернуться на первую страницу<br>
+    и нажать кнопку <strong>Минтить FPI bank</strong>.
+    <br><br>
+    <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
+    <div>
+      Получение дропа возможно только при наличии токенов FPIBank на кошельке.
     </div>
   </div>
 
@@ -191,96 +269,28 @@
             setTimeout(() => {
               fixed.style.transition = 'transform 1.5s ease-in-out';
               const finalTop = 100; // пиксели от верхнего края
-const finalX = deltaX;
-const finalY = -coinY + finalTop + rect.height / 2;
-fixed.style.transition = 'transform 1.5s ease-in-out';
-fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
+              const finalX = deltaX;
+              const finalY = -coinY + finalTop + rect.height / 2;
+              fixed.style.transition = 'transform 1.5s ease-in-out';
+              fixed.style.transform = `translate(${finalX}px, ${finalY}px) scale(1)`;
 
-// Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
-setTimeout(() => {
-  
-}, 1500);
-
-setTimeout(() => {
-  fixed.classList.add('floating-coin');
-  const msg = document.getElementById('win-message');
-  msg.style.opacity = '1';
-}, 1500);
+              // Запускаем анимацию и свечение ТОЛЬКО после завершения перемещения
+              setTimeout(() => {
+                fixed.classList.add('floating-coin');
+                const msg = document.getElementById('win-message');
+                msg.style.opacity = '1';
+              }, 1500);
             }, 3000);
 
           }, 1600);
         }, 100);
       });
     });
-  
-        // показать сообщение через 1 секунду после перемещения
-        setTimeout(() => {
-              fixed.style.transition = 'all 1.5s ease-in-out';
-              const finalTop = 100;
-              const finalLeft = window.innerWidth / 2 - rect.width / 2;
-              fixed.style.left = `${finalLeft}px`;
-              fixed.style.top = `${finalTop}px`;
-              fixed.style.transform = 'scale(1)';
 
-              // показать сообщение после окончания перемещения
-              setTimeout(() => {
-                const msg = document.getElementById('win-message');
-                msg.style.opacity = '1';
-              }, 1600);
-
-            }, 3000);
-</script>
-  <div id="win-message" style="
-  background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
-  border: 1px solid #00ff6e;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(0,255,110,0.25);
-  font-family: 'Arial', sans-serif;
-  font-weight: 500;
-  width: 75vw;
-  padding: 20px;
-  border-radius: 16px;
-  text-align: center;
-  color: #ffffff;
-  position: absolute;
-  top: calc(100px + 220px);
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity 1s ease;
-  z-index: 9;">
-    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-    Для вывода вам необходимо вернуться на первую страницу<br>
-    и нажать кнопку <strong>Минтить FPI bank</strong>.
-    <br><br>
-    <button onclick="goToFirstPage()" style="
-  margin-top: 20px;
-  padding: 12px 24px;
-  font-size: 1em;
-  font-weight: bold;
-  color: #fff;
-  background: #c800ff;
-  border: 1px solid #c800ff;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-">Вернуться на первую страницу</button>
-  <div style="
-  font-size: 0.8em;
-  color: #aaa;
-  text-align: center;
-  margin-top: 10px;
-  max-width: 360px;
-  line-height: 1.4;
-  margin-left: auto;
-  margin-right: auto;
-">
-  Получение дропа возможно только при наличии токенов FPIBank на кошельке.
-</div>
-<script>
-  function goToFirstPage() {
-    // пример: можно заменить это на реальную навигацию
-    window.location.href = 'index.html';
-  }
-</script>
+    function goToFirstPage() {
+      // пример: можно заменить это на реальную навигацию
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
 </html>
