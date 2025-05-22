@@ -1,272 +1,269 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Монетки</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0d0d1a;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+<style>
+  /* Подключаем интересный шрифт */
+  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Orbitron:wght@500&display=swap');
+  
+  /* Основные стили */
+  #page3 {
+    background: #0b0021;
+    min-height: 100vh;
+    padding: 50px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
 
-    /* Добавляем сетку на фон */
-    .wave-grid {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0.5;
-      z-index: -1;
-      pointer-events: none;
-    }
+  /* Сетчатый фон с усиленным эффектом */
+  .wave-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+  }
 
-    .coins-container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-    }
+  /* Заголовки с новым шрифтом */
+  .main-title {
+    font-size: 48px;
+    color: #a2ff00;
+    margin-bottom: 50px;
+    font-weight: 700;
+    text-shadow: 0 4px 20px rgba(162, 255, 0, 0.5);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 2;
+  }
 
-    .coin {
-      width: 180px;
-      height: 180px;
-      perspective: 1000px;
-      cursor: pointer;
-      transition: opacity 1.5s ease;
-      position: relative;
-    }
+  .section-title {
+    font-size: 42px;
+    color: #a2ff00;
+    margin-bottom: 40px;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+    position: relative;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
 
-    .coin-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 1.6s ease-in-out;
-      transform-style: preserve-3d;
-    }
+  /* Текстовая табличка с 3D эффектом */
+  .text-card {
+    background: rgba(26, 0, 51, 0.85);
+    backdrop-filter: blur(25px);
+    border-radius: 35px;
+    padding: 50px 40px;
+    width: 90%;
+    max-width: 700px;
+    border: 4px solid #6e00ff;
+    box-shadow: 0 20px 60px rgba(110, 0, 255, 0.6),
+                inset 0 10px 30px rgba(162, 255, 0, 0.1);
+    margin-bottom: 60px;
+    position: relative;
+    z-index: 2;
+    transform-style: preserve-3d;
+    transform: perspective(500px) rotateX(1deg);
+  }
 
-    .coin.flipped .coin-inner {
-      transform: rotateY(180deg);
-    }
+  .description-text {
+    font-size: 32px;
+    color: #e2c6ff;
+    line-height: 1.8;
+    margin: 0;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 500;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
 
-    .coin-front, .coin-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-    }
+  /* Разделитель с анимацией */
+  .divider {
+    height: 6px;
+    background: linear-gradient(90deg, transparent, #6e00ff, #a2ff00, #6e00ff, transparent);
+    margin: 60px auto;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 3px;
+    animation: pulse 3s infinite;
+  }
 
-    .coin-front {
-      background-image: url('js/IMG_4143-removebg-preview.png');
-    }
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
 
-    .coin-back {
-      background-image: url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png');
-      transform: rotateY(180deg);
-    }
+  /* Табличка с биржами */
+  .exchanges-card {
+    background: rgba(46, 0, 99, 0.85);
+    backdrop-filter: blur(25px);
+    border-radius: 35px;
+    padding: 50px 40px;
+    width: 90%;
+    max-width: 700px;
+    border: 4px solid #a100f2;
+    box-shadow: 0 20px 60px rgba(110, 0, 255, 0.6),
+                inset 0 -10px 30px rgba(162, 255, 0, 0.1);
+    position: relative;
+    z-index: 2;
+    transform: perspective(500px) rotateX(1deg);
+  }
 
-    .fade-out {
-      opacity: 0;
-      transform: scale(0.8);
-      pointer-events: none;
-    }
+  .exchange-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
 
-    .selected-coin {
-      position: fixed !important;
-      z-index: 10;
-      transition: transform 1.5s ease-in-out;
-      transform: translate(-50%, -50%) scale(1.25);
-      margin: 0 !important;
-    }
+  .exchange-item {
+    margin-bottom: 35px;
+  }
 
-    @keyframes floatCoin {
-      0% { transform: translate(-50%, 0); }
-      50% { transform: translate(-50%, -8px); }
-      100% { transform: translate(-50%, 0); }
-    }
+  /* Кнопки с неоновым эффектом */
+  .exchange-btn {
+    display: block;
+    padding: 35px;
+    background: linear-gradient(135deg, rgba(110, 0, 255, 0.5), rgba(161, 0, 242, 0.5));
+    border-radius: 30px;
+    border: 4px solid rgba(162, 255, 0, 0.5);
+    color: white;
+    text-decoration: none;
+    font-size: 36px;
+    font-weight: 700;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 15px rgba(162, 255, 0, 0.3);
+    font-family: 'Rubik', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+  }
 
-    .floating-coin {
-      animation: floatCoin 3s ease-in-out infinite;
-      top: 100px !important;
-      left: 50% !important;
-      transform: translate(-50%, 0) !important;
-    }
+  .exchange-btn:hover {
+    transform: translateY(-8px) scale(1.03);
+    background: linear-gradient(135deg, rgba(110, 0, 255, 0.7), rgba(161, 0, 242, 0.7));
+    box-shadow: 0 15px 40px rgba(162, 255, 0, 0.5),
+                0 0 25px rgba(162, 255, 0, 0.4);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+  }
 
-    #win-message {
-      background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
-      border: 1px solid #00ff6e;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 30px rgba(0,255,110,0.25);
-      font-family: 'Arial', sans-serif;
-      font-weight: 500;
-      width: 75vw;
-      padding: 20px;
-      border-radius: 16px;
-      text-align: center;
-      color: #ffffff;
-      position: absolute;
-      top: calc(100px + 220px);
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 9;
-    }
+  .exchange-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to bottom right,
+      transparent,
+      transparent,
+      transparent,
+      rgba(162, 255, 0, 0.1),
+      transparent,
+      transparent,
+      transparent
+    );
+    transform: rotate(30deg);
+    animation: shine 5s infinite;
+  }
 
-    #win-message button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      font-size: 1em;
-      font-weight: bold;
-      color: #fff;
-      background: #c800ff;
-      border: 1px solid #c800ff;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+  @keyframes shine {
+    0% { transform: translateX(-100%) rotate(30deg); }
+    20% { transform: translateX(100%) rotate(30deg); }
+    100% { transform: translateX(100%) rotate(30deg); }
+  }
 
-    #win-message div {
-      font-size: 0.8em;
-      color: #aaa;
-      text-align: center;
-      margin-top: 10px;
-      max-width: 360px;
-      line-height: 1.4;
-      margin-left: auto;
-      margin-right: auto;
+  /* Адаптация для маленьких экранов */
+  @media (max-width: 600px) {
+    .main-title {
+      font-size: 40px;
     }
-  </style>
-</head>
-<body>
-  <!-- Добавляем SVG сетку на фон -->
+    .section-title {
+      font-size: 36px;
+    }
+    .text-card,
+    .exchanges-card {
+      padding: 40px 30px;
+    }
+    .description-text {
+      font-size: 28px;
+    }
+    .exchange-btn {
+      padding: 30px;
+      font-size: 32px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-title {
+      font-size: 36px;
+    }
+    .section-title {
+      font-size: 32px;
+    }
+    .description-text {
+      font-size: 26px;
+    }
+    .exchange-btn {
+      padding: 28px;
+      font-size: 30px;
+    }
+  }
+</style>
+
+<div id="page3" class="page">
+  <!-- Сетчатый фон -->
   <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M700 0 Q700 200 700 400 T700 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M900 0 Q900 200 900 400 T900 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M700 0 Q700 200 700 400 T700 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M900 0 Q900 200 900 400 T900 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
+    <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1.5" fill="none" stroke-dasharray="5,5"/>
   </svg>
 
-  <div class="coins-container">
-    <div class="coin" data-index="$1">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="1">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="2">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
-    <div class="coin" data-index="3">
-      <div class="coin-inner">
-        <div class="coin-front"></div>
-        <div class="coin-back"></div>
-      </div>
-    </div>
+  <!-- Основной заголовок -->
+  <h1 class="main-title">Где используется FPI Token</h1>
+
+  <!-- Текстовая табличка -->
+  <div class="text-card">
+    <h2 class="section-title">Где можно использовать ФЛИБАНКИ?</h2>
+    <p class="description-text">
+      ФЛИ БАНКИ — не просто смешная игрушка, а реальный инструмент для тех, кто ценит беспорядок и неудобства! Мы работаем над тем, чтобы ФПИ появится в самых неожиданных местах: от неуклюжих онлайн-платежей до страшных игр. Есть идея, как нам еще всё испортить? Мы готовы вас выслушать... если у вас, конечно, хватит смелости!
+    </p>
   </div>
 
-  <div id="win-message">
-    Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-    Для вывода вам необходимо вернуться на первую страницу<br>
-    и нажать кнопку <strong>Минтить FPI bank</strong>.
-    <br><br>
-    <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
-    <div>
-      Получение дропа возможно только при наличии токенов FPIBank на кошельке.
-    </div>
+  <div class="divider"></div>
+
+  <!-- Табличка с биржами -->
+  <div class="exchanges-card">
+    <h2 class="section-title">Торгуется на биржах:</h2>
+    
+    <ul class="exchange-list">
+      <li class="exchange-item">
+        <a href="https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=FPIBANK" target="_blank" class="exchange-btn">STON.fi</a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://web3.okx.com/ru/token/ton/EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz?shortCode=VhiOWnt&shareSource=app&deeplink=okx%253A%252F%252Fwallet%252Fdex%252Fcoin%252Fdetail%253FchainId%253D607%2526tokenContractAddress%253DEQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz" target="_blank" class="exchange-btn">OKX</a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://www.bybit.com/en/web3/dex/sol/?utm_content=exchangeSearch" target="_blank" class="exchange-btn">BYBIT</a>
+      </li>
+      <li class="exchange-item">
+        <a href="https://dexscreener.com/ton/eqayrrajgsuyhrggo1himnbgv9tvlndz3uoclaoytw_fgegd" target="_blank" class="exchange-btn">DEX Screener</a>
+      </li>
+    </ul>
   </div>
-
-  <script>
-    const coins = document.querySelectorAll('.coin');
-    const container = document.querySelector('.coins-container');
-    let selected = false;
-
-    coins.forEach(coin => {
-      coin.addEventListener('click', function() {
-        if (selected) return;
-        selected = true;
-
-        const selectedCoin = this;
-        const rect = selectedCoin.getBoundingClientRect();
-        
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const coinX = rect.left + rect.width / 2;
-        const coinY = rect.top + rect.height / 2;
-
-        const fixed = selectedCoin.cloneNode(true);
-        fixed.style.position = 'fixed';
-        fixed.style.left = `${coinX}px`;
-        fixed.style.top = `${coinY}px`;
-        fixed.style.transform = 'translate(-50%, -50%) scale(1)';
-        fixed.style.margin = '0';
-        fixed.style.zIndex = '1000';
-        fixed.classList.add('selected-coin');
-        
-        document.body.appendChild(fixed);
-        selectedCoin.style.visibility = 'hidden';
-
-        coins.forEach(otherCoin => {
-          if (otherCoin !== selectedCoin) {
-            otherCoin.classList.add('fade-out');
-          }
-        });
-
-        setTimeout(() => {
-          fixed.style.transform = 'translate(-50%, -50%) scale(1.25)';
-          
-          setTimeout(() => {
-            fixed.classList.add('flipped');
-            
-            setTimeout(() => {
-              fixed.style.transition = 'all 1.5s ease-in-out';
-              fixed.style.top = '100px';
-              fixed.classList.add('floating-coin');
-              
-              setTimeout(() => {
-                document.getElementById('win-message').style.opacity = '1';
-              }, 500);
-            }, 1500);
-          }, 100);
-        }, 10);
-      });
-    });
-
-    function goToFirstPage() {
-      window.location.href = 'index.html';
-    }
-  </script>
-</body>
-</html>
+</div>
