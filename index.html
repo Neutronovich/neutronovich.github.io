@@ -28,14 +28,16 @@
 
     /* ЕДИНАЯ сетка на ВСЮ страницу */
     .wave-grid{
-      position:fixed; inset:0; opacity:.5; z-index:0; pointer-events:none;
+      position:fixed; top:0; left:0;
+      width:100vw; height:100vh;   /* ЯВНО: во весь экран */
+      opacity:.5; z-index:0; pointer-events:none;
     }
     /* Весь контент поверх сетки */
     .content{ position:relative; z-index:1; display:flex; flex-direction:column; }
 
     .page{ padding:20px; box-sizing:border-box; text-align:center; background:transparent !important; }
 
-    /* --------- Первая часть (оставил как было по сути) --------- */
+    /* --------- Первая часть --------- */
     #page1 img{
       max-width:280px; height:auto; margin:20px auto; display:block; border-radius:16px;
       box-shadow:0 4px 20px rgba(106,0,255,.4); transition:transform .3s;
@@ -129,11 +131,12 @@
 
     /* Клон монеты — внутри секции, не «наклейка» по экрану */
     .coin-clone{
-      position:absolute; z-index:5; will-change:left, top, transform;
+      position:absolute; z-index:10; will-change:left, top, transform;
       transition:
         left .9s var(--ease1),
         top .9s var(--ease1),
         transform .9s var(--ease1);
+      visibility:visible; /* на всякий случай */
     }
     .coin-clone.float-up{
       transition:
@@ -172,7 +175,7 @@
   </svg>
 
   <main class="content">
-    <!-- ====== Первая часть (не трогал логику) ====== -->
+    <!-- ====== Первая часть ====== -->
     <div id="page1" class="page">
       <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
       <div class="welcome-text">Добро пожаловать в FPI Bank Drop!</div>
@@ -266,7 +269,7 @@
     document.getElementById('goToChannel').addEventListener('click', () => window.open('https://t.me/fpibank','_blank'));
     document.getElementById('goToWebsite').addEventListener('click', () => window.open('https://fpibank.com/#tokenPrice','_blank'));
 
-    /* Таймер (как у тебя) */
+    /* Таймер */
     (function(){
       const el = document.getElementById('nextDropTimer');
       let d=14,h=2,m=12,s=0;
@@ -337,7 +340,10 @@
 
       function reset(){
         if(original) original.style.visibility='visible';
-        coins.forEach(c=>{ c.classList.remove('fade-out'); c.querySelector('.coin-inner').style.transform=''; });
+        coins.forEach(c=>{
+          c.classList.remove('fade-out');
+          const inner=c.querySelector('.coin-inner'); if(inner) inner.style.transform='';
+        });
         if(cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
         winMsg.style.opacity='0';
         cloneEl=null; original=null; locked=false;
@@ -347,7 +353,6 @@
         const r  = coin.getBoundingClientRect();
         const sr = section.getBoundingClientRect();
 
-        // координаты внутри секции (без window scroll)
         const left = r.left - sr.left;
         const top  = r.top  - sr.top;
 
@@ -357,6 +362,7 @@
         clone.style.height = r.height + 'px';
         clone.style.left   = left + 'px';
         clone.style.top    = top  + 'px';
+        clone.style.visibility = 'visible';   /* гарантия */
 
         section.appendChild(clone);
         return clone;
@@ -389,12 +395,11 @@
         coin.addEventListener('click', ()=>{
           if(locked) return;
           locked = true;
-          original = coin;
-
-          coin.style.visibility='hidden';
-          coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
-
+          // СНАЧАЛА клонируем → потом прячем исходную (чтобы клон НЕ унаследовал visibility:hidden)
           cloneEl = makeCloneFrom(coin);
+          coin.style.visibility='hidden';
+
+          coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
           animateCoin(cloneEl);
         });
       });
