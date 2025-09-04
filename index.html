@@ -23,6 +23,7 @@
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      scroll-behavior: smooth; /* плавный скролл к монеткам */
     }
     
     /* Волнообразная SVG-сетка на фоне */
@@ -64,16 +65,14 @@
       text-shadow: 0 0 8px rgba(179, 136, 255, 0.6);
     }
     
-    /* Страницы */
+    /* Страницы/блоки */
     .page {
-      display: none;
       padding: 20px;
-      flex: 1;
       box-sizing: border-box;
       text-align: center;
     }
     
-    /* Первая страница */
+    /* Первая страница (НЕ ТРОГАЕМ визуал и структуру) */
     #page1 img {
       max-width: 280px;
       height: auto;
@@ -276,12 +275,12 @@
     .float {
       animation: float 4s ease-in-out infinite;
     }
-    
-    /* Страница с монетками */
-    #page2 {
+
+    /* ===== Блок монет на той же странице ===== */
+    #coins-section {
       background: #0b0021;
       margin: 0;
-      padding: 0;
+      padding: 40px 20px 80px;
       color: white;
       font-family: Arial, sans-serif;
       display: flex;
@@ -292,33 +291,49 @@
       position: relative;
     }
 
-    .coins-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
+    .coins-wrap {
       width: 100%;
-      max-width: 420px;
-      padding: 20px;
-      box-sizing: border-box;
+      max-width: 520px;
       margin: 0 auto;
     }
 
+    .coins-title {
+      font-size: 1.4em;
+      color: #e2c6ff;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .coins-container {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      gap: 30px;
+      width: 100%;
+      padding: 20px 0;
+      box-sizing: border-box;
+      justify-items: center;
+      align-items: center;
+      margin: 0 auto 20px;
+    }
+
     .coin {
-      width: 180px;
-      height: 180px;
+      width: clamp(130px, 22vw, 180px);
+      height: clamp(130px, 22vw, 180px);
       perspective: 1000px;
       cursor: pointer;
-      transition: opacity 1.5s ease;
+      transition: opacity 1.2s ease;
       position: relative;
-      margin: 0 auto;
     }
 
     .coin-inner {
       width: 100%;
       height: 100%;
       position: relative;
-      transition: transform 1.6s ease-in-out;
       transform-style: preserve-3d;
+      transition: transform 1.0s ease-in-out;
+      will-change: transform;
     }
 
     .coin.flipped .coin-inner {
@@ -327,8 +342,7 @@
 
     .coin-front, .coin-back {
       position: absolute;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       backface-visibility: hidden;
       border-radius: 50%;
       background-size: cover;
@@ -345,8 +359,7 @@
     }
 
     .fade-out {
-      opacity: 0;
-      transform: scale(0.8);
+      opacity: 0.2;
       pointer-events: none;
     }
 
@@ -359,13 +372,13 @@
       z-index: 10;
       transition: none !important;
     }
-    
+
     @keyframes floatCoin {
       0% { transform: translateX(-50%) translateY(0); }
       50% { transform: translateX(-50%) translateY(-8px); }
       100% { transform: translateX(-50%) translateY(0); }
     }
-    
+
     #win-message {
       background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
       border: 1px solid #00ff6e;
@@ -374,6 +387,7 @@
       font-family: 'Arial', sans-serif;
       font-weight: 500;
       width: 75vw;
+      max-width: 680px;
       padding: 20px;
       border-radius: 16px;
       text-align: center;
@@ -386,7 +400,7 @@
       transition: opacity 1s ease;
       z-index: 9;
     }
-    
+
     #win-message button {
       margin-top: 20px;
       padding: 12px 24px;
@@ -399,7 +413,7 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    
+
     #win-message div {
       font-size: 0.8em;
       color: #aaa;
@@ -430,13 +444,13 @@
     <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
   </svg>
 
-  <!-- Навигация -->
+  <!-- Навигация (оставляем как было, но теперь скроллим) -->
   <div class="nav">
-    <span class="nav-link" data-page="page1">Главная</span>
-    <span class="nav-link" data-page="page2">Монетки</span>
+    <span class="nav-link" id="linkHome">Главная</span>
+    <span class="nav-link" id="linkCoins">Монетки</span>
   </div>
   
-  <!-- Первая страница -->
+  <!-- Первая страница (НЕ МЕНЯЛ) -->
   <div id="page1" class="page">
     <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
     
@@ -478,96 +492,68 @@
       <button id="goToWebsite" class="external-link-btn">Официальный сайт</button>
     </div>
   </div>
-  
-  <!-- Вторая страница (монетки) -->
-  <div id="page2" class="page">
-    <div class="coins-container">
-      <div class="coin" data-index="$1">
-        <div class="coin-inner">
-          <div class="coin-front"></div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
-      <div class="coin" data-index="1">
-        <div class="coin-inner">
-          <div class="coin-front"></div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
-      <div class="coin" data-index="2">
-        <div class="coin-inner">
-          <div class="coin-front"></div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
-      <div class="coin" data-index="3">
-        <div class="coin-inner">
-          <div class="coin-front"></div>
-          <div class="coin-back"></div>
-        </div>
-      </div>
-    </div>
 
-    <div id="win-message">
-      Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
-      Для вывода вам необходимо вернуться на первую страницу<br>
-      и нажать кнопку <strong>Минтить FPI bank</strong>.
-      <br><br>
-      <button onclick="goToFirstPage()">Вернуться на первую страницу</button>
-      <div>
-        Получение дропа возможно только при наличии токенов FPIBank на кошельке.
+  <!-- Блок монет на той же странице -->
+  <section id="coins-section" class="page" aria-label="Монетки">
+    <div class="coins-wrap">
+      <div class="coins-title">Открой монетку и забери свой FPI</div>
+
+      <div class="coins-container">
+        <div class="coin" data-index="0">
+          <div class="coin-inner">
+            <div class="coin-front"></div>
+            <div class="coin-back"></div>
+          </div>
+        </div>
+        <div class="coin" data-index="1">
+          <div class="coin-inner">
+            <div class="coin-front"></div>
+            <div class="coin-back"></div>
+          </div>
+        </div>
+        <div class="coin" data-index="2">
+          <div class="coin-inner">
+            <div class="coin-front"></div>
+            <div class="coin-back"></div>
+          </div>
+        </div>
+        <div class="coin" data-index="3">
+          <div class="coin-inner">
+            <div class="coin-front"></div>
+            <div class="coin-back"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="win-message">
+        Вы выиграли <strong>17.000</strong> токенов FPI bank.<br>
+        Для вывода вам необходимо вернуться наверх<br>
+        и нажать кнопку <strong>Минтить FPI bank</strong>.
+        <br><br>
+        <button id="backToTop">Вернуться на первую страницу</button>
+        <div>
+          Получение дропа возможно только при наличии токенов FPIBank на кошельке.
+        </div>
       </div>
     </div>
-  </div>
+  </section>
   
   <script>
-    /* Глобальные переменные */
-    let selectedCoin = null;
-    let originalCoin = null;
-    let isCoinSelected = false;
-    
-    /* 0) Навигация между страницами */
-    const navLinks = document.querySelectorAll('.nav-link');
-    const pages = document.querySelectorAll('.page');
-    
-    function showPage(pageId) {
-      pages.forEach(p => {
-        p.style.display = (p.id === pageId) ? 'block' : 'none';
-      });
-      
-      if (pageId === 'page1' && selectedCoin) {
-        // При переходе на первую страницу удаляем выбранную монетку
-        selectedCoin.remove();
-        selectedCoin = null;
-        isCoinSelected = false;
-      } else if (pageId === 'page2') {
-        // При возврате на вторую страницу сбрасываем состояние
-        if (originalCoin) {
-          originalCoin.style.visibility = 'visible';
-        }
-        const coins = document.querySelectorAll('.coin');
-        coins.forEach(coin => {
-          coin.classList.remove('fade-out');
-        });
-        document.getElementById('win-message').style.opacity = '0';
-      }
-    }
-    
-    navLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        const targetPage = link.getAttribute('data-page');
-        showPage(targetPage);
-      });
+    /* 0) Простая навигация скроллом */
+    document.getElementById('linkHome').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
-    // По умолчанию показываем страницу 1
-    showPage('page1');
-    
+    document.getElementById('linkCoins').addEventListener('click', () => {
+      document.getElementById('coins-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     document.getElementById('goToCoins').addEventListener('click', () => {
-      showPage('page2');
+      document.getElementById('coins-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    /* 1) Кнопки внешних ссылок */
+    /* 1) Кнопки внешних ссылок (как было) */
     document.getElementById('goToChannel').addEventListener('click', () => {
       window.open('https://t.me/fpibank', '_blank');
     });
@@ -576,7 +562,7 @@
       window.open('https://fpibank.com/#tokenPrice', '_blank');
     });
     
-    /* 2) Таймер обратного отсчета (14 дней) */
+    /* 2) Таймер обратного отсчета (14 дней) — как у тебя было */
     function updateTimer() {
       const timer = document.getElementById('nextDropTimer');
       // 14 дней, 2 часа, 12 минут, 0 секунд
@@ -607,18 +593,15 @@
         }
         
         timer.textContent = `${days}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        // Красный если меньше 1 дня
         timer.style.color = days < 1 ? '#ff5555' : '#00ff88';
       };
       
       update();
       setInterval(update, 1000);
     }
-    
     updateTimer();
     
-    /* 3) TonConnect и транзакции */
+    /* 3) TonConnect — оставил как было */
     if (typeof Telegram === "undefined") {
       window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
@@ -673,67 +656,6 @@
       }
     }
     
-    /* 4) Логика монеток */
-    function setupCoins() {
-      const coins = document.querySelectorAll('.coin');
-      const winMsg = document.getElementById('win-message');
-
-      coins.forEach(coin => {
-        coin.addEventListener('click', function() {
-          if (isCoinSelected) return;
-          isCoinSelected = true;
-          originalCoin = coin;
-
-          // Создаем копию монетки для анимации
-          const floatingCoin = coin.cloneNode(true);
-          floatingCoin.style.position = 'fixed';
-          floatingCoin.style.left = '50%';
-          floatingCoin.style.top = '50%';
-          floatingCoin.style.transform = 'translate(-50%, -50%)';
-          floatingCoin.style.transition = 'all 1.5s ease-in-out';
-          floatingCoin.style.zIndex = '1000';
-          
-          document.body.appendChild(floatingCoin);
-          selectedCoin = floatingCoin;
-
-          // Скрываем оригинальную монетку
-          coin.style.visibility = 'hidden';
-
-          // Затемняем другие монетки
-          coins.forEach(otherCoin => {
-            if (otherCoin !== coin) {
-              otherCoin.classList.add('fade-out');
-            }
-          });
-
-          // Анимация переворота
-          setTimeout(() => {
-            floatingCoin.classList.add('flipped');
-
-            // Анимация перемещения вверх
-            setTimeout(() => {
-              floatingCoin.style.top = '100px';
-              floatingCoin.classList.add('floating-coin');
-
-              // Показываем сообщение о выигрыше
-              setTimeout(() => {
-                winMsg.style.opacity = '1';
-              }, 500);
-            }, 1500);
-          }, 100);
-        });
-      });
-    }
-
-    // Инициализируем монетки при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-      setupCoins();
-    });
-    
-    function goToFirstPage() {
-      showPage('page1');
-    }
-    
     /* Вспомогательные функции для TonConnect */
     async function getUserFPIBankData(userTonAddress) {
       try {
@@ -778,6 +700,88 @@
         return null;
       }
     }
+
+    /* 4) Логика монеток на одной странице */
+    (function setupCoins() {
+      const coins = document.querySelectorAll('#coins-section .coin');
+      const winMsg = document.getElementById('win-message');
+      const backToTop = document.getElementById('backToTop');
+
+      let selectedCoin = null;
+      let originalCoin = null;
+      let isLocked = false;
+
+      function resetState() {
+        // показать исходную монетку
+        if (originalCoin) originalCoin.style.visibility = 'visible';
+        // убрать затемнение и переворот
+        coins.forEach(c => {
+          c.classList.remove('fade-out');
+          c.classList.remove('flipped');
+        });
+        // удалить клон
+        if (selectedCoin && selectedCoin.parentNode) {
+          selectedCoin.parentNode.removeChild(selectedCoin);
+        }
+        winMsg.style.opacity = '0';
+        selectedCoin = null;
+        originalCoin = null;
+        isLocked = false;
+      }
+
+      coins.forEach(coin => {
+        coin.addEventListener('click', () => {
+          if (isLocked) return;
+          isLocked = true;
+          originalCoin = coin;
+
+          // создаём клон для анимации
+          const clone = coin.cloneNode(true);
+          const rect = coin.getBoundingClientRect();
+          clone.style.width = rect.width + 'px';
+          clone.style.height = rect.height + 'px';
+          clone.style.position = 'fixed';
+          clone.style.left = '50%';
+          clone.style.top = '50%';
+          clone.style.transform = 'translate(-50%, -50%)';
+          clone.style.transition = 'all 1.5s ease-in-out';
+          clone.style.zIndex = '1000';
+
+          document.body.appendChild(clone);
+          selectedCoin = clone;
+
+          // скрыть оригинал
+          coin.style.visibility = 'hidden';
+          // затемнить остальные
+          coins.forEach(other => { if (other !== coin) other.classList.add('fade-out'); });
+
+          // анимация переворота и всплытия
+          setTimeout(() => {
+            clone.classList.add('flipped');
+            setTimeout(() => {
+              clone.style.top = '100px';
+              clone.classList.add('floating-coin');
+              setTimeout(() => { winMsg.style.opacity = '1'; }, 400);
+            }, 600);
+          }, 50);
+        });
+      });
+
+      // Сбрасываем состояние при повторном переходе к блоку монет
+      document.getElementById('linkCoins').addEventListener('click', () => {
+        setTimeout(resetState, 0);
+      });
+      document.getElementById('goToCoins').addEventListener('click', () => {
+        setTimeout(resetState, 0);
+      });
+      backToTop.addEventListener('click', () => {
+        // при возврате наверх состояние можно очистить
+        setTimeout(resetState, 0);
+      });
+
+      // Первичная инициализация
+      resetState();
+    })();
   </script>
 </body>
 </html>
