@@ -26,18 +26,15 @@
       overflow-x:hidden; scroll-behavior:smooth; position:relative;
     }
 
-    /* ЕДИНАЯ сетка на ВСЮ страницу */
+    /* ЕДИНАЯ сетка на всю страницу */
     .wave-grid{
-      position:fixed; top:0; left:0;
-      width:100vw; height:100vh;
+      position:fixed; top:0; left:0; width:100vw; height:100vh;
       opacity:.5; z-index:0; pointer-events:none;
     }
-    /* Весь контент поверх сетки */
     .content{ position:relative; z-index:1; display:flex; flex-direction:column; }
-
     .page{ padding:20px; box-sizing:border-box; text-align:center; background:transparent !important; }
 
-    /* --------- Первая часть --------- */
+    /* --------- Первая часть (не менял логику) --------- */
     #page1 img{
       max-width:280px; height:auto; margin:20px auto; display:block; border-radius:16px;
       box-shadow:0 4px 20px rgba(106,0,255,.4); transition:transform .3s;
@@ -105,7 +102,7 @@
 
     /* --------- Вторая часть (монетки) --------- */
     #coins-section{
-      position:relative;     /* якорь для клона монеты */
+      position:relative;
       padding:40px 20px 120px;
       min-height:calc(100vh - 55px);
     }
@@ -129,7 +126,7 @@
     .coin-back{  background-image:url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png'); transform:rotateY(180deg); }
     .fade-out{ opacity:.2; pointer-events:none; }
 
-    /* Клон монеты — внутри секции, не «наклейка» по экрану */
+    /* Клон монеты — внутри секции */
     .coin-clone{
       position:absolute; z-index:10; will-change:left, top, transform;
       transition:
@@ -150,7 +147,7 @@
       border:1px solid #00ff6e; backdrop-filter:blur(10px); box-shadow:0 0 30px rgba(0,255,110,.25);
       font-weight:500; width:min(75vw,680px); padding:20px; border-radius:16px; text-align:center; color:#fff;
       position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0;
-      pointer-events:none;            /* <-- клики выключены по умолчанию */
+      pointer-events:none; /* по умолчанию не ловит клики */
       transition:opacity .6s var(--ease2); z-index:4;
     }
     #win-message button{
@@ -264,6 +261,7 @@
       document.getElementById('coins-section').scrollIntoView({ behavior:'smooth', block:'start' });
     });
     document.getElementById('backToTop').addEventListener('click', () => {
+      // НИЧЕГО НЕ СБРАСЫВАЕМ, только скроллим наверх
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
@@ -331,16 +329,30 @@
       catch(e){ console.error(e); Telegram.WebApp.showAlert("Ошибка: "+e.message); }
     }
 
-    /* ===== Монетки: плавная анимация, клон внутри секции ===== */
+    /* ===== Монетки: один раз и навсегда ===== */
     (function setupCoins(){
       const section = document.getElementById('coins-section');
       const coins   = section.querySelectorAll('.coin');
       const winMsg  = document.getElementById('win-message');
-      const backTop = document.getElementById('backToTop');
+
+      // Флаг «уже сыграно» сохраняем навсегда (до очистки хранилища)
+      let claimed = localStorage.getItem('fpi_claimed') === '1';
 
       let cloneEl=null, original=null, locked=false;
 
+      function showClaimedState(){
+        // монетки больше не активны
+        coins.forEach(c=> c.classList.add('fade-out'));
+        if (cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
+        if (original) original.style.visibility='hidden';
+        // показать табличку выигрыша
+        winMsg.style.opacity='1';
+        winMsg.style.pointerEvents='auto';
+        locked = true;
+      }
+
       function reset(){
+        if (claimed) { showClaimedState(); return; } // если уже открывали — всегда показываем финал
         if(original) original.style.visibility='visible';
         coins.forEach(c=>{
           c.classList.remove('fade-out');
@@ -348,17 +360,15 @@
         });
         if(cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
         winMsg.style.opacity='0';
-        winMsg.style.pointerEvents='none';   // клики отключены, чтобы не перекрывать монетки
+        winMsg.style.pointerEvents='none';
         cloneEl=null; original=null; locked=false;
       }
 
       function makeCloneFrom(coin){
         const r  = coin.getBoundingClientRect();
         const sr = section.getBoundingClientRect();
-
         const left = r.left - sr.left;
         const top  = r.top  - sr.top;
-
         const clone = coin.cloneNode(true);
         clone.classList.add('coin-clone');
         clone.style.width  = r.width + 'px';
@@ -366,17 +376,16 @@
         clone.style.left   = left + 'px';
         clone.style.top    = top  + 'px';
         clone.style.visibility = 'visible';
-
         section.appendChild(clone);
         return clone;
       }
 
       function animateCoin(clone){
         const w = clone.getBoundingClientRect().width;
-        const targetLeft = (section.clientWidth - w)/2; // центр секции
-        const targetTop  = 140;                         // ниже заголовка
+        const targetLeft = (section.clientWidth - w)/2;
+        const targetTop  = 140; // ниже заголовка
 
-        // шаг 1: к центру + лёгкий zoom + flip
+        // шаг 1: центр + flip + легкий zoom
         requestAnimationFrame(()=>{
           clone.style.left = targetLeft + 'px';
           clone.style.top  = targetTop  + 'px';
@@ -385,35 +394,37 @@
           if(inner) inner.style.transform = 'rotateY(180deg)';
         });
 
-        // шаг 2: лёгкий «уход» вниз + небольшой zoom-out → показать win
+        // шаг 2: небольшой сдвиг вниз + показ выигрыша
         setTimeout(()=>{
           clone.classList.add('float-up');
           clone.style.top = (targetTop + 8) + 'px';
           clone.style.transform = 'scale(0.92)';
           setTimeout(()=>{
             winMsg.style.opacity='1';
-            winMsg.style.pointerEvents='auto'; // клики включаем только когда видно
+            winMsg.style.pointerEvents='auto';
+            // ЗАПИСЫВАЕМ «сыграл»
+            claimed = true;
+            localStorage.setItem('fpi_claimed','1');
           }, 300);
         }, 900);
       }
 
       coins.forEach(coin=>{
         coin.addEventListener('click', ()=>{
-          if(locked) return;
+          if(locked || claimed) return; // нельзя второй раз
           locked = true;
-          // Сначала клон → потом прячем оригинал (чтобы клон не унаследовал visibility:hidden)
           cloneEl = makeCloneFrom(coin);
           coin.style.visibility='hidden';
-
           coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
           animateCoin(cloneEl);
           original = coin;
         });
       });
 
+      // При переходах по странице просто приводим к корректному состоянию
       document.getElementById('goToCoins').addEventListener('click', ()=> setTimeout(reset,0));
-      backTop.addEventListener('click', ()=> setTimeout(reset,0));
 
+      // Инициализация
       reset();
     })();
   </script>
