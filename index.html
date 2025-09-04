@@ -29,7 +29,7 @@
     /* ЕДИНАЯ сетка на ВСЮ страницу */
     .wave-grid{
       position:fixed; top:0; left:0;
-      width:100vw; height:100vh;   /* ЯВНО: во весь экран */
+      width:100vw; height:100vh;
       opacity:.5; z-index:0; pointer-events:none;
     }
     /* Весь контент поверх сетки */
@@ -136,7 +136,7 @@
         left .9s var(--ease1),
         top .9s var(--ease1),
         transform .9s var(--ease1);
-      visibility:visible; /* на всякий случай */
+      visibility:visible;
     }
     .coin-clone.float-up{
       transition:
@@ -149,7 +149,9 @@
       background:linear-gradient(to right, rgba(0,255,0,.15), rgba(0,255,0,.05));
       border:1px solid #00ff6e; backdrop-filter:blur(10px); box-shadow:0 0 30px rgba(0,255,110,.25);
       font-weight:500; width:min(75vw,680px); padding:20px; border-radius:16px; text-align:center; color:#fff;
-      position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0; transition:opacity .6s var(--ease2); z-index:4;
+      position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0;
+      pointer-events:none;            /* <-- клики выключены по умолчанию */
+      transition:opacity .6s var(--ease2); z-index:4;
     }
     #win-message button{
       margin-top:20px; padding:12px 24px; font-size:1em; font-weight:bold; color:#fff; background:#c800ff; border:1px solid #c800ff; border-radius:12px; cursor:pointer;
@@ -346,6 +348,7 @@
         });
         if(cloneEl && cloneEl.parentNode) cloneEl.parentNode.removeChild(cloneEl);
         winMsg.style.opacity='0';
+        winMsg.style.pointerEvents='none';   // клики отключены, чтобы не перекрывать монетки
         cloneEl=null; original=null; locked=false;
       }
 
@@ -362,7 +365,7 @@
         clone.style.height = r.height + 'px';
         clone.style.left   = left + 'px';
         clone.style.top    = top  + 'px';
-        clone.style.visibility = 'visible';   /* гарантия */
+        clone.style.visibility = 'visible';
 
         section.appendChild(clone);
         return clone;
@@ -371,7 +374,7 @@
       function animateCoin(clone){
         const w = clone.getBoundingClientRect().width;
         const targetLeft = (section.clientWidth - w)/2; // центр секции
-        const targetTop  = 80;
+        const targetTop  = 140;                         // ниже заголовка
 
         // шаг 1: к центру + лёгкий zoom + flip
         requestAnimationFrame(()=>{
@@ -382,12 +385,15 @@
           if(inner) inner.style.transform = 'rotateY(180deg)';
         });
 
-        // шаг 2: лёгкий уход вверх + небольшой zoom-out → показать win
+        // шаг 2: лёгкий «уход» вниз + небольшой zoom-out → показать win
         setTimeout(()=>{
           clone.classList.add('float-up');
-          clone.style.top = (targetTop - 36) + 'px';
+          clone.style.top = (targetTop + 8) + 'px';
           clone.style.transform = 'scale(0.92)';
-          setTimeout(()=>{ winMsg.style.opacity='1'; }, 300);
+          setTimeout(()=>{
+            winMsg.style.opacity='1';
+            winMsg.style.pointerEvents='auto'; // клики включаем только когда видно
+          }, 300);
         }, 900);
       }
 
@@ -395,12 +401,13 @@
         coin.addEventListener('click', ()=>{
           if(locked) return;
           locked = true;
-          // СНАЧАЛА клонируем → потом прячем исходную (чтобы клон НЕ унаследовал visibility:hidden)
+          // Сначала клон → потом прячем оригинал (чтобы клон не унаследовал visibility:hidden)
           cloneEl = makeCloneFrom(coin);
           coin.style.visibility='hidden';
 
           coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
           animateCoin(cloneEl);
+          original = coin;
         });
       });
 
