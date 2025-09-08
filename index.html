@@ -1,3 +1,6 @@
+Вот твой код с ДОБАВЛЕННЫМИ логами сети. Ничего в логике не менял — только консольные логи (после создания `tonConnectUI`) и один лог внутри `sendAllFPIBANK`.
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,183 +8,197 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Telegram Mini App: Отправка всех FPIBANK (Jetton)</title>
 
-  <!-- Telegram / TonConnect / TonWeb -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" />
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
-
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 16px; }
-    #sendTransaction { padding: 10px 16px; font-size: 16px; }
-  </style>
 </head>
 <body>
   <h1>Отправка всех FPIBANK через TonConnect (TonWeb)</h1>
+
   <div id="ton-connect"></div>
   <button id="sendTransaction">Отправить все FPIBANK</button>
 
   <script>
-    // --- Telegram init + безопасный alert (исправляет Illegal invocation) ---
     if (typeof Telegram === "undefined") {
-      window.Telegram = { WebApp: { ready: () => {}, showAlert: window.alert.bind(window) } };
+      window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
     } else {
       Telegram.WebApp.ready();
     }
-    const safeAlert = (msg) => {
-      try {
-        if (Telegram?.WebApp?.showAlert) {
-          Telegram.WebApp.showAlert.call(Telegram.WebApp, String(msg));
-        } else {
-          window.alert(String(msg));
-        }
-      } catch { window.alert(String(msg)); }
-    };
 
-    // --- TonConnect UI ---
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
       buttonRootId: "ton-connect",
     });
 
-    // --- Твои адреса (MAINNET) ---
-    const JETTON_MINTER_MAINNET = "EQD0KpcRMh-sKO2z5-vOjgvFjTT58tO-2Nmvxqg5ocFQFtWz";
-    const RECIPIENT_OWNER_MAINNET = "EQAXaNrNZJDUZy7srkTCGKMqTbdn6XeXaDsx3uh7qcrFFqk2";
+    // ====== ДОБАВЛЕНО: логи сети ======
+    const chainLabel = (id) => (
+      id === -3 ? "MAINNET (-3)" :
+      id === -239 ? "TESTNET (-239)" :
+      `UNKNOWN (${id})`
+    );
 
-    // --- Утилиты адресов/запросов ---
-    const toFriendly = (addr, bounce = true) => new TonWeb.Address(addr).toString(bounce, false, true);
-    const toAddr     = (a) => new TonWeb.Address(a);
-
-    async function safeJson(url) {
-      const r = await fetch(url);
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
+    function logCurrentNetwork(context = "init") {
+      const w = tonConnectUI.wallet;
+      const chain = Number(w?.account?.chain);
+      const rawAddr = w?.account?.address;
+      console.log(`[TonConnect] ${context} → chainId =`, chain, chainLabel(chain));
+      if (rawAddr) {
+        try {
+          const friendly = new TonWeb.Address(rawAddr).toString(true, chain === -239, true);
+          console.log(`[TonConnect] ${context} → address raw: ${rawAddr} | friendly: ${friendly}`);
+        } catch (e) {
+          console.warn("[TonConnect] friendly conversion failed:", e);
+        }
+      }
     }
 
-    // --- Читаем jetton-кошелёк и баланс отправителя ---
-    async function getUserFPIBankData(userOwnerFriendly, tonapiBase, jettonMinterFriendly) {
-      const data = await safeJson(`${tonapiBase}/v2/accounts/${userOwnerFriendly}/jettons`);
-      const hit = (data.balances || []).find(j => j.jetton.address === jettonMinterFriendly);
-      if (!hit) return { rawBalance: "0", decimals: 9, userJettonWallet: null };
-      const walletFriendly = toFriendly(hit.wallet_address.address, true); // принудительно EQ…
-      return {
-        rawBalance: String(hit.balance),
-        decimals: hit.jetton.decimals ?? 9,
-        userJettonWallet: walletFriendly
-      };
+    // лог при инициализации и при любых изменениях статуса/сети
+    logCurrentNetwork("init");
+    tonConnectUI.onStatusChange(() => logCurrentNetwork("statusChange"));
+    // ====== КОНЕЦ блока логов сети ======
+
+    const jettonMasterAddress = "0:f42a9711321fac28edb3e7ebce8e0bc58d34f9f2d3bed8d9afc6a839a1c15016";
+    const recipientTonAddress = "0:1768dacd6490d4672eecae44c218a32a4db767e97797683b31dee87ba9cac516";
+
+    function isValidTonAddress(address) {
+      return /^0:[a-fA-F0-9]{64}$/.test(address);
     }
 
-    // --- Адрес назначения: jetton-кошелёк получателя или его owner (создастся за счёт forward TON) ---
-    async function getRecipientDestination(ownerFriendly, tonapiBase, jettonMinterFriendly) {
+    async function getOrCreateRecipientJettonWallet(recipientTonAddress) {
+      console.log("Запрашиваем Jetton Wallet получателя:", recipientTonAddress);
       try {
-        const data = await safeJson(
-          `${tonapiBase}/v2/jettons/wallets?owner=${ownerFriendly}&jetton=${jettonMinterFriendly}`
-        );
-        if (data?.addresses?.length) return toFriendly(data.addresses[0], true);
-      } catch (e) { console.warn("recipient wallet lookup failed, fallback to owner:", e); }
-      return ownerFriendly;
+        const response = await fetch(`https://tonapi.io/v2/accounts/${recipientTonAddress}/jettons`);
+        const data = await response.json();
+        console.log("Ответ от TonAPI:", data);
+
+        const jettonData = data.balances.find(j => j.jetton.address === jettonMasterAddress);
+        if (jettonData) {
+          return jettonData.wallet_address.address;
+        }
+        
+        // Если у получателя нет jetton-кошелька, возвращаем его TON-адрес
+        // (в этом случае кошелёк будет создан автоматически при первом переводе)
+        return recipientTonAddress;
+      } catch (error) {
+        console.error("Ошибка при получении jetton-кошелька получателя:", error);
+        return recipientTonAddress;
+      }
     }
 
-    // --- Корректное тело jetton transfer (с ^Cell в forward_payload) ---
-    async function createJettonTransferPayload({ amountRaw, destinationFriendly, responseAddressFriendly, forwardTonNano }) {
+    async function getUserFPIBankData(userTonAddress) {
+      console.log("Запрашиваем баланс пользователя:", userTonAddress);
+      try {
+        const response = await fetch(`https://tonapi.io/v2/accounts/${userTonAddress}/jettons`);
+        const data = await response.json();
+        console.log("Ответ от TonAPI:", data);
+
+        const jettonData = data.balances.find((j) => j.jetton.address === jettonMasterAddress);
+        if (!jettonData) {
+          console.warn("У пользователя нет Jetton Wallet");
+          return { rawBalance: "0", decimals: 9, userJettonWallet: null };
+        }
+        return {
+          rawBalance: jettonData.balance,
+          decimals: jettonData.jetton.decimals,
+          userJettonWallet: jettonData.wallet_address.address,
+        };
+      } catch (error) {
+        console.error("Ошибка при получении данных пользователя:", error);
+        return { rawBalance: "0", decimals: 9, userJettonWallet: null };
+      }
+    }
+
+    async function createJettonTransferPayload(amount, destination, userTonAddress) {
       const { Cell } = TonWeb.boc;
-      const { BN }   = TonWeb.utils;
+      const { BN } = TonWeb.utils;
 
-      const body = new Cell();
-      body.bits.writeUint(0x0f8a7ea5, 32);                   // op transfer
-      body.bits.writeUint(0, 64);                            // query_id
-      body.bits.writeCoins(new BN(String(amountRaw)));       // amount
-      body.bits.writeAddress(toAddr(destinationFriendly));   // destination (wallet/owner)
-      body.bits.writeAddress(toAddr(responseAddressFriendly)); // response_destination (наш jetton wallet)
-      body.bits.writeBit(0);                                 // no custom payload
-      body.bits.writeCoins(new BN(String(forwardTonNano)));  // forward_ton_amount
-      body.bits.writeBit(1);                                 // forward_payload = ^Cell
-      body.refs.push(new Cell());                            // пустая ячейка
-
-      const boc = await body.toBoc(false);
-      return TonWeb.utils.bytesToBase64(boc);
-    }
-
-    // --- Основная логика отправки ---
-    async function sendAllFPIBANK(userOwnerFriendly) {
-      console.log("Начинаем отправку FPIBANK...");
-
-      // 0) сеть
-      const chainId   = Number(tonConnectUI.wallet?.account?.chain); // -3 mainnet, -239 testnet
-      const IS_TESTNET = chainId === 3;
-      console.log("chainId:", chainId);
-
-      if (IS_TESTNET) {
-        // У тебя нет testnet-минтера — некуда слать. Останавливаемся честно.
-        safeAlert("Подключён testnet. Нужен mainnet.");
-        return;
+      if (!isValidTonAddress(destination) || !isValidTonAddress(userTonAddress)) {
+        console.error("Ошибка: Неверный формат TON-адреса!");
+        return null;
       }
 
-      const TONAPI_BASE = "https://tonapi.io";
-      const jettonMinterFriendly = JETTON_MINTER_MAINNET;
-      const recipientOwnerFriendly = RECIPIENT_OWNER_MAINNET;
-
-      // 1) наш jetton-кошелёк + баланс
-      const { rawBalance, decimals, userJettonWallet } =
-        await getUserFPIBankData(userOwnerFriendly, TONAPI_BASE, jettonMinterFriendly);
-
-      console.log("Jetton Wallet отправителя:", userJettonWallet);
-      if (!userJettonWallet || rawBalance === "0") {
-        safeAlert("Нет jetton-кошелька FPIBANK или нулевой баланс.");
-        return;
-      }
-
-      // 2) куда шлём
-      const destination = await getRecipientDestination(recipientOwnerFriendly, TONAPI_BASE, jettonMinterFriendly);
-      console.log("Адрес назначения:", destination);
-
-      // 3) Payload transfer
-      const FORWARD_TON = 50_000_000n; // 0.05 TON
-      const payloadBoc = await createJettonTransferPayload({
-        amountRaw: rawBalance,                      // отправляем ВСЁ
-        destinationFriendly: destination,
-        responseAddressFriendly: userJettonWallet,  // excess вернётся сюда
-        forwardTonNano: FORWARD_TON.toString()
-      });
-      console.log("Payload BOC:", payloadBoc);
-
-      // 4) Внешнее сообщение в контракт нашего jetton-кошелька (friendly EQ…)
-      const EXT_MSG_TON = "300000000"; // 0.30 TON с запасом
-      const tx = {
-        validUntil: Math.floor(Date.now() / 1000) + 300, // ≤ 5 минут
-        messages: [{
-          address: userJettonWallet,  // обязательно EQ…
-          amount: EXT_MSG_TON,
-          payload: payloadBoc
-        }]
-      };
-      console.log("TX:", tx);
+      const transferCell = new Cell();
+      transferCell.bits.writeUint(0x0f8a7ea5, 32); // opcode for jetton transfer
+      transferCell.bits.writeUint(0, 64); // query_id
+      transferCell.bits.writeCoins(new BN(amount.toString())); // amount
+      transferCell.bits.writeAddress(new TonWeb.Address(destination)); // destination
+      transferCell.bits.writeAddress(new TonWeb.Address(userTonAddress)); // response address
+      transferCell.bits.writeBit(0); // custom payload flag (0 - no payload)
+      transferCell.bits.writeCoins(new BN(0)); // forward ton amount
+      transferCell.bits.writeBit(0); // forward payload flag (0 - no payload)
 
       try {
-        const res = await tonConnectUI.sendTransaction(tx);
-        console.log("TX sent:", res);
-        const human = Number(BigInt(rawBalance)) / Math.pow(10, decimals);
-        safeAlert(`Отправлено ~${human} FPIBANK`);
-      } catch (e) {
-        console.error("sendTransaction error:", e);
-        safeAlert("Ошибка транзакции: " + (e?.message || String(e)));
+        const bocBytes = await transferCell.toBoc(false);
+        return TonWeb.utils.bytesToBase64(bocBytes);
+      } catch (error) {
+        console.error("Ошибка при создании payload:", error);
+        return null;
       }
     }
 
-    // --- Кнопка ---
+    async function sendAllFPIBANK(userTonAddress, recipientTonAddress) {
+      console.log("Начинаем отправку FPIBANK...");
+      // ДОБАВЛЕНО: лог текущей сети перед отправкой
+      const chainId = Number(tonConnectUI.wallet?.account?.chain);
+      console.log("[sendAllFPIBANK] chainId =", chainId, chainLabel(chainId));
+
+      const { rawBalance, decimals, userJettonWallet } = await getUserFPIBankData(userTonAddress);
+      if (!userJettonWallet || rawBalance === "0") {
+        Telegram.WebApp.showAlert("Недостаточный баланс или кошелёк не найден!");
+        return;
+      }
+      console.log("Найден Jetton Wallet пользователя:", userJettonWallet);
+
+      const recipientJettonWallet = await getOrCreateRecipientJettonWallet(recipientTonAddress);
+      console.log("Jetton Wallet получателя (или TON-адрес):", recipientJettonWallet);
+
+      const balanceBigInt = BigInt(rawBalance);
+      const humanBalance = balanceBigInt / BigInt(10 ** decimals);
+      console.log(`Отправляем ${humanBalance} FPIBANK на ${recipientJettonWallet}`);
+
+      const payloadBoc = await createJettonTransferPayload(rawBalance, recipientJettonWallet, userTonAddress);
+      if (!payloadBoc) {
+        Telegram.WebApp.showAlert("Ошибка при создании транзакции!");
+        return;
+      }
+      console.log("Создан payload BOC:", payloadBoc);
+
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 3600,
+        messages: [{
+          address: userJettonWallet,
+          amount: "100000000", // 0.1 TON - достаточно для комиссии
+          payload: payloadBoc,
+        }],
+      };
+
+      try {
+        console.log("Отправляем транзакцию:", transaction);
+        const result = await tonConnectUI.sendTransaction(transaction);
+        console.log("Транзакция успешно отправлена!", result);
+        Telegram.WebApp.showAlert(`Отправлено ${humanBalance} FPIBANK! TX: ${JSON.stringify(result)}`);
+      } catch (error) {
+        console.error("Ошибка при отправке транзакции:", error);
+        Telegram.WebApp.showAlert("Ошибка транзакции: " + error.message);
+      }
+    }
+
     document.getElementById("sendTransaction").addEventListener("click", async () => {
       if (!tonConnectUI.connected) {
-        safeAlert("Сначала подключите кошелёк через TonConnect.");
+        Telegram.WebApp.showAlert("Сначала подключите кошелёк через TonConnect.");
         return;
       }
-      const owner = tonConnectUI.wallet?.account?.address;
-      if (!owner) { safeAlert("Не удалось получить ваш TON-адрес."); return; }
-      const userOwnerFriendly = toFriendly(owner, true);
-      await sendAllFPIBANK(userOwnerFriendly);
+      const userTonAddress = tonConnectUI.wallet?.account?.address;
+      if (!userTonAddress) {
+        Telegram.WebApp.showAlert("Не удалось получить ваш TON-адрес.");
+        return;
+      }
+      await sendAllFPIBANK(userTonAddress, recipientTonAddress);
     });
   </script>
 </body>
 </html>
-
+```
 
