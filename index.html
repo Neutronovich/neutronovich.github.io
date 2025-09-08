@@ -109,7 +109,7 @@
 
       // 0) сеть
       const chainId   = Number(tonConnectUI.wallet?.account?.chain); // -3 mainnet, -239 testnet
-      const IS_TESTNET = chainId === -239;
+      const IS_TESTNET = chainId === 3;
       console.log("chainId:", chainId);
 
       if (IS_TESTNET) {
@@ -183,4 +183,5 @@
   </script>
 </body>
 </html>
+
 
