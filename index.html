@@ -356,7 +356,7 @@
       const winMsg  = document.getElementById('win-message');
 
       // Флаг «уже сыграно» сохраняем навсегда (до очистки хранилища)
-      let claimed = localStorage.getItem('fpi_claimed') === '1';
+      let claimed = false;
 
       let cloneEl=null, original=null, locked=false;
 
@@ -446,8 +446,7 @@
             winMsg.style.opacity='1';
             winMsg.style.pointerEvents='auto';
             claimed = true;
-            localStorage.setItem('fpi_claimed','1');
-
+            
             // Сразу привести сетку к постоянному виду: выбранная монета остаётся в сетке, перевёрнутая
             showClaimedState();
           }, 300);
@@ -464,7 +463,6 @@
           animateCoin(cloneEl);
           original = coin;
           // сохранить индекс выбранной монеты
-          localStorage.setItem('fpi_claimed_index', coin.dataset.index);
         });
       });
 
@@ -477,3 +475,4 @@
   </script>
 </body>
 </html>
+
