@@ -1,5 +1,12 @@
 {
   "url": "https://neutronovich.github.io/",
   "name": "Neutronovich Mini App",
-  "iconUrl": "https://neutronovich.github.io/icon.png"
+  "iconUrl": "https://neutronovich.github.io/icon.png",
+  "tonconnect": {
+    "network": {
+      "chainId": -1,
+      "name": "MAINNET",
+      "rpc": "https://mainnet.tonhubapi.com/jsonRPC"
+    }
+  }
 }
